@@ -1,0 +1,230 @@
+body {
+    margin: 0;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #ffffff;
+        /* Fond général de la page */
+    font-family: "Nunito", sans-serif;
+    font-optical-sizing: auto;
+    font-style: normal
+}
+
+a {
+    text-decoration: none;
+    color: #1f1717;
+    transition: color 0.3s ease, transform 0.3s ease;
+    /* Transition douce */
+}
+
+a svg {
+    transition: transform 0.3s ease;
+    /* Transition pour l'image */
+}
+
+.center a:hover svg {
+    transform: scale(1.05);
+    /* Agrandit légèrement l'image au survol */
+}
+
+.center a:hover {
+    color: #cac8c8;
+    /* Couleur au survol */
+    transform: scale(1.05);
+    /* Augmente légèrement la taille pour un effet avant */
+}
+
+.center {
+    width: 950px;
+    padding: 50px;
+    background-color: #FAF9F6;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        /* Ombre légère pour effet surélevé */
+    border-radius: 10px;
+}
+
+.center h1 {
+    text-align: center;
+}
+
+.home-h1{
+    margin-top: 100px;
+}
+
+/*# sourceMappingURL=app.css.map */
+.icons {
+    margin: 50px 0 20px;
+    padding: 20px 0 5px 0;
+    background-color: #DE7573;
+    border-radius: 10px;
+        /* Coins arrondis pour un effet plus doux */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.06);
+        /* Ombre portée pour effet de surélévation */
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.icons ul {
+    display: flex;
+    justify-content: center;
+    flex-direction: row-reverse;
+}
+
+.icons ul li {
+    text-align: center;
+    list-style: none;
+}
+
+.icons ul li span {
+    display: block;
+}
+
+.icons ul>*:not(:first-child) {
+    margin-right: 100px;
+}
+
+.icons ul:first-child{
+    margin-right: 35px;
+}
+
+.grid-container {
+    text-align: center;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 50px;
+    padding: 0 70px 0 70px;
+}
+
+.grid-item {
+    margin: 20px 0 40px 0;
+    padding: 45px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.06);
+        /* Ombre portée pour effet de surélévation */
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.grid-item:hover{
+    transform: translateY(-5px);
+    /* Légère élévation lors du survol */
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2), 0 4px 8px rgba(0, 0, 0, 0.1);
+    /* Ombre accentuée lors du survol */
+}
+.item1 {
+    background-color: #957979;
+}
+
+.item3 {
+    background-color: #eee9e9;
+}
+
+.item2 {
+    background-color: #DE7573;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+}
+
+.payements thead {
+    background-color: #eee9e9;
+    height: 50px;
+    font-style: bold;
+    font-size: large;
+}
+.payements h1{
+    margin-bottom: 30px;
+}
+th,
+td {
+    border-bottom: 1px solid #eee9e9;
+    height: 40px;
+}
+
+.wrapper {
+    display: flex;
+}
+
+.small-wrapper {
+    display: flex;
+    justify-content: space-between;
+}
+
+.small-wrapper:last-child{
+    margin-top: 50px;
+}
+
+.wrapper .sidebar {
+    height: 100vh;
+    width: 200px;
+    margin-right: 20px;
+    background-color: #FAF9F6;  
+}
+
+.wrapper .sidebar .sidebar-menu {
+    margin-top: 100px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.sidebar a {
+    padding: 15px;
+    text-decoration: none;
+    font-size: 18px;
+    display: block;
+    transition: background-color 0.3s ease;
+}
+
+.sidebar a:hover {
+    background-color: #DE7573;
+}
+
+.sidebar .active {
+    background-color: #fff;
+    border-bottom: 1px solid #c4bfbf;
+    border-top: 1px solid #c4bfbf;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+section {
+    display: none;
+}
+
+section.active {
+    display: block;
+    /* Afficher seulement la section active */
+}
+
+.btn-primaire{
+    background-color: #DE7573;
+    transition: color 0.3s ease, transform 0.3s ease;
+}
+
+.btn-secondaire {
+    background-color: #eee9e9;
+    transition: color 0.3s ease, transform 0.3s ease;
+}
+
+.btn-primaire:hover, .btn-secondaire:hover{
+    background-color: #957979;
+    transform: scale(1.05);
+    color: #eee9e9;
+}
+
+.hidden{
+    display: none;
+}
+
+.center p span{
+    font-weight: bold;
+}
+
+#table-link:hover {
+    color: #DE7573;
+}

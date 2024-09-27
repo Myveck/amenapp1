@@ -1,0 +1,40 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Classes{% endblock %}
+
+{% block body %}
+
+      <div class="wrapper">
+          <div class="sidebar">
+            <div class="sidebar-menu">
+              <a href="{{ path("app_main") }}" data-section="section1">Acceuil</a>
+              <a href="{{ path("app_classes_index") }}" data-section="section1">Liste des classes</a>
+              <a href="{{ path("app_classes_new") }}" data-section="section2">Créer une classe</a>
+            </div>
+          </div>
+              <div class="center">
+            <h1>Classes</h1>
+            <table class="table">
+                <tbody>
+                    <tr>
+                        <th>Id</th>
+                        <td>{{ class.id }}</td>
+                    </tr>
+                    <tr>
+                        <th>Nom</th>
+                        <td>{{ class.nom }}</td>
+                    </tr>
+                    <tr>
+                        <th>Niveau</th>
+                        <td>{{ class.niveau }}</td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="small-wrapper">
+                <p><a href="{{ path('app_classes_index') }}" class="btn btn-primaire">Liste des classes</a></p>
+                <p><a href="{{ path('app_classes_edit', {'id': class.id}) }}" class="btn btn-secondaire">Modifier</a></p>
+            </div>
+            {{ include('classes/_delete_form.html.twig') }}
+              </div>
+      </div>
+{% endblock %}

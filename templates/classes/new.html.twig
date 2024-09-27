@@ -1,0 +1,19 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Créer une classe{% endblock %}
+
+{% block body %}
+      <div class="wrapper">
+          <div class="sidebar">
+            <div class="sidebar-menu">
+              <a href="{{ path("app_main") }}" data-section="section1">Acceuil</a>
+              <a href="{{ path("app_classes_index") }}" data-section="section1">Liste des classes</a>
+              <a href="{{ path("app_classes_new") }}" data-section="section2" class="active">Créer une classe</a>
+            </div>
+          </div>
+              <div class="center">
+            <h1>Créer une classe</h1>
+            {{ include('classes/_form.html.twig') }}
+            </div>
+      </div>
+{% endblock %}

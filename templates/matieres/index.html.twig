@@ -1,0 +1,46 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Liste des matières{% endblock %}
+
+{% block body %}
+    <div class="wrapper">
+        <div class="sidebar">
+          <div class="sidebar-menu">
+            <a href="{{ path("app_main") }}" data-section="section1">Acceuil</a>
+            <a href="{{ path("app_matieres_index") }}" data-section="section1" class="active">Liste des matières</a>
+            <a href="{{ path("app_matieres_new") }}" data-section="section2">Ajouter une matières</a>
+          </div>
+        </div>
+        <div class="center">
+            <h1>Liste des matières</h1>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Nom</th>
+                        <th>Classe</th>
+                        <th>coefficient</th>
+                        <th>actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for classeMatiere in classeMatieres %}
+                    <tr>
+                        <td>{{ classeMatiere.matiere.nom }}</td>
+                        <td>{{ classeMatiere.classe.nom }}</td>
+                        <td>{{ classeMatiere.coefficient }}</td>
+                        <td>
+                            <a href="{{ path('app_matieres_show', {'id': classeMatiere.matiere.id}) }}" class="btn btn-primaire">Voir</a>
+                            <a href="{{ path('app_matieres_edit', {'id': classeMatiere.matiere.id}) }}" class="btn btn-secondaire">Modifier</a>
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="3">Aucune matière n'a été trouvée</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+            <a href="{{ path('app_matieres_new') }}"class="btn btn-primaire" >Ajouter une matière</a>
+        </div>
+    </div>
+{% endblock %}

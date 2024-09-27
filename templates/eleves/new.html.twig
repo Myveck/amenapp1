@@ -1,0 +1,23 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Inscription élève{% endblock %}
+
+{% block body %}
+<div class="wrapper">
+    
+      <div class="sidebar">
+        <div class="sidebar-menu">
+      <a href="{{ path("app_main") }}" data-section="section1">Acceuil</a>
+          <a href="{{ path("app_eleves_index") }}" data-section="section1">Liste des élèves</a>
+          <a href="{{ path("app_eleves_new") }}"  class="active" data-section="section2">Inscrire un élève</a>
+          <a href="{{ path("app_eleves_renew", { id: elefe.id }) }}" data-section="section2">Réinscrire un élève</a>
+        </div>
+      </div>
+        <div class="center">
+          <h1>Inscrire un nouvel élève</h1>
+      <p>Ps: Si l'élève avait déjà été inscrit, dirigez vous vers le menu <a href="{{ path("app_eleves_renew") }}"><span>réinscription</span></a></p>
+          {{ include('eleves/_form.html.twig') }}
+          <a href="{{ path('app_eleves_index') }}" class="btn btn-secondaire">retour vers la liste</a>
+        </div>
+</div>
+{% endblock %}

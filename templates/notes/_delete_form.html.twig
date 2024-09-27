@@ -1,0 +1,12 @@
+<form
+  method="post"
+  action="{{ path('app_notes_delete', { id: note.id }) }}"
+  onsubmit="return confirm('Voulez-vous vraiment supprimer cette note ?');"
+>
+  <input
+    type="hidden"
+    name="_token"
+    value="{{ csrf_token('delete' ~ note.id) }}"
+  />
+  <button class="btn btn-danger">Supprimer</button>
+</form>

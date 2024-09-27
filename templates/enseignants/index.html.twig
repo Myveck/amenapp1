@@ -1,0 +1,51 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Enseignants index{% endblock %}
+
+{% block body %}
+  <div class="wrapper">
+      <div class="sidebar">
+        <div class="sidebar-menu">
+          <a href="{{ path("app_main") }}" data-section="section1">Acceuil</a>
+          <a href="{{ path("app_eleves_index") }}" data-section="section1" class="active">Liste des enseignants</a>
+          <a href="{{ path("app_eleves_new") }}" data-section="section2">Ajouter un enseignant</a>
+          <a href="{{ path("app_eleves_renew") }}" data-section="section2">Affecter classe et/ou matière(s)</a>
+        </div>
+      </div>
+        <div class="center">
+            <h1>Enseignants index</h1>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Id</th>
+                        <th>Nom</th>
+                        <th>Prenom</th>
+                        <th>Telephone</th>
+                        <th>Created_at</th>
+                        <th>actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for enseignant in enseignants %}
+                    <tr>
+                        <td>{{ enseignant.id }}</td>
+                        <td>{{ enseignant.nom }}</td>
+                        <td>{{ enseignant.prenom }}</td>
+                        <td>{{ enseignant.telephone }}</td>
+                        <td>{{ enseignant.createdAt ? enseignant.createdAt|date('Y-m-d H:i:s') : '' }}</td>
+                        <td>
+                            <a href="{{ path('app_enseignants_show', {'id': enseignant.id}) }}">show</a>
+                            <a href="{{ path('app_enseignants_edit', {'id': enseignant.id}) }}">edit</a>
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="6">no records found</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+            <a href="{{ path('app_enseignants_new') }}">Create new</a>
+        </div>
+  </div>
+{% endblock %}

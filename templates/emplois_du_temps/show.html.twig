@@ -1,0 +1,34 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}EmploisDuTemps{% endblock %}
+
+{% block body %}
+    <h1>EmploisDuTemps</h1>
+
+    <table class="table">
+        <tbody>
+            <tr>
+                <th>Id</th>
+                <td>{{ emplois_du_temp.id }}</td>
+            </tr>
+            <tr>
+                <th>Jour</th>
+                <td>{{ emplois_du_temp.jour }}</td>
+            </tr>
+            <tr>
+                <th>Heure_debut</th>
+                <td>{{ emplois_du_temp.heureDebut ? emplois_du_temp.heureDebut|date('H:i:s') : '' }}</td>
+            </tr>
+            <tr>
+                <th>Heure_fin</th>
+                <td>{{ emplois_du_temp.heureFin ? emplois_du_temp.heureFin|date('H:i:s') : '' }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_emplois_du_temps_index') }}">back to list</a>
+
+    <a href="{{ path('app_emplois_du_temps_edit', {'id': emplois_du_temp.id}) }}">edit</a>
+
+    {{ include('emplois_du_temps/_delete_form.html.twig') }}
+{% endblock %}

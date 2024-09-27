@@ -1,0 +1,57 @@
+{% extends 'base.html.twig' %} {% block title %}Eleves{% endblock %} {% block
+body %}
+
+  <div class="wrapper">
+      <div class="sidebar">
+        <div class="sidebar-menu">
+          <a href="{{ path("app_main") }}" data-section="section1">Acceuil</a>
+          <a href="{{ path("app_eleves_index") }}" data-section="section1">Liste des élèves</a>
+          <a href="{{ path("app_eleves_new") }}" data-section="section2">Inscrire un élève</a>
+          <a href="{{ path("app_eleves_renew") }}" data-section="section2">Réinscrire un élève</a>
+        </div>
+      </div>
+      <div class="center">
+      <h1>{{ elefe.nom }} {{ elefe.prenom }}</h1>
+      <table class="table">
+        <tbody>
+          <tr>
+            <th>Nom</th>
+            <td>{{ elefe.nom }}</td>
+          </tr>
+          <tr>
+            <th>Prenom</th>
+            <td>{{ elefe.prenom }}</td>
+          </tr>
+          <tr>
+            <th>Date_naissance</th>
+            <td>
+              {{ elefe.dateNaissance ? elefe.dateNaissance|date('Y-m-d') : '' }}
+            </td>
+          </tr>
+          <tr>
+            <th>Created_at</th>
+            <td>
+              {{ elefe.createdAt ? elefe.createdAt|date('Y-m-d H:i:s') : '' }}
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="small-wrapper">
+        <p>
+          <a
+            href="{{ path('app_eleves_edit', { id: elefe.id }) }}"
+            class="btn btn-primaire mb-4 mt-2"
+          >
+            modifier
+          </a>
+        </p>
+        <p>
+          <a href="{{ path('app_eleves_index') }}" class="btn btn-secondaire">
+           Liste des élèves
+          </a>
+        </p>
+      </div>
+      {{ include("eleves/_delete_form.html.twig") }}
+      </div>
+  </div>
+{% endblock %}

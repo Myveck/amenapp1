@@ -1,0 +1,69 @@
+{% extends 'base.html.twig' %} {% block title %}Liste des élèves{% endblock %}
+{% block body %}
+
+<div class="wrapper">
+  <div class="sidebar">
+    <div class="sidebar-menu">
+      <a href="{{ path("app_main") }}" data-section="section1">Acceuil</a>
+      <a href="{{ path("app_eleves_index") }}" data-section="section1" class="active">Liste des élèves</a>
+      <a href="{{ path("app_eleves_new") }}" data-section="section2">Inscrire un élève</a>
+      <a href="{{ path("app_eleves_renew") }}" data-section="section2">Réinscrire un élève</a>
+    </div>
+  </div>
+  <div class="center">
+    <section id="section1" class="active">
+      <h1>Liste des élèves</h1>
+      <p>
+        trier par :
+      </p>
+      <form  method="get" action="{{ path("app_eleves_trier") }}">
+        <select name="trie" id="trie">
+          <option value="all">Tout</option>
+          {% for classe in classes %}
+          <option value="{{ classe.id }}"{% if active == classe.id %}selected{% endif %}>{{ classe.nom }}</option>
+          {% endfor %}
+        </select>
+        <button type="submit" class="btn btn-secondaire">trier</button>
+      </form>
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Id</th>
+            <th>Nom</th>
+            <th>Prenom</th>
+            <th>Classe</th>
+            <th>Date_naissance</th>
+            <th>Date de création</th>
+            <th>actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for elefe in eleves %}
+          <tr>
+            <td>{{ elefe.id }}</td>
+            <td>{{ elefe.nom }}</td>
+            <td>{{ elefe.prenom }}</td>
+            <td>{{ elefe.classeId.name }}</td>
+            <td>{{ elefe.classe.nom }}</td>
+            <td>
+              {{ elefe.dateNaissance ? elefe.dateNaissance|date('Y-m-d') : '' }}
+            </td>
+            <td>
+              {{ elefe.createdAt ? elefe.createdAt|date('Y-m-d H:i:s') : '' }}
+            </td>
+            <td>
+              <a href="{{ path('app_eleves_show', { id: elefe.id }) }}"class="btn btn-primaire">Modifier note</a>
+            </td>
+          </tr>
+          {% else %}
+          <tr>
+            <td colspan="6">no records found</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      <a href="{{ path('app_eleves_new') }}" class="btn btn-primaire">Inscrire un élève</a>
+    </section>
+  </div>
+</div>
+{% endblock %}

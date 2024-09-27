@@ -1,0 +1,39 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}EmploisDuTemps index{% endblock %}
+
+{% block body %}
+    <h1>EmploisDuTemps index</h1>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Jour</th>
+                <th>Heure_debut</th>
+                <th>Heure_fin</th>
+                <th>actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for emplois_du_temp in emplois_du_temps %}
+            <tr>
+                <td>{{ emplois_du_temp.id }}</td>
+                <td>{{ emplois_du_temp.jour }}</td>
+                <td>{{ emplois_du_temp.heureDebut ? emplois_du_temp.heureDebut|date('H:i:s') : '' }}</td>
+                <td>{{ emplois_du_temp.heureFin ? emplois_du_temp.heureFin|date('H:i:s') : '' }}</td>
+                <td>
+                    <a href="{{ path('app_emplois_du_temps_show', {'id': emplois_du_temp.id}) }}">show</a>
+                    <a href="{{ path('app_emplois_du_temps_edit', {'id': emplois_du_temp.id}) }}">edit</a>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="5">no records found</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_emplois_du_temps_new') }}">Create new</a>
+{% endblock %}

@@ -1,0 +1,39 @@
+{% extends 'base.html.twig' %} {% block title %}Réinscrire {{ elefe.nom }}
+{{ elefe.prenom }}{% endblock %} {% block body %}
+<div class="wrapper">
+  
+  <div class="sidebar">
+    <div class="sidebar-menu">
+      <a href="{{ path("app_main") }}" data-section="section1">Acceuil</a>
+      <a href="{{ path("app_eleves_index") }}" data-section="section1">Liste des élèves</a>
+      <a href="{{ path("app_eleves_new") }}" data-section="section2">Inscrire un élève</a>
+      <a href="{{ path("app_eleves_renew") }}" data-section="section2">Réinscrire un élève</a>
+    </div>
+  </div>
+  <div class="center">
+    <p><span>Nom : </span>{{ elefe.nom }}</p>
+    <p><span>Prénom : </span>{{ elefe.prenom }}</p>
+    <p><span>Classe : </span>{{ elefe.classe.nom }}</p>
+    <p>
+      <span>Date de naissance :</span>
+      {{elefe.dateNaissance ? elefe.dateNaissance|date('Y-m-d') : '' }}
+    </p>
+
+    <p>
+      L'élève avec les informations ci-dessus sera réinscrit en quelle classe ?
+    </p>
+
+    {{ form_start(form) }}
+    {{ form_row(form.classe) }}
+    <div class="hidden">
+      {{ form_row(form.nom) }}
+      {{ form_row(form.prenom) }}
+      {{ form_row(form.date_naissance) }}
+    </div>
+    <button class="btn btn-primaire my-4">
+      {{ button_label|default('Réinscrire') }}
+    </button>
+    {{ form_end(form) }}
+  </div>
+</div>
+{% endblock %}

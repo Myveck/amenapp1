@@ -1,0 +1,22 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Nouvelle matière{% endblock %}
+
+{% block body %}
+        <div class="wrapper">
+            <div class="sidebar">
+              <div class="sidebar-menu">
+                <a href="{{ path("app_main") }}" data-section="section1">Acceuil</a>
+                <a href="{{ path("app_matieres_index") }}" data-section="section1">Liste des matières</a>
+                <a href="{{ path("app_matieres_new") }}" data-section="section2"class="active">Ajouter une matières</a>
+              </div>
+            </div>
+            <div class="center">
+                <h1>Créer un nouvelle matière</h1>
+              
+              {{ include('matieres/_form.html.twig', {'button_label': 'Enregistrer'}) }}
+
+                <a href="{{ path('app_matieres_index') }}" class="btn btn-secondaire">Retour vers la liste</a>
+            </div>
+        </div>
+{% endblock %}
