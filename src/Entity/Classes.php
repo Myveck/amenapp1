@@ -81,12 +81,12 @@ class Classes
         return $this;
     }
 
-    public function getOrder(): ?string
+    public function getClasseOrder(): ?string
     {
         return $this->classeOrder;
     }
 
-    public function setOrder(string $nom): static
+    public function setClasseOrder(string $nom): static
     {
         $this->classeOrder = $nom;
 

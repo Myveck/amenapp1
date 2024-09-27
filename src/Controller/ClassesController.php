@@ -15,22 +15,22 @@ use Symfony\Component\Routing\Attribute\Route;
 final class ClassesController extends AbstractController
 {
     #[Route(name: 'app_classes_index', methods: ['GET'])]
-    public function index(ClassesRepository $classesRepository): Response
+    public function index(Request $request, ClassesRepository $classesRepository): Response
     {
-        return $this->render('classes/index.html.twig', [
-            'classes' => $classesRepository->findAll(),
-            'active' => 'all',
-        ]);
-    }
 
-    #[Route('/trier', name: 'app_classes_trier', methods: ['GET'])]
-    public function trier(Request $request, ClassesRepository $classesRepository): Response
-    {
         $trie = $request->get('trie');
-        $classes = $classesRepository->findBy(["niveau" => $trie], ['nom'  => 'asc']);
+        if (!$trie or $trie == "all") {
+            $trie = "all";
+            $classes = $classesRepository->findBy([], ['classeOrder' => 'asc']);
+        } else {
+
+            $classes = $classesRepository->findBy(["niveau" => $trie], ['nom'  => 'asc']);
+        }
+        // dd($trie);
         // dd($classes);
         return $this->render('classes/index.html.twig', [
             'classes' => $classes,
+            'niveaux' => ['primaire', 'college', 'lycee'],
             'active' => $trie,
         ]);
     }

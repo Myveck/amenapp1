@@ -23,6 +23,7 @@ class ClassesType extends AbstractType
                     'Lycée' => 'lycee',
                 ],
             ])
+            ->add('classeOrder')
         ;
     }
 

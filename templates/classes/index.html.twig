@@ -16,12 +16,13 @@
       <p>
         trier par :
       </p>
-      <form  method="get" action="{{ path("app_classes_trier") }}">
+      <form  method="get" action="{{ path("app_classes_index") }}">
         <select name="trie" id="trie">
           <option value="all">Tout</option>
-          <option value="primaire">Primaire</option>
-          <option value="college">Collège</option>
-          <option value="lycee">Lycée</option>
+          {% for niveau in niveaux %}
+            <option value="{{ niveau }}" {% if niveau == active %} selected {% endif %}
+            >{{niveau}}</option>
+          {% endfor %}
         </select>
         <button type="submit" class="btn btn-secondaire">trier</button>
       </form>

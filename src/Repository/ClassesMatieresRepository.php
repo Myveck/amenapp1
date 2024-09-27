@@ -40,4 +40,17 @@ class ClassesMatieresRepository extends ServiceEntityRepository
     //            ->getOneOrNullResult()
     //        ;
     //    }
+
+    public function findMatiereByClasseLevel($level)
+    {
+        return $this->createQueryBuilder('cm')
+            ->join('cm.matiere', 'm') // Jointure avec Matiere
+            ->join('cm.classe', 'c') // Jointure avec Classe
+            ->where('c.niveau = :niveau')
+            ->orderBy('c.classeOrder', 'asc') // Filtrer par l'id de la matière
+            ->setParameter('niveau', $level) // Valeur du paramètre
+            ->select('m') // Sélectionner uniquement les matières
+            ->getQuery()
+            ->getResult();
+    }
 }

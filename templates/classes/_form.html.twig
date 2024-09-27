@@ -1,5 +1,33 @@
 {{ form_start(form) }}
 {{ form_widget(form) }}
+<div class="form-group">
+  <label for="prix">Prix annuel</label>
+  <input
+    type="number"
+    class="form-control"
+    id="prix"
+    name="prix"
+    aria-describedby="Prix annuel"
+    placeholder="Entrer le prix annuel Ex: 100000"
+  />
+  <small id="emailHelp" class="form-text text-muted"
+    >Veuillez signifier combien l'élève doit payer annuellement pour cette
+    classe</small
+  >
+
+  <label for="prix">Prix Inscription</label>
+  <input
+    type="number"
+    class="form-control"
+    id="prix"
+    name="prix"
+    aria-describedby="Prix annuel"
+    placeholder="Entrer le prix annuel Ex: 100000"
+  />
+  <small id="emailHelp" class="form-text text-muted"
+    >Combien coûte l'inscription à cette salle de classe ?</small
+  >
+</div>
 <button class="btn btn-primaire my-4">
   {{ button_label|default('Enregistrer') }}
 </button>

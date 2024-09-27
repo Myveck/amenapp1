@@ -54,3 +54,18 @@ console.log('This log comes from assets/app.js - welcome to AssetMapper! 🎉');
 //   });
 // });
 
+ const selectElement = document.getElementById('trie');
+
+    // Ajouter un event listener pour détecter les changements
+    selectElement.addEventListener('change', function() {
+        // Parcourir toutes les options et réinitialiser l'attribut selected
+        const options = selectElement.options;
+        for (let i = 0; i < options.length; i++) {
+            options[i].removeAttribute('selected'); // Supprimer l'attribut 'selected' s'il est présent
+        }
+
+        // Ajouter l'attribut 'selected' à l'option sélectionnée
+        const selectedOption = selectElement.options[selectElement.selectedIndex];
+        selectedOption.setAttribute('selected', 'selected');
+    });
+

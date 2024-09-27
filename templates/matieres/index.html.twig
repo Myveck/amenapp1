@@ -13,6 +13,21 @@
         </div>
         <div class="center">
             <h1>Liste des matières</h1>
+                
+            <p>
+                trier par :
+            </p>
+            <form  method="get" action="{{ path("app_classes_index") }}">
+                <select name="trie" id="trie">
+                <option value="all">Tout</option>
+                {% for niveau in niveaux %}
+                    <option value="{{ niveau }}" {% if niveau == active %} selected {% endif %}
+                    >{{niveau}}</option>
+                {% endfor %}
+                </select>
+                <button type="submit" class="btn btn-secondaire">trier</button>
+            </form>
+
             <table class="table">
                 <thead>
                     <tr>
