@@ -20,11 +20,15 @@ class Tarif
     #[ORM\Column]
     private ?int $prix_annuel = null;
 
-    #[ORM\Column(type: Types::DATE_IMMUTABLE)]
-    private ?\DateTimeImmutable $date_debut = null;
+    #[ORM\Column]
+    private ?int $prix_inscription = null;
 
-    #[ORM\Column(type: Types::DATE_IMMUTABLE)]
-    private ?\DateTimeImmutable $date_fin = null;
+    #[ORM\ManyToOne(inversedBy: 'tarifs')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?AnneeScolaire $annee_scolaire = null;
+
+    #[ORM\Column]
+    private ?int $prix_reinscription = null;
 
     public function getId(): ?int
     {
@@ -55,26 +59,38 @@ class Tarif
         return $this;
     }
 
-    public function getDateDebut(): ?\DateTimeImmutable
+    public function getPrixInscription(): ?int
     {
-        return $this->date_debut;
+        return $this->prix_inscription;
     }
 
-    public function setDateDebut(\DateTimeImmutable $date_debut): static
+    public function setPrixInscription(int $prix_inscription): static
     {
-        $this->date_debut = $date_debut;
+        $this->prix_inscription = $prix_inscription;
 
         return $this;
     }
 
-    public function getDateFin(): ?\DateTimeImmutable
+    public function getAnneeScolaire(): ?AnneeScolaire
     {
-        return $this->date_fin;
+        return $this->annee_scolaire;
     }
 
-    public function setDateFin(\DateTimeImmutable $date_fin): static
+    public function setAnneeScolaire(?AnneeScolaire $annee_scolaire): static
     {
-        $this->date_fin = $date_fin;
+        $this->annee_scolaire = $annee_scolaire;
+
+        return $this;
+    }
+
+    public function getPrixReinscription(): ?int
+    {
+        return $this->prix_reinscription;
+    }
+
+    public function setPrixReinscription(int $prix_reinscription): static
+    {
+        $this->prix_reinscription = $prix_reinscription;
 
         return $this;
     }

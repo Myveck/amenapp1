@@ -5,7 +5,9 @@ namespace App\Controller;
 use App\Entity\Classes;
 use App\Entity\ClassesMatieres;
 use App\Entity\Matieres;
+use App\Entity\Tarif;
 use App\Form\MatieresType;
+use App\Repository\AnneeScolaireRepository;
 use App\Repository\ClassesMatieresRepository;
 use App\Repository\ClassesRepository;
 use App\Repository\MatieresRepository;
@@ -28,7 +30,6 @@ final class MatieresController extends AbstractController
         } else {
             $matieres = $classeMatiere->findMatiereByClasseLevel($trie);
         }
-        dd($matieres);
         return $this->render('matieres/index.html.twig', [
             'matieres' => $matieres,
             'classeMatieres' => $classeMatiere->findAll(),
@@ -38,9 +39,14 @@ final class MatieresController extends AbstractController
     }
 
     #[Route('/new', name: 'app_matieres_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, EntityManagerInterface $entityManager, ClassesRepository $classesRepository): Response
-    {
+    public function new(
+        Request $request,
+        EntityManagerInterface $entityManager,
+        ClassesRepository $classesRepository,
+        AnneeScolaireRepository $anneeScolaireRepository
+    ): Response {
         $matiere = new Matieres();
+        $tarif = new Tarif();
         $classeMatiere = new ClassesMatieres();
 
         $form = $this->createForm(MatieresType::class, $matiere);
@@ -50,10 +56,13 @@ final class MatieresController extends AbstractController
 
             $entityManager->persist($matiere);
 
+            $anneeScolaire = $anneeScolaireRepository->findOneBy(['id' => $request->get("annee_scolaire")]);
+
             // Working on classeMatiere
             $classeMatiere->setMatiere($matiere);
             $classeMatiere->setClasse($classesRepository->findOneBy(['id' => $request->get("classe")]));
             $classeMatiere->setCoefficient($request->get("coefficient"));
+            $classeMatiere->setAnneeScolaire($anneeScolaire);
 
             $entityManager->persist($classeMatiere);
             $entityManager->flush();

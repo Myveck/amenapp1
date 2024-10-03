@@ -1,5 +1,69 @@
 {{ form_start(form) }}
 {{ form_widget(form) }}
+<h1 class="mt-4">Information sur les parents</h1>
+
+<div class="pere">
+  <label for="nom_pere">Nom et Prénom du père</label>
+  <input
+    type="text"
+    class="form-control"
+    id="pere_nom"
+    name="pere_nom"
+    aria-describedby="Nom et prénom du père"
+  />
+</div>
+<div class="pere">
+  <label for="telephone_pere">Telephone</label>
+  <input
+    type="text"
+    class="form-control"
+    id="pere_telephone"
+    name="pere_telephone"
+    aria-describedby="telephone du père"
+  />
+</div>
+<div class="pere">
+  <label for="profession_pere">Profession</label>
+  <input
+    type="text"
+    class="form-control"
+    id="pere_profession"
+    name="pere_profession"
+    aria-describedby="profession du père"
+  />
+</div>
+
+<div class="mere">
+  <label for="nom_mere">Nom et Prénom de la mère</label>
+  <input
+    type="text"
+    class="form-control"
+    id="mere_nom"
+    name="mere_nom"
+    aria-describedby="Nom et prénom de la mère"
+  />
+</div>
+<div class="mere">
+  <label for="telephone_mere">Telephone</label>
+  <input
+    type="text"
+    class="form-control"
+    id="mere_telephone"
+    name="mere_telephone"
+    aria-describedby="telephone de la mère"
+  />
+</div>
+<div class="mere">
+  <label for="profession_mere">Profession</label>
+  <input
+    type="text"
+    class="form-control"
+    id="mere_profession"
+    name="mere_profession"
+    aria-describedby="profession de la mère"
+  />
+</div>
+
 <button class="btn btn-primaire my-4">
   {{ button_label|default('Enregistrer') }}
 </button>

@@ -44,11 +44,25 @@ class Eleves
     #[ORM\JoinColumn(nullable: false)]
     private ?Classes $classe = null;
 
+    #[ORM\Column(length: 3)]
+    private ?string $sexe = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $lieu_de_naissance = null;
+
+
+    /**
+     * @var Collection<int, ParentsEleves>
+     */
+    #[ORM\OneToMany(targetEntity: ParentsEleves::class, mappedBy: 'eleve')]
+    private Collection $parentsEleves;
+
     public function __construct()
     {
         $this->notes = new ArrayCollection();
         $this->paiements = new ArrayCollection();
         $this->created_at = new \DateTimeImmutable("now");
+        $this->parentsEleves = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -172,6 +186,60 @@ class Eleves
     public function setClasse(?Classes $classe): static
     {
         $this->classe = $classe;
+
+        return $this;
+    }
+
+    public function getSexe(): ?string
+    {
+        return $this->sexe;
+    }
+
+    public function setSexe(string $sexe): static
+    {
+        $this->sexe = $sexe;
+
+        return $this;
+    }
+
+    public function getLieuDeNaissance(): ?string
+    {
+        return $this->lieu_de_naissance;
+    }
+
+    public function setLieuDeNaissance(?string $lieu_de_naissance): static
+    {
+        $this->lieu_de_naissance = $lieu_de_naissance;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, ParentsEleves>
+     */
+    public function getParentsEleves(): Collection
+    {
+        return $this->parentsEleves;
+    }
+
+    public function addParentsElefe(ParentsEleves $parentsElefe): static
+    {
+        if (!$this->parentsEleves->contains($parentsElefe)) {
+            $this->parentsEleves->add($parentsElefe);
+            $parentsElefe->setEleve($this);
+        }
+
+        return $this;
+    }
+
+    public function removeParentsElefe(ParentsEleves $parentsElefe): static
+    {
+        if ($this->parentsEleves->removeElement($parentsElefe)) {
+            // set the owning side to null (unless already changed)
+            if ($parentsElefe->getEleve() === $this) {
+                $parentsElefe->setEleve(null);
+            }
+        }
 
         return $this;
     }

@@ -3,6 +3,8 @@
 namespace App\Controller;
 
 use App\Entity\Eleves;
+use App\Entity\Parents;
+use App\Entity\ParentsEleves;
 use App\Form\Eleves1Type;
 use App\Repository\ClassesRepository;
 use App\Repository\ElevesRepository;
@@ -89,11 +91,36 @@ final class ElevesController extends AbstractController
     public function new(Request $request, EntityManagerInterface $entityManager): Response
     {
         $elefe = new Eleves();
+        $pere = new Parents();
+        $mere = new Parents();
+        $parentsM = new ParentsEleves();
+        $parentsP = new ParentsEleves();
         $form = $this->createForm(Eleves1Type::class, $elefe);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
             $entityManager->persist($elefe);
+
+            $pere->setNom($request->get("pere_nom"));
+            $pere->setTelephone($request->get("pere_telephone"));
+            $pere->setProfession($request->get("pere_profession"));
+            $pere->setType("pere");
+            $entityManager->persist($pere);
+
+            $mere->setNom($request->get("mere_nom"));
+            $mere->setTelephone($request->get("mere_telephone"));
+            $mere->setProfession($request->get("mere_profession"));
+            $mere->setType("mere");
+            $entityManager->persist($mere);
+
+            $parentsM->setEleve($elefe);
+            $parentsM->setParent($pere);
+            $entityManager->persist($parentsP);
+
+            $parentsP->setEleve($elefe);
+            $parentsP->setParent($mere);
+            $entityManager->persist($parentsM);
+
             $entityManager->flush();
 
             return $this->redirectToRoute('app_eleves_index', [], Response::HTTP_SEE_OTHER);
@@ -126,10 +153,38 @@ final class ElevesController extends AbstractController
     #[Route('/{id}/edit', name: 'app_eleves_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, Eleves $elefe, EntityManagerInterface $entityManager): Response
     {
+        $elefe = new Eleves();
+        $pere = new Parents();
+        $mere = new Parents();
+        $parentsM = new ParentsEleves();
+        $parentsP = new ParentsEleves();
+
         $form = $this->createForm(Eleves1Type::class, $elefe);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+
+
+            $pere->setNom($request->get("pere_nom"));
+            $pere->setTelephone($request->get("pere_telephone"));
+            $pere->setProfession($request->get("pere_profession"));
+            $pere->setType("pere");
+            $entityManager->persist($pere);
+
+            $mere->setNom($request->get("mere_nom"));
+            $mere->setTelephone($request->get("mere_telephone"));
+            $mere->setProfession($request->get("mere_profession"));
+            $mere->setType("mere");
+            $entityManager->persist($mere);
+
+            $parentsM->setEleve($elefe);
+            $parentsM->setParent($pere);
+            $entityManager->persist($pere);
+
+            $parentsP->setEleve($elefe);
+            $parentsP->setParent($mere);
+            $entityManager->persist($mere);
+
             $entityManager->flush();
 
             return $this->redirectToRoute('app_eleves_index', [], Response::HTTP_SEE_OTHER);

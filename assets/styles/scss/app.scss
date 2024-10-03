@@ -38,10 +38,12 @@ a svg {
 .center {
     width: 950px;
     padding: 50px;
+    height: 100vh;
     background-color: #FAF9F6;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         /* Ombre légère pour effet surélevé */
     border-radius: 10px;
+    overflow: scroll;
 }
 
 .center h1 {
@@ -227,4 +229,206 @@ section.active {
 
 #table-link:hover {
     color: #DE7573;
+}
+
+.a5 {
+    width: 148mm;
+    height: 210mm;
+    margin: 0 auto;
+    padding: 10mm;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+    background: white;
+}
+
+// @page {
+//     size: A4;
+// }
+
+/* Dimensions d'une feuille A4 avec marges réduites */
+.a4 {
+    width: 210mm;
+    height: 297mm;
+    margin: 0 auto;
+    padding: 10mm;
+    /* Réduction du padding pour maximiser l'espace */
+    background: white;
+    font-family: "Arial", sans-serif;
+    border: 1px solid #ccc;
+    box-shadow: 0 0 5mm rgba(0, 0, 0, 0.1);
+}
+
+/* Réduction de la taille des titres */
+.a4 h1 {
+    font-size: 24px;
+    /* Taille réduite du titre principal */
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+.a4 h2 {
+    font-size: 20px;
+    margin-bottom: 8px;
+}
+
+.top h1 {
+    margin-top: 5px;
+}
+
+.top h1,
+.top p {
+    margin-bottom: -5px;
+}
+
+/* Ajustement de la taille de la police pour le contenu */
+.a4 p {
+    font-size: 13px;
+    /* Légère réduction de la taille du texte */
+    line-height: 1.4;
+    /* Réduction de la hauteur des lignes */
+}
+
+.a4 small {
+    font-size: 11px;
+}
+
+.top {
+    text-align: center;
+    margin-top: -10px;
+}
+
+/* Styles pour les tableaux avec ajustement d'espacement */
+.a4 table {
+    font-size: 13px;
+    /* Taille ajustée pour une meilleure gestion de l'espace */
+    width: 100%;
+    border-collapse: collapse;
+    text-align: center;
+}
+
+.a4 th,
+.a4 td {
+    border: 1px solid #ccc;
+    padding: 6px;
+    /* Réduction du padding pour compacter le tableau */
+}
+
+.a4 th {
+    background-color: #f5f5f5;
+}
+
+.a4 tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+/* Ajustement de la largeur des colonnes */
+.a4 th.matiere,
+.a4 td.matiere {
+    width: 35%;
+    /* Réduction de la largeur de la colonne "Matière" */
+    text-align: left;
+}
+
+.a4 th.appreciation,
+.a4 td.appreciation {
+    width: 15%;
+    /* Réduction de la largeur de la colonne "Appréciation" */
+    text-align: left;
+}
+
+.a4 th,
+.a4 td {
+    width: auto;
+}
+
+/* Section des informations de l'élève avec espacement réduit */
+.student {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 8px;
+    /* Espacement réduit entre les éléments */
+    grid-auto-rows: minmax(40px, auto);
+}
+
+.item1 {
+    grid-column: 1/4;
+}
+
+.item2 {
+    grid-column: 4/6;
+}
+
+.a4 li {
+    list-style-type: none;
+}
+
+.a4 .item {
+    border: 1px solid #000;
+    border-radius: 5px;
+}
+
+/* Ajustement de la largeur des cellules du tableau personnel */
+.a4 td.label {
+    width: 130px;
+    /* Réduction de la largeur des labels */
+    text-align: right;
+    padding-right: 5px;
+}
+
+.a4 td.value {
+    text-align: left;
+}
+
+/* Ligne de séparation plus fine */
+hr.solid {
+    border-top: 1px solid #000;
+    margin-top: 15px;
+}
+
+/* Section de présentation */
+.a4 .presentation {
+    width: 100%;
+    background-color: #eee;
+    padding-top: 2px;
+    padding-bottom: 2px;
+    margin-bottom: 8px;
+    margin-top: 2px;
+}
+
+/* Section du bilan général avec réduction de l'espacement */
+.a4 .general {
+    border: 1px solid #ddd;
+    display: flex;
+    justify-content: space-between;
+    margin-top: 8px;
+    align-items: center;
+}
+
+/* Tableaux ajustés pour compacter la présentation des données générales */
+.a4 .bilanGeneral,
+.a4 .trimestre,
+.a4 .bilanClasse {
+    width: 100%;
+}
+
+.a4 .bilanGeneral td.label,
+.a4 .trimestre td.label,
+.a4 .bilanClasse td.label {
+    width: 90px;
+    /* Réduction de la largeur des labels */
+    text-align: right;
+    padding-right: 3px;
+}
+
+/* Impression */
+@media print {
+    .a4 {
+        border: none;
+        box-shadow: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .no-print {
+        display: none;
+    }
 }

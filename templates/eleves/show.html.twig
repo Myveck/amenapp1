@@ -29,9 +29,18 @@ body %}
             </td>
           </tr>
           <tr>
-            <th>Created_at</th>
+            <th>Sexe</th>
             <td>
-              {{ elefe.createdAt ? elefe.createdAt|date('Y-m-d H:i:s') : '' }}
+              {% if elefe.sexe == "m" %}Masculin
+              {% else %}
+                Feminin
+              {% endif %}
+            </td>
+          </tr>
+          <tr>
+            <th>Classe</th>
+            <td>
+              {{ elefe.classe.nom }}
             </td>
           </tr>
         </tbody>

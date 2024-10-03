@@ -26,6 +26,10 @@ class Paiements
     #[ORM\Column(options: ['default' => 'CURRENT_TIMESTAMP'])]
     private ?\DateTimeImmutable $created_at = null;
 
+    #[ORM\ManyToOne(inversedBy: 'paiements')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?AnneeScolaire $annee_scolaire = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -75,6 +79,18 @@ class Paiements
     public function setCreatedAt(\DateTimeImmutable $created_at): static
     {
         $this->created_at = $created_at;
+
+        return $this;
+    }
+
+    public function getAnneeScolaire(): ?AnneeScolaire
+    {
+        return $this->annee_scolaire;
+    }
+
+    public function setAnneeScolaire(?AnneeScolaire $annee_scolaire): static
+    {
+        $this->annee_scolaire = $annee_scolaire;
 
         return $this;
     }

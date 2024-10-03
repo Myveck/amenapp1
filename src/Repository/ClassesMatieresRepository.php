@@ -3,7 +3,9 @@
 namespace App\Repository;
 
 use App\Entity\ClassesMatieres;
+use App\Entity\Matieres;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -52,5 +54,47 @@ class ClassesMatieresRepository extends ServiceEntityRepository
             ->select('m') // Sélectionner uniquement les matières
             ->getQuery()
             ->getResult();
+    }
+
+
+    public function findMatiereByClasse($classe)
+    {
+        return $this->createQueryBuilder('cm')
+            ->join('cm.matiere', 'm')
+            ->join('cm.classe', 'c')
+            ->where('cm.classe = :classe')
+            ->setParameter('classe', $classe)
+            ->getQuery()
+            ->getResult()
+        ;
+    }
+
+    public function findCoefficientByClasseMatiere($classe, $matiere)
+    {
+        return $this->createQueryBuilder('cm')
+            ->select('cm.coefficient') // S'assurer que 'coefficient' est le bon champ
+            ->where('cm.classe = :classe')
+            ->andWhere('cm.matiere = :matiere')
+            ->setParameters(new ArrayCollection([
+                "classe" => $classe,
+                "matiere" => $matiere,
+            ]))
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
+
+    public function findCoefficientByMatiere(Matieres $matiere)
+    {
+        return $this->createQueryBuilder('cm')
+            ->join('cm.classe', 'c')
+            ->join('cm.matiere', 'm')
+            ->where('cm.matiere = :matiere')
+            ->setParameter('matiere', $matiere)
+            ->select("cm.coefficient")
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getResult()
+        ;
     }
 }

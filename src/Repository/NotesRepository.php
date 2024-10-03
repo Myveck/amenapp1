@@ -2,6 +2,8 @@
 
 namespace App\Repository;
 
+use App\Entity\Eleves;
+use App\Entity\Matieres;
 use App\Entity\Notes;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
@@ -40,4 +42,29 @@ class NotesRepository extends ServiceEntityRepository
     //            ->getOneOrNullResult()
     //        ;
     //    }
+
+    public function findByEleveTrimestre(Eleves $eleve, int $trimestre): ?array
+    {
+        return $this->createQueryBuilder('n')
+            ->where('n.eleve = :eleve')
+            ->andWhere('n.Trimestre = :trimestre')
+            ->setParameter('eleve', $eleve)
+            ->setParameter('trimestre', $trimestre)
+            ->getQuery()
+            ->getResult();
+    }
+
+    public function findByEleveEvaluationMatiere(Eleves $eleve, int $evaluation, Matieres $matiere): ?Notes
+    {
+        return $this->createQueryBuilder('n')
+            ->where('n.eleve = :eleve')
+            ->andWhere('n.evaluation = :evaluation')
+            ->andWhere('n.matiere = :matiere')
+            ->setParameter('eleve', $eleve)
+            ->setParameter('evaluation', $evaluation)
+            ->setParameter('matiere', $matiere)
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
 }

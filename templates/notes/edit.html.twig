@@ -8,6 +8,8 @@
             <a href="{{ path("app_notes_index") }}" data-section="section1" class="active">Liste des notes</a>
             <a href="{{ path("app_eleves_choice") }}" data-section="section2">Saisir une note</a>
             <a href="{{ path("app_notes_moyennes") }}" data-section="section2">Voir les moyennes</a>
+            <a href="{{ path("app_notes_bulletins") }}" data-section="section2">Voir les bulletins</a>
+
           </div>
         </div>
         <div class="center">
@@ -15,9 +17,10 @@
         
         {{ form_start(form) }}
           {{ form_row(form.note) }}
-          {{ form_row(form.type_evaluation) }}
+          {{ form_row(form.evaluation) }}
           {{ form_row(form.date_evaluation) }}
           {{ form_row(form.matiere_id) }}
+          {{ form_row(form.trimestre) }}
           <div class="hidden">{{ form_row(form.eleve_id) }}</div>
           <button class="btn btn-primaire my-4">
             {{ button_label|default('Enregistrer') }}

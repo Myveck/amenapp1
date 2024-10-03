@@ -36,6 +36,9 @@ class Enseignants
     #[ORM\Column(options: ['default' => 'CURRENT_TIMESTAMP'])]
     private ?\DateTimeImmutable $created_at = null;
 
+    #[ORM\Column(length: 3)]
+    private ?string $sexe = null;
+
     public function __construct()
     {
         $this->emploisDuTemps = new ArrayCollection();
@@ -133,6 +136,18 @@ class Enseignants
     public function setCreatedAt(\DateTimeImmutable $created_at): static
     {
         $this->created_at = $created_at;
+
+        return $this;
+    }
+
+    public function getSexe(): ?string
+    {
+        return $this->sexe;
+    }
+
+    public function setSexe(string $sexe): static
+    {
+        $this->sexe = $sexe;
 
         return $this;
     }

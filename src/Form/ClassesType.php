@@ -2,6 +2,7 @@
 
 namespace App\Form;
 
+use App\Entity\AnneeScolaire;
 use App\Entity\Classes;
 use App\Entity\Series;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
@@ -24,6 +25,10 @@ class ClassesType extends AbstractType
                 ],
             ])
             ->add('classeOrder')
+            ->add('annee_scolaire', EntityType::class, [
+                'class' => AnneeScolaire::class,
+                'choice_label' => 'annee'
+            ])
         ;
     }
 

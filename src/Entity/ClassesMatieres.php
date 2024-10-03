@@ -24,6 +24,10 @@ class ClassesMatieres
     #[ORM\Column]
     private ?int $coefficient = null;
 
+    #[ORM\ManyToOne(inversedBy: 'classesMatieres')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?AnneeScolaire $annee_scolaire = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -61,6 +65,18 @@ class ClassesMatieres
     public function setCoefficient(int $coefficient): static
     {
         $this->coefficient = $coefficient;
+
+        return $this;
+    }
+
+    public function getAnneeScolaire(): ?AnneeScolaire
+    {
+        return $this->annee_scolaire;
+    }
+
+    public function setAnneeScolaire(?AnneeScolaire $annee_scolaire): static
+    {
+        $this->annee_scolaire = $annee_scolaire;
 
         return $this;
     }

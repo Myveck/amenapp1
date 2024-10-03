@@ -3,8 +3,10 @@
 namespace App\Controller;
 
 use App\Entity\Classes;
+use App\Entity\Tarif;
 use App\Form\ClassesType;
 use App\Repository\ClassesRepository;
+use App\Repository\TarifRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -38,19 +40,31 @@ final class ClassesController extends AbstractController
     #[Route('/new', name: 'app_classes_new', methods: ['GET', 'POST'])]
     public function new(Request $request, EntityManagerInterface $entityManager): Response
     {
-        $class = new Classes();
-        $form = $this->createForm(ClassesType::class, $class);
+        $classe = new Classes();
+        $tarif = new Tarif();
+
+        $form = $this->createForm(ClassesType::class, $classe);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager->persist($class);
+            $entityManager->persist($classe);
+
+            // Working on Tarif
+            $tarif->setPrixAnnuel($request->get("prix_annuel"));
+            $tarif->setPrixInscription($request->get("prix_inscription"));
+            $tarif->setPrixReinscription($request->get("prix_reinscription"));
+            $tarif->setClasse($classe);
+            $tarif->setAnneeScolaire($classe->getAnneeScolaire());
+
+            $entityManager->persist($tarif);
+
             $entityManager->flush();
 
             return $this->redirectToRoute('app_classes_index', [], Response::HTTP_SEE_OTHER);
         }
 
         return $this->render('classes/new.html.twig', [
-            'class' => $class,
+            'class' => $classe,
             'form' => $form,
         ]);
     }
@@ -64,9 +78,10 @@ final class ClassesController extends AbstractController
     }
 
     #[Route('/{id}/edit', name: 'app_classes_edit', methods: ['GET', 'POST'])]
-    public function edit(Request $request, Classes $class, EntityManagerInterface $entityManager): Response
+    public function edit(Request $request, Classes $class, EntityManagerInterface $entityManager, TarifRepository $tarifRepository): Response
     {
         $form = $this->createForm(ClassesType::class, $class);
+        $tarif = $tarifRepository->findOneBy(['classe' => $class]);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -78,6 +93,7 @@ final class ClassesController extends AbstractController
         return $this->render('classes/edit.html.twig', [
             'class' => $class,
             'form' => $form,
+            'tarif' => $tarif,
         ]);
     }
 

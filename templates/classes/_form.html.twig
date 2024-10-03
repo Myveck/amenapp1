@@ -1,32 +1,65 @@
 {{ form_start(form) }}
 {{ form_widget(form) }}
 <div class="form-group">
-  <label for="prix">Prix annuel</label>
+  <label for="prix_annuel">Prix annuel</label>
   <input
     type="number"
     class="form-control"
-    id="prix"
-    name="prix"
+    id="prix_annuel"
+    name="prix_annuel"
     aria-describedby="Prix annuel"
-    placeholder="Entrer le prix annuel Ex: 100000"
+    {%
+    if
+    tarif
+    is
+    defined
+    %}
+    value="{{ tarif.prixAnnuel }}"
+    {%
+    endif
+    %}
   />
-  <small id="emailHelp" class="form-text text-muted"
-    >Veuillez signifier combien l'élève doit payer annuellement pour cette
-    classe</small
-  >
 
-  <label for="prix">Prix Inscription</label>
-  <input
-    type="number"
-    class="form-control"
-    id="prix"
-    name="prix"
-    aria-describedby="Prix annuel"
-    placeholder="Entrer le prix annuel Ex: 100000"
-  />
-  <small id="emailHelp" class="form-text text-muted"
-    >Combien coûte l'inscription à cette salle de classe ?</small
-  >
+  <div class="reins">
+    <label for="prix">Prix Inscription</label>
+    <input
+      type="number"
+      class="form-control"
+      id="prix_inscription"
+      name="prix_inscription"
+      aria-describedby="Prix inscription"
+      {%
+      if
+      tarif
+      is
+      defined
+      %}
+      value="{{ tarif.prixInscription }}"
+      {%
+      endif
+      %}
+    />
+  </div>
+  <div class="reins">
+    <label for="prix_reins">Prix Réinscription</label>
+    <input
+      type="number"
+      class="form-control"
+      id="prix_reinscription"
+      name="prix_reinscription"
+      aria-describedby="Prix réinscription"
+      {%
+      if
+      tarif
+      is
+      defined
+      %}
+      value="{{ tarif.prixInscription }}"
+      {%
+      endif
+      %}
+    />
+  </div>
 </div>
 <button class="btn btn-primaire my-4">
   {{ button_label|default('Enregistrer') }}

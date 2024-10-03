@@ -1,0 +1,82 @@
+{% extends 'base.html.twig' %} {% block title %}Liste des notes{% endblock %} {%
+block body %}
+  <div class="wrapper">
+    <div class="sidebar">
+      <div class="sidebar-menu">
+        <a href="{{ path("app_main") }}" data-section="section1">Acceuil</a>
+        <a href="{{ path("app_notes_index") }}" data-section="section1" >Liste des notes</a>
+        <a href="{{ path("app_eleves_choice") }}" data-section="section2">Saisir une note</a>
+        <a href="{{ path("app_notes_moyennes") }}" data-section="section2" class="active">Voir les moyennes</a>
+      </div>
+    </div>
+    <div class="center">
+    <h1>Moyennes générales</h1>
+    <table>
+      {% if not moyennes %}
+      <p>Aucune moyenne disponible</p>
+      {% else %}
+        
+      {% if todo == "recup" %}
+      
+        <thead>
+            <tr>
+                <th>Matricule</th>
+                <th>Nom et Prénom</th>
+                <th>Total / Moy / Coef</th>
+                <th>Total des coef</th>
+                <th>Moyenne trimestrielle</th>
+                <th>Rang</th>
+                <th>Date</th>
+                <th>Signature</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for one in moyennes %}
+                {% if one["moyenneGenerale"] != null %}
+                <tr>
+                    <td>X0{{one["eleve"].nom}}oo{{loop.index}}</td>
+                    <td>{{one["eleve"].nom }} {{ one["eleve"].prenom }} </td>
+                    <td>{{one["moyenneDesMatieres"]}}</td>
+                    <td>{{one["sommeCoefficients"]}}</td>
+                    <td>{{one["moyenneGenerale"]}}</td>
+                </tr>
+                    
+                {% endif %}       
+            {% endfor %}
+        </tbody>
+        {% else %}
+          
+        <thead>
+            <tr>
+                <th>Nom et Prénom</th>
+                <th>MI</th>
+                <th>D1</th>
+                <th>D2</th>
+                <th>Total Coef</th>
+                <th>Moy Gen</th>
+                <th>Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for one in moyennes %}
+                {% if one["moyenneGenerale"] != null %}
+                <tr>
+                    <td>{{one["eleve"].nom }} {{ one["eleve"].prenom }} </td>
+                    <td>{{one["moyenneMi"]}}</td>
+                    <td>{{one["moyenneDevoir1"]}}</td>
+                    <td>{{one["moyenneDevoir2"]}}</td>
+                    <td>{{one["sommeCoefficients"]}}</td>
+                    <td>{{one["moyenneGenerale"]}}</td>
+                </tr>
+                    
+                {% endif %}       
+            {% endfor %}
+        </tbody>
+        {% endif %}
+      {% endif %}
+      
+    </table>
+
+    </div>
+  </div>
+{% endblock %}

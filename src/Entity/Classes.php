@@ -45,6 +45,10 @@ class Classes
     #[ORM\OneToMany(targetEntity: Eleves::class, mappedBy: 'classe')]
     private Collection $eleves;
 
+    #[ORM\ManyToOne(inversedBy: 'classes')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?AnneeScolaire $annee_scolaire = null;
+
     public function __construct()
     {
         $this->emploisDuTemps = new ArrayCollection();
@@ -190,6 +194,18 @@ class Classes
                 $elefe->setClasse(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getAnneeScolaire(): ?AnneeScolaire
+    {
+        return $this->annee_scolaire;
+    }
+
+    public function setAnneeScolaire(?AnneeScolaire $anne_scolaire): static
+    {
+        $this->annee_scolaire = $anne_scolaire;
 
         return $this;
     }

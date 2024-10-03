@@ -11,6 +11,7 @@
     </div>
   </div>
   <div class="center">
+    <h1>Réinscription</h1>
     <p><span>Nom : </span>{{ elefe.nom }}</p>
     <p><span>Prénom : </span>{{ elefe.prenom }}</p>
     <p><span>Classe : </span>{{ elefe.classe.nom }}</p>
@@ -29,6 +30,7 @@
       {{ form_row(form.nom) }}
       {{ form_row(form.prenom) }}
       {{ form_row(form.date_naissance) }}
+      {{ form_row(form.sexe) }}
     </div>
     <button class="btn btn-primaire my-4">
       {{ button_label|default('Réinscrire') }}
