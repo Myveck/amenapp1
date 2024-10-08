@@ -1,0 +1,26 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}AnneeScolaire{% endblock %}
+
+{% block body %}
+    <h1>AnneeScolaire</h1>
+
+    <table class="table">
+        <tbody>
+            <tr>
+                <th>Id</th>
+                <td>{{ annee_scolaire.id }}</td>
+            </tr>
+            <tr>
+                <th>Annee</th>
+                <td>{{ annee_scolaire.annee }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_annee_scolaire_index') }}">back to list</a>
+
+    <a href="{{ path('app_annee_scolaire_edit', {'id': annee_scolaire.id}) }}">edit</a>
+
+    {{ include('annee_scolaire/_delete_form.html.twig') }}
+{% endblock %}

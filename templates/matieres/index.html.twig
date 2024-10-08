@@ -5,57 +5,67 @@
 {% block body %}
     <div class="wrapper">
         <div class="sidebar">
-          <div class="sidebar-menu">
-            <a href="{{ path("app_main") }}" data-section="section1">Acceuil</a>
-            <a href="{{ path("app_matieres_index") }}" data-section="section1" class="active">Liste des matières</a>
-            <a href="{{ path("app_matieres_new") }}" data-section="section2">Ajouter une matières</a>
-          </div>
+        <div class="top"><a href="{{ path("app_main") }}" data-section="section1">Acceuil</a></div>
+
+        <div class="sidebar-menu">
+            <a href="{{ path("app_main_ecole") }}" data-section="section1">Dashboard</a>
+            <a href="{{ path("app_eleves_index") }}" data-section="section1">Elèves</a>
+            <a href="{{ path("app_classes_index") }}" data-section="section2">Classes</a>
+            <a href="{{ path("app_matieres_index") }}" data-section="section2" class="active">Cours</a>
+            <a href="{{ path("app_enseignants_index") }}" data-section="section2">Professeurs</a>
+        </div>
         </div>
         <div class="center">
             <h1>Liste des matières</h1>
-                
+            
+            <div class="right"><a href="{{ path('app_matieres_new') }}"class="btn btn-primaire" >Ajouter une matière</a></div>
+
             <p>
-                trier par :
+                Trier par classe
             </p>
-            <form  method="get" action="{{ path("app_classes_index") }}">
-                <select name="trie" id="trie">
-                <option value="all">Tout</option>
-                {% for niveau in niveaux %}
-                    <option value="{{ niveau }}" {% if niveau == active %} selected {% endif %}
-                    >{{niveau}}</option>
-                {% endfor %}
-                </select>
-                <button type="submit" class="btn btn-secondaire">trier</button>
+            <form  method="get" action="{{ path("app_matieres_index") }}">
+                <div class="col-3">
+                    <select name="trie" id="trie" onchange="this.form.submit()" class="mb-4 form-control">
+                    <option value="all">Toutes les classes</option>
+                    {% for classe in classes %}
+                        <option value="{{ classe.id }}" {% if classe.id == active %} selected {% endif %}
+                        >{{classe.nom}}</option>
+                    {% endfor %}
+                    </select>
+                </div>
             </form>
 
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th>Nom</th>
-                        <th>Classe</th>
-                        <th>coefficient</th>
-                        <th>actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                {% for classeMatiere in classeMatieres %}
-                    <tr>
-                        <td>{{ classeMatiere.matiere.nom }}</td>
-                        <td>{{ classeMatiere.classe.nom }}</td>
-                        <td>{{ classeMatiere.coefficient }}</td>
-                        <td>
-                            <a href="{{ path('app_matieres_show', {'id': classeMatiere.matiere.id}) }}" class="btn btn-primaire">Voir</a>
-                            <a href="{{ path('app_matieres_edit', {'id': classeMatiere.matiere.id}) }}" class="btn btn-secondaire">Modifier</a>
-                        </td>
-                    </tr>
-                {% else %}
-                    <tr>
-                        <td colspan="3">Aucune matière n'a été trouvée</td>
-                    </tr>
-                {% endfor %}
-                </tbody>
-            </table>
-            <a href="{{ path('app_matieres_new') }}"class="btn btn-primaire" >Ajouter une matière</a>
+            <div class="tableau">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Nom</th>
+                            <th>Classe</th>
+                            <th>coefficient</th>
+                            <th>actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for key, cMatiere in matieres %}
+                        <tr>
+                            {% if cMatiere is not null %}
+                                <td>{{ cMatiere.matiere.nom }}</td>
+                                <td>{{ cMatiere.classe.nom }}</td>
+                                <td>{{ cMatiere.coefficient }}</td>
+                                <td>
+                                    <a href="{{ path('app_matieres_edit', {'id': cMatiere.matiere.id}) }}" class="btn btn-primaire">Modifier</a>
+                                </td>
+                            {% endif %}
+                
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td colspan="3">Aucune matière n'a été trouvée</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 {% endblock %}

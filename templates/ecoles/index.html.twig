@@ -1,0 +1,49 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Ecoles index{% endblock %}
+
+{% block body %}
+    <h1>Ecoles index</h1>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Nom</th>
+                <th>School_name</th>
+                <th>Adresse</th>
+                <th>Boite_postale</th>
+                <th>Telephone</th>
+                <th>Cellulaire</th>
+                <th>Email</th>
+                <th>Logo</th>
+                <th>actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for ecole in ecoles %}
+            <tr>
+                <td>{{ ecole.id }}</td>
+                <td>{{ ecole.nom }}</td>
+                <td>{{ ecole.schoolName }}</td>
+                <td>{{ ecole.adresse }}</td>
+                <td>{{ ecole.boitePostale }}</td>
+                <td>{{ ecole.telephone }}</td>
+                <td>{{ ecole.cellulaire }}</td>
+                <td>{{ ecole.email }}</td>
+                <td>{{ ecole.logo }}</td>
+                <td>
+                    <a href="{{ path('app_ecoles_show', {'id': ecole.id}) }}">show</a>
+                    <a href="{{ path('app_ecoles_edit', {'id': ecole.id}) }}">edit</a>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="10">no records found</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_ecoles_new') }}">Create new</a>
+{% endblock %}

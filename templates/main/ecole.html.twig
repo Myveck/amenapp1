@@ -1,0 +1,67 @@
+
+{% extends 'base.html.twig' %} {% block title %}Liste des élèves{% endblock %}
+{% block body %}
+
+<div class="wrapper">
+  <div class="sidebar">
+        <div class="top"><a href="{{ path("app_main") }}" data-section="section1">Acceuil</a></div>
+
+        <div class="sidebar-menu">
+            <a href="{{ path("app_main_ecole") }}" data-section="section1" class="active">Dashboard</a>
+            <a href="{{ path("app_eleves_index") }}" data-section="section1">Elèves</a>
+            <a href="{{ path("app_classes_index") }}" data-section="section2">Classes</a>
+            <a href="{{ path("app_matieres_index") }}" data-section="section2">Cours</a>
+            <a href="{{ path("app_enseignants_index") }}" data-section="section2">Professeurs</a>
+        </div>
+  </div>
+  <div class="center">
+    <h1>Dashboard</h1>
+    <div class="stats">
+        <a href="{{path('app_eleves_index')}}">
+            <div class="item item1">
+                <p>Eleves</p>
+                <h4>{{ eleves }}</h4>
+            </div>
+        </a>
+        <a href="{{path('app_classes_index')}}">
+            <div class="item item2">
+                <p>Classes</p>
+                <h4> {{classes}} </h4>
+            </div>
+        </a>
+        <a href="{{path('app_matieres_index')}}">
+            <div class="item item3">
+                <p>Cours</p>
+                <h4> {{matieres}} </h4>
+            </div>
+        </a>
+        <a href="{{path('app_enseignants_index')}}">
+            <div class="item item4">
+                <p>Professeurs</p>
+                <h4>{{ enseignants}}</h4>
+            </div>
+        </a>
+    </div>
+    <div class="doc">
+        <div><div class="lab lab1"></div> {{masculins }} Garçon</div>
+        <div><div class="lab lab2"></div> {{feminins }} fille</div>
+    </div>
+    <div class="autres mt-4">
+        <div class="pie-chart">
+            <div class="slice-1"></div>
+            <div class="slice-2"></div>
+        </div>
+    </div>
+    <style>
+        .pie-chart {
+            position: relative;
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            background: conic-gradient(
+            rgba(54, 162, 235, 0.6) 0% {{ masculins / (masculins + feminins) * 100 }}%, 
+            rgba(255, 99, 132, 0.6) {{ masculins / (masculins + feminins) * 100 }}% 100%
+            );
+        }
+    </style>
+{% endblock %}

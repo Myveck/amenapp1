@@ -38,6 +38,10 @@ class Notes
     #[ORM\JoinColumn(nullable: false)]
     private ?Evaluations $evaluation = null;
 
+    #[ORM\ManyToOne(inversedBy: 'note')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Examinations $examinations = null;
+
     public function __construct()
     {
         $this->created_at = new \DateTimeImmutable("now");
@@ -128,6 +132,18 @@ class Notes
     public function setEvaluation(?Evaluations $evaluation): static
     {
         $this->evaluation = $evaluation;
+
+        return $this;
+    }
+
+    public function getExaminations(): ?Examinations
+    {
+        return $this->examinations;
+    }
+
+    public function setExaminations(?Examinations $examinations): static
+    {
+        $this->examinations = $examinations;
 
         return $this;
     }

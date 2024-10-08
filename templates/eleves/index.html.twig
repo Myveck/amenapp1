@@ -2,53 +2,55 @@
 {% block body %}
 
 <div class="wrapper">
+  
   <div class="sidebar">
-    <div class="sidebar-menu">
-      <a href="{{ path("app_main") }}" data-section="section1">Acceuil</a>
-      <a href="{{ path("app_eleves_index") }}" data-section="section1" class="active">Liste des élèves</a>
-      <a href="{{ path("app_eleves_new") }}" data-section="section2">Inscrire un élève</a>
-      <a href="{{ path("app_eleves_renew") }}" data-section="section2">Réinscrire un élève</a>
-    </div>
+        <div class="top"><a href="{{ path("app_main") }}" data-section="section1">Acceuil</a></div>
+
+        <div class="sidebar-menu">
+            <a href="{{ path("app_main_ecole") }}" data-section="section1">Dashboard</a>
+            <a href="{{ path("app_eleves_index") }}" data-section="section1" class="active">Elèves</a>
+            <a href="{{ path("app_classes_index") }}" data-section="section2">Classes</a>
+            <a href="{{ path("app_matieres_index") }}" data-section="section2">Cours</a>
+            <a href="{{ path("app_enseignants_index") }}" data-section="section2">Professeurs</a>
+        </div>
   </div>
   <div class="center">
     <section id="section1" class="active">
       <h1>Liste des élèves</h1>
       <p>
-        trier par :
+        Trier par classe
       </p>
-      <form  method="get" action="{{ path("app_eleves_trier") }}">
-        <select name="trie" id="trie">
-          <option value="all">Tout</option>
-          {% for classe in classes %}
-          <option value="{{ classe.id }}"{% if active == classe.id %}selected{% endif %}>{{ classe.nom }}</option>
-          {% endfor %}
-        </select>
-        <button type="submit" class="btn btn-secondaire">trier</button>
-      </form>
+      <form  method="get" action="{{ path("app_eleves_index") }}">
+          <div class="mb-4 row">
+          <div class="col-3">
+            <select name="trie" id="trie" onchange="this.form.submit()" class="form-control">
+              <option value="all">Tout</option>
+              {% for classe in classes %}
+              <option value="{{ classe.id }}"{% if active == classe.id %}selected{% endif %}>{{ classe.nom }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="col-2 mt-2"><small class="mx-2">{{nombre}} élèves</small></div>
+        </form>
+      </div>
       <table class="table">
         <thead>
           <tr>
-            <th>Id</th>
             <th>Nom</th>
             <th>Prenom</th>
             <th>Classe</th>
             <th>Date_naissance</th>
-            <th>Date de création</th>
             <th>actions</th>
           </tr>
         </thead>
         <tbody>
           {% for elefe in eleves %}
           <tr>
-            <td>{{ elefe.id }}</td>
             <td>{{ elefe.nom }}</td>
             <td>{{ elefe.prenom }}</td>
             <td>{{ elefe.classe.nom }}</td>
             <td>
-              {{ elefe.dateNaissance ? elefe.dateNaissance|date('Y-m-d') : '' }}
-            </td>
-            <td>
-              {{ elefe.createdAt ? elefe.createdAt|date('Y-m-d H:i:s') : '' }}
+              {{ elefe.dateNaissance ? elefe.dateNaissance|date('d-m-Y') : '' }}
             </td>
             <td>
               <a href="{{ path('app_eleves_show', { id: elefe.id }) }}"class="btn btn-primaire">voir</a>

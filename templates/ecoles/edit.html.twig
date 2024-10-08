@@ -1,0 +1,19 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Edit Ecoles{% endblock %}
+
+{% block body %}
+
+      <div class="wrapper">
+          <div class="sidebar">
+                <div class="top"><a href="{{ path("app_main") }}" data-section="section1">Acceuil</a></div>
+                <div class="sidebar-menu">
+                    <a href="{{ path("app_ecoles_edit", {'id': 1 }) }}" data-section="section1"  class="active">Ecole</a>
+                    <a href="{{ path("app_annee_scolaire_edit", {'id': 1}) }}" data-section="section1">Années scolaires</a>
+                </div>
+          </div>
+              <div class="center">
+            {{ include('ecoles/_form.html.twig', {'button_label': 'Modifier'}) }}
+              </div>
+      </div>
+{% endblock %}

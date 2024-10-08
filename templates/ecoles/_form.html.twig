@@ -1,0 +1,15 @@
+{{ form_start(form) }}
+<div class="row mt-4">
+  <div class="col-6 mb-4">{{ form_row(form.nom) }}</div>
+  <div class="col-6 mb-4">{{ form_row(form.school_name) }}</div>
+  <div class="col-6 mb-4">{{ form_row(form.adresse) }}</div>
+  <div class="col-6 mb-4">{{ form_row(form.boite_postale) }}</div>
+  <div class="col-6 mb-4">{{ form_row(form.telephone) }}</div>
+  <div class="col-6 mb-4">{{ form_row(form.cellulaire) }}</div>
+  <div class="col-6 mb-4">{{ form_row(form.email) }}</div>
+  <div class="col-6 mb-4">{{ form_row(form.logo) }}</div>
+</div>
+<button class="btn btn-primaire my-4">
+  {{ button_label|default('Save') }}
+</button>
+{{ form_end(form) }}

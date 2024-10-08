@@ -28,9 +28,16 @@ class Evaluations
     #[ORM\OneToMany(targetEntity: Notes::class, mappedBy: 'evaluation', orphanRemoval: true)]
     private Collection $notes;
 
+    /**
+     * @var Collection<int, Examinations>
+     */
+    #[ORM\OneToMany(targetEntity: Examinations::class, mappedBy: 'evaluation', orphanRemoval: true)]
+    private Collection $examinations;
+
     public function __construct()
     {
         $this->notes = new ArrayCollection();
+        $this->examinations = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -86,6 +93,36 @@ class Evaluations
             // set the owning side to null (unless already changed)
             if ($note->getEvaluation() === $this) {
                 $note->setEvaluation(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Examinations>
+     */
+    public function getExaminations(): Collection
+    {
+        return $this->examinations;
+    }
+
+    public function addExamination(Examinations $examination): static
+    {
+        if (!$this->examinations->contains($examination)) {
+            $this->examinations->add($examination);
+            $examination->setEvaluation($this);
+        }
+
+        return $this;
+    }
+
+    public function removeExamination(Examinations $examination): static
+    {
+        if ($this->examinations->removeElement($examination)) {
+            // set the owning side to null (unless already changed)
+            if ($examination->getEvaluation() === $this) {
+                $examination->setEvaluation(null);
             }
         }
 

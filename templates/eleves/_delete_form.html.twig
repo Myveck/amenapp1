@@ -1,9 +1,7 @@
 <form
   method="post"
   action="{{ path('app_eleves_delete', { id: elefe.id }) }}"
-  onsubmit="return confirm('Voulez-vous vraimen enlever {{ elefe.nom }} {{
-    elefe.prenom
-  }} de la liste des élèves ?');"
+  onsubmit="return confirm('Voulez-vous vraiment le supprimer ?');"
 >
   <input
     type="hidden"

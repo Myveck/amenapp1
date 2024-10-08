@@ -42,12 +42,19 @@ class Matieres
     #[ORM\OneToMany(targetEntity: ClassesMatieres::class, mappedBy: 'matiere', orphanRemoval: true)]
     private Collection $classesMatieres;
 
+    /**
+     * @var Collection<int, Examinations>
+     */
+    #[ORM\OneToMany(targetEntity: Examinations::class, mappedBy: 'matiere', orphanRemoval: true)]
+    private Collection $examinations;
+
     public function __construct()
     {
         $this->notes = new ArrayCollection();
         $this->enseignants = new ArrayCollection();
         $this->emploisDuTemps = new ArrayCollection();
         $this->classesMatieres = new ArrayCollection();
+        $this->examinations = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -178,6 +185,36 @@ class Matieres
             // set the owning side to null (unless already changed)
             if ($classesMatiere->getMatiere() === $this) {
                 $classesMatiere->setMatiere(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Examinations>
+     */
+    public function getExaminations(): Collection
+    {
+        return $this->examinations;
+    }
+
+    public function addExamination(Examinations $examination): static
+    {
+        if (!$this->examinations->contains($examination)) {
+            $this->examinations->add($examination);
+            $examination->setMatiere($this);
+        }
+
+        return $this;
+    }
+
+    public function removeExamination(Examinations $examination): static
+    {
+        if ($this->examinations->removeElement($examination)) {
+            // set the owning side to null (unless already changed)
+            if ($examination->getMatiere() === $this) {
+                $examination->setMatiere(null);
             }
         }
 

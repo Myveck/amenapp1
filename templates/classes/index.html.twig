@@ -6,55 +6,66 @@
 
   <div class="wrapper">
       <div class="sidebar">
+        <div class="top"><a href="{{ path("app_main") }}" data-section="section1">Acceuil</a></div>
+
         <div class="sidebar-menu">
-          <a href="{{ path("app_main") }}" data-section="section1">Acceuil</a>
-          <a href="{{ path("app_classes_index") }}" data-section="section1" class="active">Liste des classes</a>
-          <a href="{{ path("app_classes_new") }}" data-section="section2">Créer une classe</a>
+            <a href="{{ path("app_main_ecole") }}" data-section="section1">Dashboard</a>
+            <a href="{{ path("app_eleves_index") }}" data-section="section1">Elèves</a>
+            <a href="{{ path("app_classes_index") }}" data-section="section2" class="active">Classes</a>
+            <a href="{{ path("app_matieres_index") }}" data-section="section2">Cours</a>
+            <a href="{{ path("app_enseignants_index") }}" data-section="section2">Professeurs</a>
         </div>
       </div>
       <div class="center">
-      <p>
-        trier par :
-      </p>
-      <form  method="get" action="{{ path("app_classes_index") }}">
-        <select name="trie" id="trie">
-          <option value="all">Tout</option>
-          {% for niveau in niveaux %}
-            <option value="{{ niveau }}" {% if niveau == active %} selected {% endif %}
-            >{{niveau}}</option>
-          {% endfor %}
-        </select>
-        <button type="submit" class="btn btn-secondaire">trier</button>
-      </form>
-            <h1>Liste des classes</h1>
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th>Id</th>
-                        <th>Nom</th>
-                        <th>Niveau</th>
-                        <th>actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                {% for class in classes %}
-                    <tr>
-                        <td>{{ class.id }}</td>
-                        <td>{{ class.nom }}</td>
-                        <td>{{ class.niveau }}</td>
-                        <td>
-                            <a href="{{ path('app_classes_show', {'id': class.id}) }}" class="btn btn-primaire">Voir</a>
-                            <a href="{{ path('app_classes_edit', {'id': class.id}) }}" class="btn btn-secondaire">Modifier</a>
-                        </td>
-                    </tr>
-                {% else %}
-                    <tr>
-                        <td colspan="4">Aucune classe n'a été trouvé</td>
-                    </tr>
-                {% endfor %}
-                </tbody>
-            </table>
-            <a href="{{ path('app_classes_new') }}" class="btn btn-primaire">Créer une classe</a>
+        <h1>Liste des classes</h1>
+        <div class="right"><a href="{{ path('app_classes_new') }}" class="btn btn-primaire">Créer une classe</a></div>
+        <p>
+          Trier par niveau
+        </p>
+        <form  method="get" action="{{ path("app_classes_index") }}">
+          <div class="col-3">
+            <select name="trie" id="trie" onchange="this.form.submit()" class="mb-4 form-control">
+              <option value="all">Tous les niveaux</option>
+              {% for niveau in niveaux %}
+                <option value="{{ niveau }}" {% if niveau == active %} selected {% endif %}
+                >{{niveau}}</option>
+              {% endfor %}
+            </select>
+          </div>
+        </form>
+            <div class="tableau">
+              <table class="table">
+                  <thead>
+                      <tr>
+                          <th>Nom</th>
+                          <th>Frais d'inscription</th>
+                          <th>Frais de réinscription</th>
+                          <th>Frais de scolarité</th>
+                          <th>Niveau</th>
+                          <th>actions</th>
+                      </tr>
+                  </thead>
+                  <tbody>
+                  {% for class in classes %}
+                      <tr>
+                          <td>{{ class.nom }}</td>
+                          <td>{{ classeTarif[class.nom].PrixInscription }}</td>
+                          <td>{{ classeTarif[class.nom].PrixReinscription }}</td>
+                          <td>{{ classeTarif[class.nom].PrixAnnuel }}</td>
+                          <td>{{ class.niveau }}</td>
+                          <td>
+                              <a href="{{ path('app_classes_show', {'id': class.id}) }}" class="btn btn-primaire">Voir</a>
+                              <a href="{{ path('app_classes_edit', {'id': class.id}) }}" class="btn btn-secondaire">Modifier</a>
+                          </td>
+                      </tr>
+                  {% else %}
+                      <tr>
+                          <td colspan="4">Aucune classe n'a été trouvé</td>
+                      </tr>
+                  {% endfor %}
+                  </tbody>
+              </table>
+            </div>
         </div>
   </div>
 {% endblock %}

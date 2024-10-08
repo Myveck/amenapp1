@@ -3,9 +3,8 @@
 
 <div class="wrapper">
   <div class="sidebar">
+        <div class="top"><a href="{{ path("app_main") }}" data-section="section1">Acceuil</a></div>
     <div class="sidebar-menu">
-      <a href="{{ path("app_main") }}" data-section="section1">Acceuil</a>
-      <a href="{{ path("app_eleves_index") }}" data-section="section1">Liste des élèves</a>
       <a href="{{ path("app_eleves_new") }}" data-section="section2">Inscrire un élève</a>
       <a href="{{ path("app_eleves_renew") }} " class="active" data-section="section2">Réinscrire un élève</a>
     </div>
@@ -14,16 +13,17 @@
     <section id="section1" class="active">
       <h1>Choisir l'élève à réinscrire</h1>
       <p>
-        trier par :
+        Trier par classe
       </p>
-      <form  method="get" action="{{ path("app_eleves_trier_renew") }}">
-        <select name="trie" id="trie">
-          <option value="all">Tout</option>
-          {% for classe in classes %}
-          <option value="{{ classe.id }}" {% if active == classe.id %}selected{% endif %}>{{ classe.nom }}</option>
-          {% endfor %}
-        </select>
-        <button type="submit" class="btn btn-secondaire">trier</button>
+      <form  method="get" action="{{ path("app_eleves_renew") }}">
+        <div class="mb-2 col-3">
+          <select name="trie" id="trie" onchange="this.form.submit()" class="form-control">
+            <option value="all">Tout</option>
+            {% for classe in classes %}
+            <option value="{{ classe.id }}" {% if active == classe.id %}selected{% endif %}>{{ classe.nom }}</option>
+            {% endfor %}
+          </select>
+        </div>
       </form>
       <table class="table">
         <thead>
@@ -61,6 +61,7 @@
           {% endfor %}
         </tbody>
       </table>
+      <p>Vous ne trouvez pas d'élève à réinscrire ?</p>
       <a href="{{ path('app_eleves_new')}}" class="btn btn-primaire">Inscrire un élève</a>
     </section>
   </div>

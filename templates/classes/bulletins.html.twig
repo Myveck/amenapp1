@@ -1,0 +1,55 @@
+{% extends 'base.html.twig' %} {% block title %}New Evaluations{% endblock %} {%
+block body %}
+
+<div class="wrapper">
+    <div class="sidebar">
+        <div class="top"><a href="{{ path("app_main") }}" data-section="section1">Acceuil</a></div>
+        <div class="sidebar-menu">
+            <a href="{{ path("app_examinations_index") }}" data-section="section1"  >Examinations</a>
+            <a href="{{ path("app_evaluations_index") }}" data-section="section1">Type Examinations</a>
+            <a href="{{ path("app_classes_bulletins") }}" data-section="section2" class="active">bulletins</a>
+        </div>
+    </div>
+    <div class="center">
+        <h1>Imprimer les bulletins</h1>
+        <hr>
+        {% for classe, eleves in classeEleves %}
+          <table>
+            <tr>
+              <td class="label"><a href="#" data-classe="
+                {% if eleves | length > 0 %} 
+                    {{ eleves[0].classe.id }} 
+                {% endif %}
+                ">{{ classe }}</a></td>
+              <td class="value">
+                    <form action="
+                            {% if eleves | length > 0 %} 
+                              {{path('app_notes_bulletins', {'classe' : eleves[0].classe.id})}} 
+                            {% endif %}" method="get">
+                        <select name="trimestre" id="" class="form-control" onchange="this.form.submit()">
+                            <option value="">Imprimer bulletins</option>
+                            <option value="1">1er trimestre</option>
+                            <option value="2">2e trimestre</option>
+                            <option value="3">3e trimestre</option>
+                        </select>
+                    </form>
+              </td>
+            </tr>
+          </table>
+        {% endfor %}
+    </div>
+    
+    <div class="after">
+      <nav>
+        <ul>
+          <li id="listeEleves">
+          </li>
+        </ul>
+      </nav>
+    </div>
+
+</div>
+
+
+{% endblock %}
+

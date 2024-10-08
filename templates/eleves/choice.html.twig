@@ -3,14 +3,16 @@
 
 <div class="wrapper">
     <div class="sidebar">
-      <div class="sidebar-menu">
-        <a href="{{ path("app_main") }}" data-section="section1">Acceuil</a>
-        <a href="{{ path("app_notes_index") }}" data-section="section1">Liste des notes</a>
-        <a href="{{ path("app_eleves_choice") }}" data-section="section2"  class="active">Saisir une note</a>
-        <a href="{{ path("app_notes_moyennes") }}" data-section="section2">Voir les moyennes</a>
-        <a href="{{ path("app_notes_bulletins") }}" data-section="section2">Voir les bulletins</a>
+      
+        <div class="top"><a href="{{ path("app_main") }}" data-section="section1">Acceuil</a></div>
 
-      </div>
+        <div class="sidebar-menu">
+            <a href="{{ path("app_main_ecole") }}" data-section="section1">Dashboard</a>
+            <a href="{{ path("app_eleves_index") }}" data-section="section1">Elèves</a>
+            <a href="{{ path("app_classes_index") }}" data-section="section2">Classes</a>
+            <a href="{{ path("app_matieres_index") }}" data-section="section2">Cours</a>
+            <a href="{{ path("app_enseignants_index") }}" data-section="section2">Professeurs</a>
+        </div>
     </div>
   <div class="center">
     <section id="section1" class="active">

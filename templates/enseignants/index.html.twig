@@ -5,15 +5,21 @@
 {% block body %}
   <div class="wrapper">
       <div class="sidebar">
+        <div class="top"><a href="{{ path("app_main") }}" data-section="section1">Acceuil</a></div>
+
         <div class="sidebar-menu">
-          <a href="{{ path("app_main") }}" data-section="section1">Acceuil</a>
-          <a href="{{ path("app_eleves_index") }}" data-section="section1" class="active">Liste des enseignants</a>
-          <a href="{{ path("app_eleves_new") }}" data-section="section2">Ajouter un enseignant</a>
-          <a href="{{ path("app_eleves_renew") }}" data-section="section2">Affecter classe et/ou matière(s)</a>
+            <a href="{{ path("app_main_ecole") }}" data-section="section1">Dashboard</a>
+            <a href="{{ path("app_eleves_index") }}" data-section="section1" >Elèves</a>
+            <a href="{{ path("app_classes_index") }}" data-section="section2">Classes</a>
+            <a href="{{ path("app_matieres_index") }}" data-section="section2">Cours</a>
+            <a href="{{ path("app_enseignants_index") }}" data-section="section2" class="active">Professeurs</a>
         </div>
       </div>
         <div class="center">
-            <h1>Enseignants index</h1>
+            <h1>Liste des enseignants</h1>
+
+            <div class="right"><a href="{{ path('app_enseignants_new') }}" class="btn btn-primaire mb-4">Ajouter un professeur</a></div>
+
             <table class="table">
                 <thead>
                     <tr>
@@ -21,7 +27,6 @@
                         <th>Nom</th>
                         <th>Prenom</th>
                         <th>Telephone</th>
-                        <th>Created_at</th>
                         <th>actions</th>
                     </tr>
                 </thead>
@@ -32,7 +37,6 @@
                         <td>{{ enseignant.nom }}</td>
                         <td>{{ enseignant.prenom }}</td>
                         <td>{{ enseignant.telephone }}</td>
-                        <td>{{ enseignant.createdAt ? enseignant.createdAt|date('Y-m-d H:i:s') : '' }}</td>
                         <td>
                             <a href="{{ path('app_enseignants_show', {'id': enseignant.id}) }}">show</a>
                             <a href="{{ path('app_enseignants_edit', {'id': enseignant.id}) }}">edit</a>
@@ -40,12 +44,11 @@
                     </tr>
                 {% else %}
                     <tr>
-                        <td colspan="6">no records found</td>
+                        <td colspan="6">Aucun enseignant n'a été trouvé</td>
                     </tr>
                 {% endfor %}
                 </tbody>
             </table>
-            <a href="{{ path('app_enseignants_new') }}">Create new</a>
         </div>
   </div>
 {% endblock %}

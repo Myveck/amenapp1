@@ -18,12 +18,20 @@ use Symfony\Component\Routing\Attribute\Route;
 final class ElevesController extends AbstractController
 {
     #[Route(name: 'app_eleves_index', methods: ['GET'])]
-    public function index(ElevesRepository $elevesRepository, ClassesRepository $classesRepository): Response
+    public function index(Request $request, ElevesRepository $elevesRepository, ClassesRepository $classesRepository): Response
     {
+        $trie = $request->get('trie');
+        if ($trie == "all" or !$trie) {
+            $eleves = $elevesRepository->findBy([], ['nom' => 'asc']);
+            $trie = "all";
+        } else {
+            $eleves = $elevesRepository->findBy(['classe' => $trie], ['nom' => 'asc']);
+        }
         return $this->render('eleves/index.html.twig', [
-            'eleves' => $elevesRepository->findBy([], ['nom' => 'asc']),
+            'eleves' => $eleves,
             'classes' => $classesRepository->findBy([], ['classeOrder' => 'asc']),
-            'active' => 'all',
+            'active' => $trie,
+            'nombre' => count($eleves),
         ]);
     }
 
@@ -64,22 +72,6 @@ final class ElevesController extends AbstractController
             $eleves = $elevesRepository->findBy(['classe' => $trie], ['nom' => 'asc']);
         }
         return $this->render('eleves/choice.html.twig', [
-            'eleves' => $eleves,
-            'classes' => $classesRepository->findBy([], ['classeOrder' => 'asc']),
-            'active' => $trie,
-        ]);
-    }
-
-    #[Route('/trier/renew', name: 'app_eleves_trier_renew', methods: ['GET'])]
-    public function trierRenew(Request $request, ElevesRepository $elevesRepository, ClassesRepository $classesRepository): Response
-    {
-        $trie = $request->get('trie');
-        if ($trie == "all") {
-            $eleves = $elevesRepository->findBy([], ['nom' => 'asc']);
-        } else {
-            $eleves = $elevesRepository->findBy(['classe' => $trie], ['nom' => 'asc']);
-        }
-        return $this->render('eleves/renew.html.twig', [
             'eleves' => $eleves,
             'classes' => $classesRepository->findBy([], ['classeOrder' => 'asc']),
             'active' => $trie,
@@ -133,12 +125,18 @@ final class ElevesController extends AbstractController
     }
 
     #[Route('/renew', name: 'app_eleves_renew', methods: ['GET', 'POST'])]
-    public function renew(ElevesRepository $elevesRepository, ClassesRepository $classesRepository): Response
+    public function renew(Request $request, ElevesRepository $elevesRepository, ClassesRepository $classesRepository): Response
     {
+        $trie = $request->get('trie');
+        if (!$trie or $trie == "all") {
+            $eleves = $elevesRepository->findBy([], ['nom' => 'asc']);
+        } else {
+            $eleves = $elevesRepository->findBy(['classe' => $trie], ['nom' => 'asc']);
+        }
         return $this->render('eleves/renew.html.twig', [
-            'eleves' => $elevesRepository->findAll(),
+            'eleves' => $eleves,
             'classes' => $classesRepository->findBy([], ['classeOrder' => 'asc']),
-            'active' => 'all',
+            'active' => $trie,
         ]);
     }
 
@@ -153,7 +151,6 @@ final class ElevesController extends AbstractController
     #[Route('/{id}/edit', name: 'app_eleves_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, Eleves $elefe, EntityManagerInterface $entityManager): Response
     {
-        $elefe = new Eleves();
         $pere = new Parents();
         $mere = new Parents();
         $parentsM = new ParentsEleves();

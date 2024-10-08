@@ -49,11 +49,18 @@ class Classes
     #[ORM\JoinColumn(nullable: false)]
     private ?AnneeScolaire $annee_scolaire = null;
 
+    /**
+     * @var Collection<int, Examinations>
+     */
+    #[ORM\OneToMany(targetEntity: Examinations::class, mappedBy: 'classe', orphanRemoval: true)]
+    private Collection $examinations;
+
     public function __construct()
     {
         $this->emploisDuTemps = new ArrayCollection();
         $this->classesMatieres = new ArrayCollection();
         $this->eleves = new ArrayCollection();
+        $this->examinations = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -206,6 +213,36 @@ class Classes
     public function setAnneeScolaire(?AnneeScolaire $anne_scolaire): static
     {
         $this->annee_scolaire = $anne_scolaire;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Examinations>
+     */
+    public function getExaminations(): Collection
+    {
+        return $this->examinations;
+    }
+
+    public function addExamination(Examinations $examination): static
+    {
+        if (!$this->examinations->contains($examination)) {
+            $this->examinations->add($examination);
+            $examination->setClasse($this);
+        }
+
+        return $this;
+    }
+
+    public function removeExamination(Examinations $examination): static
+    {
+        if ($this->examinations->removeElement($examination)) {
+            // set the owning side to null (unless already changed)
+            if ($examination->getClasse() === $this) {
+                $examination->setClasse(null);
+            }
+        }
 
         return $this;
     }

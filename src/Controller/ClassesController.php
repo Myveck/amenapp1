@@ -6,6 +6,7 @@ use App\Entity\Classes;
 use App\Entity\Tarif;
 use App\Form\ClassesType;
 use App\Repository\ClassesRepository;
+use App\Repository\ElevesRepository;
 use App\Repository\TarifRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -17,9 +18,8 @@ use Symfony\Component\Routing\Attribute\Route;
 final class ClassesController extends AbstractController
 {
     #[Route(name: 'app_classes_index', methods: ['GET'])]
-    public function index(Request $request, ClassesRepository $classesRepository): Response
+    public function index(Request $request, ClassesRepository $classesRepository, TarifRepository $tarifRepository): Response
     {
-
         $trie = $request->get('trie');
         if (!$trie or $trie == "all") {
             $trie = "all";
@@ -28,12 +28,34 @@ final class ClassesController extends AbstractController
 
             $classes = $classesRepository->findBy(["niveau" => $trie], ['nom'  => 'asc']);
         }
-        // dd($trie);
-        // dd($classes);
+
+        $classeTarif = [];
+
+        foreach ($classes as $classe) {
+            $classeTarif[$classe->getNom()] = $tarifRepository->findOneBy(["classe" => $classe]);
+        }
+
         return $this->render('classes/index.html.twig', [
             'classes' => $classes,
             'niveaux' => ['primaire', 'college', 'lycee'],
             'active' => $trie,
+            'classeTarif' => $classeTarif,
+        ]);
+    }
+
+    #[Route('/bulletins', name: 'app_classes_bulletins')]
+    public function bulletin(ClassesRepository $classesRepository, ElevesRepository $elevesRepository): Response
+    {
+        $classes = $classesRepository->findAll();
+
+        $classeEleves = [];
+
+        foreach ($classes as $classe) {
+            $classeEleves[$classe->getNom()] = $elevesRepository->findBy(["classe" => $classe]);
+        }
+
+        return $this->render('classes/bulletins.html.twig', [
+            'classeEleves' => $classeEleves,
         ]);
     }
 
@@ -68,6 +90,33 @@ final class ClassesController extends AbstractController
             'form' => $form,
         ]);
     }
+    // Contrôleur Symfony
+    #[Route('/eleves/{classeId}', name: 'app_classes_eleves')]
+    public function eleves(Request $request, ElevesRepository $elevesRepository, ClassesRepository $classesRepository)
+    {
+        $classeId = $request->attributes->get('classeId');
+        $classe = $classesRepository->find($classeId);
+
+        if (!$classe) {
+            return $this->json(['eleves' => []]);
+        }
+
+        $eleves = $elevesRepository->findBy(["classe" => $classe]);
+
+        $eleveData = [];
+        foreach ($eleves as $eleve) {
+            $eleveData[] = [
+                'id' => $eleve->getId(),
+                'nom' => $eleve->getNom(),
+                'classeId' => $classeId,
+                'formAction' => $this->generateUrl('app_notes_bulletin_eleve', ['classe' => $classeId, 'eleve' => $eleve->getId()]) // Génération de l'URL
+
+            ];
+        }
+
+        return $this->json(['eleves' => $eleveData]);
+    }
+
 
     #[Route('/{id}', name: 'app_classes_show', methods: ['GET'])]
     public function show(Classes $class): Response

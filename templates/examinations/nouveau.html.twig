@@ -1,0 +1,62 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Examinations index{% endblock %}
+
+{% block body %}
+
+  <div class="wrapper">
+      <div class="sidebar">
+            <div class="top"><a href="{{ path("app_main") }}" data-section="section1">Acceuil</a></div>
+            <div class="sidebar-menu">
+                <a href="{{ path("app_examinations_index") }}" data-section="section1"  class="active">Examinations</a>
+                <a href="{{ path("app_evaluations_index") }}" data-section="section1">Type Examinations</a>
+                <a href="{{ path("app_classes_bulletins") }}" data-section="section2">bulletins</a>
+            </div>
+      </div>
+    <div class="center">
+      <h1 class="mb-4">Créer une examination pour la classe de <strong>{{classe.nom}}</strong></h1>
+      <form action="{{ path('app_examinations_create') }}" method="get" id="matiere-classe-form">
+        <div class="hidden mb-2">
+          <label for="classe">Classe</label>
+          <select name="classe" id="classe" class="form-select">
+              <option value="{{ classe.id }}">{{ classe.nom }}</option>
+          </select>
+        </div>
+        <div class="mb-2">
+          <label for="matiere">Matiere</label>
+          <select name="matiere" id="matiere" class="form-select">
+            {% for matiere in matieres %}
+              <option value="{{ matiere.id }}">{{ matiere.nom }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="mb-2">
+          <label for="evaluation">Type de l'examination</label>
+          <select name="evaluation" id="evaluation" class="form-select for-control">
+            {% for evaluation in evaluations %}
+                <option value="{{evaluation.id}}">{{evaluation.nom}}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="mb-2">
+          <label for="date_exament">Date de l'examination</label>
+          <input type="date" name="date_examen" id="date_examen" class="form-control form-lable">
+        </div>
+        
+        <div class="mb-2">
+          <label for="trimestre">Trimestre de l'évaluation</label>
+          <select name="trimestre" id="trimestre" class="form-select for-control mb-4">
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+          </select>
+        </div>
+        <button type="submit" class="btn btn-primaire mt-2">Créer</button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+  </script>
+
+{% endblock %}

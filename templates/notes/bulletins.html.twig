@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <style>
+    /* Dimensions d'une feuille A4 avec marges réduites */
+    .a4 {
+      width: 210mm;
+      height: auto;
+      margin: 0 auto;
+      padding: 10mm;
+      /* Réduction du padding pour maximiser l'espace */
+      background: white;
+      font-family: "Arial", sans-serif;
+      border: 1px solid #ccc;
+      box-shadow: 0 0 5mm rgba(0, 0, 0, 0.1);
+      page-break-after: always;
+    }
+
+    /* Réduction de la taille des titres */
+    .a4 h1 {
+      font-size: 24px;
+      /* Taille réduite du titre principal */
+      margin-bottom: 10px;
+      text-align: center;
+    }
+
+    .a4 h2 {
+      font-size: 20px;
+      margin-bottom: 5px;
+    }
+
+    .top h1 {
+      margin-top: 5px;
+    }
+
+    .top h1,
+    .top p {
+      margin-bottom: -5px;
+    }
+
+    /* Ajustement de la taille de la police pour le contenu */
+    .a4 p {
+      font-size: 13px;
+      /* Légère réduction de la taille du texte */
+      line-height: 1.4;
+      /* Réduction de la hauteur des lignes */
+    }
+
+    .a4 small {
+      font-size: 11px;
+    }
+
+    .top {
+      text-align: center;
+      margin-top: -15px;
+    }
+
+    /* Styles pour les tableaux avec ajustement d'espacement */
+    .a4 table {
+      font-size: 13px;
+      /* Taille ajustée pour une meilleure gestion de l'espace */
+      width: 100%;
+      border-collapse: collapse;
+      text-align: center;
+    }
+
+    .a4 th,
+    .a4 td {
+      border: 1px solid #ccc;
+      padding: 6px;
+      /* Réduction du padding pour compacter le tableau */
+    }
+
+    .a4 th {
+      background-color: #f5f5f5;
+    }
+
+    .a4 tr:nth-child(even) {
+      background-color: #f9f9f9;
+    }
+
+    /* Ajustement de la largeur des colonnes */
+    .a4 th.matiere,
+    .a4 td.matiere {
+      width: 35%;
+      /* Réduction de la largeur de la colonne "Matière" */
+      text-align: left;
+    }
+
+    .a4 th.appreciation,
+    .a4 td.appreciation {
+      width: 15%;
+      /* Réduction de la largeur de la colonne "Appréciation" */
+      text-align: left;
+    }
+
+    .a4 th,
+    .a4 td {
+      width: auto;
+    }
+
+    .a4 th {
+      height: 10px;
+    }
+
+    /* Section des informations de l'élève avec espacement réduit */
+    .student {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 8px;
+      /* Espacement réduit entre les éléments */
+      grid-auto-rows: minmax(40px, auto);
+    }
+
+    .oneitem1 {
+      grid-column: 1/4;
+    }
+
+    .oneitem2 {
+      grid-column: 4/6;
+    }
+
+    .a4 li {
+      list-style-type: none;
+    }
+
+    .a4 .oneitem {
+      border: 1px solid #000;
+      border-radius: 5px;
+    }
+
+    /* Ajustement de la largeur des cellules du tableau personnel */
+    .a4 td.label {
+      width: 130px;
+      /* Réduction de la largeur des labels */
+      text-align: right;
+      padding-right: 5px;
+    }
+
+    .a4 td.value {
+      text-align: left;
+    }
+
+    /* Ligne de séparation plus fine */
+    hr.solid {
+      border-top: 1px solid #000;
+      margin-top: 10px;
+    }
+
+    /* Section de présentation */
+    .a4 .presentation {
+      width: 100%;
+      background-color: #eee;
+      padding-top: 2px;
+      padding-bottom: 2px;
+      margin-bottom: 8px;
+      margin-top: 5px;
+    }
+
+    /* Section du bilan général avec réduction de l'espacement */
+    .a4 .general {
+      border: 1px solid #ddd;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    /* Tableaux ajustés pour compacter la présentation des données générales */
+    .a4 .bilanGeneral,
+    .a4 .trimestre,
+    .a4 .bilanClasse {
+      width: 100%;
+    }
+
+    .a4 .bilanGeneral td.label,
+    .a4 .trimestre td.label,
+    .a4 .bilanClasse td.label {
+      width: 90px;
+      /* Réduction de la largeur des labels */
+      text-align: right;
+      padding-right: 3px;
+    }
+
+    .petit {
+      margin-top: 10px;
+    }
+
+    /* Impression */
+    @media print {
+      .a4 {
+        border: none;
+        box-shadow: none;
+        padding: 0;
+        margin: 0;
+        width: 210mm; /* Ensure proper size for A4 */
+        height: auto; /* Let the content determine the height */
+        page-break-after: always;
+      }
+      .a4:last-child {
+        page-break-after: auto; /* Pas de saut de page après le dernier bulletin */
+      }
+
+      .no-print {
+        display: none;
+      }
+    }
+  </style>
+
+  <body>
+    {% for key, result in results[0] %}
+    <div class="a4">
+      <div class="top">
+        <p><small>République du Bénin</small></p>
+        <h1>Complexe scolaire Amen</h1>
+        <p>07 BP: 155 Cotonou Tel: 21350880 / 94949797 / 63431414</p>
+        <p><strong>Abomey-Calavi</strong></p>
+        <p>Discipline-Travail-Succès</p>
+      </div>
+      <hr class="solid" />
+      <div class="student">
+        <div class="oneitem oneitem1 personnel">
+          <table>
+            <tr>
+              <td class="label">Nom :</td>
+              <td class="value">{{ students[key].nom }}</td>
+            </tr>
+            <tr>
+              <td class="label">Prénom :</td>
+              <td class="value">{{ students[key].prenom }}</td>
+            </tr>
+            <tr>
+              <td class="label">Date de naissance :</td>
+              <td class="value"></td>
+            </tr>
+            <tr>
+              <td class="label">Lieu de naissance :</td>
+              <td class="value"></td>
+            </tr>
+            <tr>
+              <td class="label">Sexe :</td>
+              <td class="value">{{ students[key].sexe | upper }}</td>
+            </tr>
+          </table>
+        </div>
+        <div class="oneitem oneitem2 classe">
+          <table>
+            <tr>
+              <td class="label">Classe :</td>
+              <td class="value">{{ classe.nom }}</td>
+            </tr>
+            <tr>
+              <td class="label">Effectif :</td>
+              <td class="value">25</td>
+            </tr>
+            <tr>
+              <td class="label">Status :</td>
+              <td class="value">Nouveau</td>
+            </tr>
+            <tr>
+              <td class="label">Année scolaire :</td>
+              <td class="value">2024-2025</td>
+            </tr>
+          </table>
+        </div>
+        <div class="oneitem oneitem3 vide"></div>
+      </div>
+
+      <div class="presentation">
+        <h1>BULLETIN DE NOTE DU DEUXIEME TRIMESTRE</h1>
+      </div>
+      <div class="bulletin">
+        <table>
+          <thead>
+            <tr>
+              <th class="matiere">Matière</th>
+              <th>Coef</th>
+              <th>MI</th>
+              <th>Devoir n°1</th>
+              <th>Devoir n°2</th>
+              <th>DH</th>
+              <th>Moy/20</th>
+              <th>Moy. Coef</th>
+              <th>Rang</th>
+              <th>Moy Fble</th>
+              <th>Moy Frte</th>
+              <th class="appreciation">Appréciation</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            {% for matiereId, evaluations in result.notesParEvaluation %}
+            <tr>
+              <td class="matiere">{{ matieres[matiereId].nom }}</td>
+              <td>1</td>
+              <td>{{ evaluations.mi ?? "N/A" }}</td>
+              <td>{{ evaluations.d1 ?? "N/A" }}</td>
+              <td>{{ evaluations.d2 ?? "N/A" }}</td>
+              <td>{{ evaluations.dh ?? "N/A" }}</td>
+              <td>{{ result.moyenneParMatiere[matiereId] ?? "N/A" }}</td>
+              <td>{{ result.moyenneParMatiere[matiereId] }}</td>
+              <td>{{ rangParMatiere[matiereId][students[key].id] }}</td>
+              <td>{{ plusFaibleMoyenne[matiereId] }}</td>
+              <td>{{ plusForteMoyenne[matiereId] }}</td>
+              <td class="appreciation">
+                {% if result.moyenneParMatiere[matiereId] < 10 %} Insuffisant {%
+                elseif result.moyenneParMatiere[matiereId] >= 10 and
+                result.moyenneParMatiere[matiereId] < 12 %} Passable {% elseif
+                result.moyenneParMatiere[matiereId] >= 12 and
+                result.moyenneParMatiere[matiereId] < 14 %} Assez-bien {% elseif
+                result.moyenneParMatiere[matiereId] >= 14 and
+                result.moyenneParMatiere[matiereId] < 16 %} bien {% elseif
+                result.moyenneParMatiere[matiereId] >= 16 and
+                result.moyenneParMatiere[matiereId] < 18 %} Très bien {% elseif
+                result.moyenneParMatiere[matiereId] >= 18 %} Excellent {% endif
+                %}
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      <div class="general">
+        <div class="bilanGeneral">
+          <table>
+            <tr>
+              <td class="label">Moyenne</td>
+              <td class="value">{{ result["moyenneGenerale"] }}</td>
+            </tr>
+            <tr>
+              <td class="label">Rang</td>
+              <td class="value">
+                {{ rangGeneral[students[key].id] }}
+                {% if rangGeneral[students[key].id] == 1 and students[key].sexe
+                == "f" %}ère {% endif %} {% if rangGeneral[students[key].id] ==
+                1 and students[key].sexe == "m" %}er {% endif %} {% if
+                rangGeneral[students[key].id] != 1 %}ème{% endif %}
+              </td>
+            </tr>
+          </table>
+        </div>
+        <div class="trimestre">
+          <table>
+            <thead>
+              <tr>
+                <th>Trimestre</th>
+                <th>Moyenne</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>1er Trimestre</td>
+                <td></td>
+              </tr>
+              <tr>
+                <td>2e Trimestre</td>
+                <td></td>
+              </tr>
+              <tr>
+                <td>3e Trimestre</td>
+                <td></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="bilanClasse">
+          <table>
+            <thead>
+              <tr>
+                <td colspan="2">Billan de la classe</td>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Moyenne forte</td>
+                <td>{{ moyenneGForte }}</td>
+              </tr>
+
+              <tr>
+                <td>Moyenne faible</td>
+                <td>{{ moyenneGFaible }}</td>
+              </tr>
+              <tr>
+                <td>Moyenne de la classe</td>
+                <td>{{ moyenneGClasse }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="note mb-4">
+        <table>
+          <thead>
+            <tr>
+              <th colspan="2">Distinctions et Sanctions</th>
+              <th>appreciation du Conseil des Professeurs</th>
+              <th>Signature du directeur des études</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Félicitations</td>
+              <td></td>
+              <td rowspan="6">
+                <h1>
+                  {% if result["moyenneGenerale"] < 10 %} Insuffisant {% elseif
+                  result["moyenneGenerale"] >= 10 and result["moyenneGenerale"]
+                  < 12 %} Passable {% elseif result["moyenneGenerale"] >= 12 and
+                  result["moyenneGenerale"] < 14 %} Assez-bien {% elseif
+                  result["moyenneGenerale"] >= 14 and result["moyenneGenerale"]
+                  < 16 %} Bien {% elseif result["moyenneGenerale"] >= 16 and
+                  result["moyenneGenerale"] < 18 %} Très bien {% elseif
+                  result["moyenneGenerale"] >= 18 %} Excellent {% endif %}
+                </h1>
+              </td>
+              <td rowspan="6"></td>
+            </tr>
+
+            <tr>
+              <td>Encouragement</td>
+              <td></td>
+            </tr>
+            <tr>
+              <td>Tableau d'honneur</td>
+              <td></td>
+            </tr>
+            <tr>
+              <td>Avertissement</td>
+              <td></td>
+            </tr>
+            <tr>
+              <td>Blâme</td>
+              <td></td>
+            </tr>
+            <tr>
+              <td>Exclu</td>
+              <td></td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="petit">
+          <small>
+            <strong>Mi : </strong> Moyenne Interrogation -
+            <strong>DH : </strong> Devoir hebdomadaire
+          </small>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+
+    <script>
+      window.onload = function () {
+        window.print();
+      };
+    </script>
+  </body>
+</html>

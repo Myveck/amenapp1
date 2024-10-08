@@ -21,20 +21,30 @@ use Symfony\Component\Routing\Attribute\Route;
 final class MatieresController extends AbstractController
 {
     #[Route(name: 'app_matieres_index', methods: ['GET'])]
-    public function index(Request $request, MatieresRepository $matieresRepository, ClassesMatieresRepository $classeMatiere): Response
+    public function index(Request $request, MatieresRepository $matieresRepository, ClassesMatieresRepository $classeMatiere, ClassesRepository $classesRepository): Response
     {
         $trie = $request->get("trie");
-        if (!$trie) {
+        if (!$trie or $trie == "all") {
             $trie = "all";
             $matieres = $matieresRepository->findBy([], ['nom' => 'asc']);
         } else {
-            $matieres = $classeMatiere->findMatiereByClasseLevel($trie);
+            $classe = $classesRepository->findOneBy(["id" => $trie]);
+            $matieres = $classeMatiere->findMatiereByClasse($classe);
         }
+
+        $matiereCoef = [];
+        if ($matieres) {
+            foreach ($matieres as $matiere) {
+                $matiereCoef[$matiere->getId()] = $classeMatiere->findOneBy(["matiere" => $matiere]);
+            }
+        }
+
         return $this->render('matieres/index.html.twig', [
-            'matieres' => $matieres,
+            'matieres' => $matiereCoef,
             'classeMatieres' => $classeMatiere->findAll(),
             'niveaux' => ['primaire', 'college', 'lycee'],
             'active' => $trie,
+            'classes' => $classesRepository->findBy([], ["classeOrder" => "asc"])
         ]);
     }
 

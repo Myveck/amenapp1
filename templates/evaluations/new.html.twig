@@ -1,11 +1,21 @@
-{% extends 'base.html.twig' %}
+{% extends 'base.html.twig' %} {% block title %}New Evaluations{% endblock %} {%
+block body %}
 
-{% block title %}New Evaluations{% endblock %}
+<div class="wrapper">
+    <div class="sidebar">
+        <div class="top"><a href="{{ path("app_main") }}" data-section="section1">Acceuil</a></div>
+        <div class="sidebar-menu">
+            <a href="{{ path("app_examinations_index") }}" data-section="section1"  >Examinations</a>
+            <a href="{{ path("app_evaluations_index") }}" data-section="section1" class="active">Type Examinations</a>
+            <a href="{{ path("app_classes_bulletins") }}" data-section="section2">bulletins</a>
+        </div>
+    </div>
+    <div class="center">
+            <h1>Créer une évaluation</h1>
+        {{ include("evaluations/_form.html.twig") }}
+    
+        <a href="{{ path('app_evaluations_index') }}" class="btn btn-secondaire">Retour</a>
+    </div>
+</div>
 
-{% block body %}
-    <h1>Create new Evaluations</h1>
-
-    {{ include('evaluations/_form.html.twig') }}
-
-    <a href="{{ path('app_evaluations_index') }}">back to list</a>
 {% endblock %}
