@@ -34,6 +34,32 @@ block body %}
                         </select>
                     </form>
               </td>
+              <td class="value">
+                    <form action="
+                            {% if eleves | length > 0 %} 
+                              {{path('app_notes_retrait_bulletins', {'classe' : eleves[0].classe.id})}} 
+                            {% endif %}" method="get">
+                        <select name="trimestre" id="" class="form-control" onchange="this.form.submit()">
+                            <option value="">Fiche de retrait</option>
+                            <option value="1">1er trimestre</option>
+                            <option value="2">2e trimestre</option>
+                            <option value="3">3e trimestre</option>
+                        </select>
+                    </form>
+              </td>
+              <td class="value">
+                    <form action="
+                            {% if eleves | length > 0 %} 
+                              {{path('app_notes_bulletins', {'classe' : eleves[0].classe.id})}} 
+                            {% endif %}" method="get">
+                        <select name="trimestre" id="" class="form-control" onchange="this.form.submit()">
+                            <option value="">Fiche de vérification</option>
+                            <option value="1">1er trimestre</option>
+                            <option value="2">2e trimestre</option>
+                            <option value="3">3e trimestre</option>
+                        </select>
+                    </form>
+              </td>
             </tr>
           </table>
         {% endfor %}
@@ -49,6 +75,45 @@ block body %}
     </div>
 
 </div>
+
+<script>
+    const links = document.querySelectorAll('a[data-classe]');
+    
+    links.forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            const classeId = this.getAttribute('data-classe');
+            const url = 'eleves/' + classeId;
+
+            fetch(url)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Erreur réseau: ' + response.statusText);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    const listeEleves = document.getElementById('listeEleves');
+                    listeEleves.innerHTML = data.eleves.map(eleve => `
+                        <div>
+                            <span>${eleve.nom}</span>
+                            <form action="${eleve.formAction}" method="get">
+                                <select name="trimestre" class="form-control" onchange="this.form.submit()">
+                                    <option value="">Imprimer</option>
+                                    <option value="1">1er trimestre</option>
+                                    <option value="2">2e trimestre</option>
+                                    <option value="3">3e trimestre</option>
+                                </select>
+                            </form>
+                        </div>
+                    `).join('');
+                })
+                .catch(error => {
+                    console.error('Erreur lors de la récupération des élèves:', error);
+                });
+        });
+    });
+</script>
 
 
 {% endblock %}

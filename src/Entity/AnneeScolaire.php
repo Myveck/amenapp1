@@ -48,6 +48,12 @@ class AnneeScolaire
     #[ORM\OneToMany(targetEntity: Evaluations::class, mappedBy: 'annee_scolaire')]
     private Collection $evaluations;
 
+    /**
+     * @var Collection<int, PaiementsBackup>
+     */
+    #[ORM\OneToMany(targetEntity: PaiementsBackup::class, mappedBy: 'annee_scolaire', orphanRemoval: true)]
+    private Collection $paiementsBackups;
+
     public function __construct()
     {
         $this->classes = new ArrayCollection();
@@ -55,6 +61,7 @@ class AnneeScolaire
         $this->classesMatieres = new ArrayCollection();
         $this->tarifs = new ArrayCollection();
         $this->evaluations = new ArrayCollection();
+        $this->paiementsBackups = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -218,6 +225,36 @@ class AnneeScolaire
             // set the owning side to null (unless already changed)
             if ($evaluation->getAnneeScolaire() === $this) {
                 $evaluation->setAnneeScolaire(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, PaiementsBackup>
+     */
+    public function getPaiementsBackups(): Collection
+    {
+        return $this->paiementsBackups;
+    }
+
+    public function addPaiementsBackup(PaiementsBackup $paiementsBackup): static
+    {
+        if (!$this->paiementsBackups->contains($paiementsBackup)) {
+            $this->paiementsBackups->add($paiementsBackup);
+            $paiementsBackup->setAnneeScolaire($this);
+        }
+
+        return $this;
+    }
+
+    public function removePaiementsBackup(PaiementsBackup $paiementsBackup): static
+    {
+        if ($this->paiementsBackups->removeElement($paiementsBackup)) {
+            // set the owning side to null (unless already changed)
+            if ($paiementsBackup->getAnneeScolaire() === $this) {
+                $paiementsBackup->setAnneeScolaire(null);
             }
         }
 

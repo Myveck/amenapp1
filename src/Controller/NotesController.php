@@ -11,6 +11,7 @@ use App\Entity\Notes;
 use App\Form\NotesType;
 use App\Repository\ClassesMatieresRepository;
 use App\Repository\ClassesRepository;
+use App\Repository\EcolesRepository;
 use App\Repository\ElevesRepository;
 use App\Repository\EvaluationsRepository;
 use App\Repository\ExaminationsRepository;
@@ -333,7 +334,7 @@ final class NotesController extends AbstractController
         ClassesMatieresRepository $classesMatieresRepository,
         ExaminationsRepository $examinationsRepository,
         NotesRepository $notesRepository,
-        EvaluationsRepository $evaluationsRepository
+        EvaluationsRepository $evaluationsRepository,
     ) {
         // Récupérer les évaluations
         $evaluations = $evaluationsRepository->findBy(["id" => [1, 2, 3, 4]]);
@@ -426,12 +427,14 @@ final class NotesController extends AbstractController
         ElevesRepository $elevesRepository,
         ClassesMatieresRepository $classesMatieresRepository,
         EvaluationsRepository $evaluationsRepository,
-        NotesRepository $notesRepository
+        NotesRepository $notesRepository,
+        EcolesRepository $ecolesRepository,
     ): Response {
         $classeId = $request->get('classe');
         $trimestre = $request->get('trimestre');
         $classe = $classesRepository->findOneBy(["id" => $classeId]);
         $eleves = $elevesRepository->findBy(["classe" => $classe]);
+        $ecole = $ecolesRepository->findOneBy(['id' => 1]);
         $matieres = [];
 
         $cMatieres = $classesMatieresRepository->findMatiereByClasse($classe);
@@ -512,7 +515,77 @@ final class NotesController extends AbstractController
             'rangGeneral' => $rangGeneral,
             'moyenneGClasse' => $moyenneGClasse,
             'trimestre' => $trimestre,
+            'ecole' => $ecole,
             'results' => $results,  // Contient les moyennes et résultats de chaque élève
+        ]);
+    }
+
+    #[Route('/{classe}/retrait/bulletins', name: 'app_notes_retrait_bulletins', methods: ['GET', 'POST'])]
+    public function retraitBulletin(
+        Request $request,
+        ClassesRepository $classesRepository,
+        ExaminationsRepository $examinationsRepository,
+        ElevesRepository $elevesRepository,
+        NotesRepository $notesRepository,
+        ClassesMatieresRepository $classesMatieresRepository,
+        EvaluationsRepository $evaluationsRepository,
+        EcolesRepository $ecolesRepository,
+    ): Response {
+
+        $classeId = $request->get('classe');
+        $trimestre = $request->get('trimestre');
+        $trimestre = 3;
+        $classe = $classesRepository->findOneBy(["id" => $classeId]);
+        $eleves = $elevesRepository->findBy(["classe" => $classe]);
+        $ecole = $ecolesRepository->findOneBy(['id' => 1]);
+        $elevesId = [];
+        $matieres = [];
+        $coefficients = 0;
+
+        $cMatieres = $classesMatieresRepository->findMatiereByClasse($classe);
+
+
+        foreach ($cMatieres as $cMatiere) {
+            $matieres[$cMatiere->getMatiere()->getId()] = $cMatiere->getMatiere();
+            $coefficients += $cMatiere->getCoefficient();
+        }
+
+        foreach ($eleves as $oneEleve) {
+            $elevesId[$oneEleve->getId()] = $oneEleve;
+        }
+
+        // Calcul des résultats
+        $results = $this->calculateBulletins(
+            $classe,
+            $eleves,  // Passer un tableau avec un seul élève
+            $trimestre,
+            $classesMatieresRepository,
+            $examinationsRepository,
+            $notesRepository,
+            $evaluationsRepository
+        );
+
+        $general = [];
+        $rangGeneral = [];
+        foreach ($results[0] as $resKey => $resultat) {
+            $general[$resKey] = $resultat["moyenneGenerale"];
+        }
+
+        arsort($general);
+
+        $rangG = 1;
+        foreach ($general as $elKey => $elMoy) {
+            $rangGeneral[$elKey] = $rangG++;
+        }
+
+        return $this->render('notes/retrait_bulletins.html.twig', [
+            'results' => $results[0],
+            'ecole' => $ecole,
+            'rangGeneral' => $rangGeneral,
+            'sommeCoefficients' => $coefficients,
+            'eleves' => $elevesId,
+            'classe' => $classe,
+            'trimestre' => $trimestre,
         ]);
     }
 
@@ -524,7 +597,8 @@ final class NotesController extends AbstractController
         ElevesRepository $elevesRepository,
         NotesRepository $notesRepository,
         ClassesMatieresRepository $classesMatieresRepository,
-        EvaluationsRepository $evaluationsRepository
+        EvaluationsRepository $evaluationsRepository,
+        EcolesRepository $ecolesRepository,
     ): Response {
         $classeId = $request->get('classe');
         $eleveId = $request->get('eleve');
@@ -533,6 +607,7 @@ final class NotesController extends AbstractController
         $classe = $classesRepository->findOneBy(["id" => $classeId]);
         $eleve = $elevesRepository->findOneBy(["id" => $eleveId]);
         $eleves = $elevesRepository->findBy(["classe" => $classe]);
+        $ecole = $ecolesRepository->findOneBy(['id' => 1]);
         $matieres = [];
 
         $cMatieres = $classesMatieresRepository->findMatiereByClasse($classe);
@@ -661,15 +736,12 @@ final class NotesController extends AbstractController
             'rangGeneral' => $rangGeneral,
             'moyenneGClasse' => $moyenneGClasse,
             'results' => $results[0][$eleve->getId()],
+            'ecole' => $ecole,
             // 't1' => $moyenneTrimestre1,
             // 't2' => $moyenneTrimestre2,
             // 't3' => $moyenneTrimestre3,
         ]);
     }
-
-
-
-
 
     #[Route('/{trimestre}/{todo}/moyennes', name: 'app_notes_moyennes_trimestre', methods: ['GET'])]
     public function calculerMoyennesTrimestre(

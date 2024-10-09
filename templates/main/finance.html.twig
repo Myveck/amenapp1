@@ -1,0 +1,116 @@
+{% extends 'base.html.twig' %} {% block title %}Complexe scolaire Amen!{%
+endblock %} {% block body %}
+    <div class="globalite">
+      <div>
+        <h1>Nombre totale d'inscrits</h1>
+        <p>{{ masculins + feminins }}</p>
+      </div>
+      <div>
+        {% set count = 0 %}
+        <h1>Solde total inscription</h1>
+        {% for eleve in eleves %} {% set count = count +
+        tarifInscriptionParClasse[eleve.classe.id] %} {% endfor %}
+        <p>{{ count }} FCFA</p>
+      </div>
+      <div>
+        {% set annuel = 0 %} {% for eleve in eleves %} {% set annuel = annuel +
+        tarifAnnuelParClasse[eleve.classe.id] %} {% endfor %}
+        <h1>Solde estimé en fin d'année</h1>
+        <p>{{ annuel + count }} FCFA</p>
+      </div>
+    </div>
+
+    <div class="details">
+        <section class="classes">
+            <h5 class="mb-4">Estimation totale par classe 2024-2025</h5>
+            <table>
+                <tr>
+                    <th>Classe</th>
+                    <th>Par année</th>
+                    <th>Par inscription</th>
+                </tr>
+                {% for classe in classes %}
+                
+                    <tr>
+                        <td>{{classe.nom}}</td>
+                        <td>{{elevesParClasse[classe.id] * tarifAnnuelParClasse[classe.id] }}</td>
+                        <td>{{elevesParClasse[classe.id] * tarifInscriptionParClasse[classe.id]}}</td>
+                    </tr>
+                {% endfor %}
+            </table>
+        </section>
+        
+        <section class="circle">
+            <div class="doc">
+                <div><div class="lab lab1"></div> {{masculins }} Garçon</div>
+                <div><div class="lab lab2"></div> {{feminins }} fille</div>
+            </div>
+            <div class="autres mt-4">
+                <div class="pie-chart">
+                    <div class="slice-1"></div>
+                    <div class="slice-2"></div>
+                </div>
+            </div>
+        </section>
+            <!-- Conteneur du graphique -->
+        <section class="chart-container">
+            <canvas id="myBarChart" width="200" height="200"></canvas>
+        </section>
+    </div>
+  
+    <style>
+      
+        .pie-chart {
+            position: relative;
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            background: conic-gradient(
+            rgba(54, 162, 235, 0.6) 0% {{ masculins / (masculins + feminins) * 100 }}%, 
+            rgba(255, 99, 132, 0.6) {{ masculins / (masculins + feminins) * 100 }}% 100%
+            );
+        }
+    </style>
+
+    <!-- Script pour générer le diagramme -->
+    <script> 
+      const ctx = document.getElementById('myBarChart').getContext('2d');
+      const myBarChart = new Chart(ctx, {
+        type: 'bar',  // Type de graphique (bâtons)
+        data: {
+          labels: ['Garçons', 'Filles'],  // Les labels des catégories
+          datasets: [{
+            label: 'Nombre d\'élèves',  // Label du graphique
+            data: [{{ masculins }}, {{ feminins }}],  // Les valeurs dynamiques
+            backgroundColor: [
+              'rgba(54, 162, 235, 0.6)',  // Couleur pour les garçons
+              'rgba(255, 99, 132, 0.6)'   // Couleur pour les filles
+            ],
+            borderColor: [
+              'rgba(54, 162, 235, 1)',
+              'rgba(255, 99, 132, 1)'
+            ],
+            borderWidth: 1
+          }]
+        },
+        options: {
+          scales: {
+            y: {
+              beginAtZero: true  // Le graphique commence à 0 sur l'axe Y
+            }
+          },
+          plugins: {
+            legend: {
+              display: true,
+              position: 'top'
+            },
+            title: {
+              display: true,
+              text: 'Répartition des sommes reçues par classe'
+            }
+          }
+        }
+      });
+    </script>
+    
+{% endblock %}

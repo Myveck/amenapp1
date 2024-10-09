@@ -193,10 +193,6 @@ html {
   scroll-behavior: smooth;
 }
 
-section {
-  display: none;
-}
-
 section.active {
   display: block;
   /* Afficher seulement la section active */
@@ -534,4 +530,98 @@ td.value {
 
 .doc div {
   display: flex;
+}
+
+/* Centrer le canvas */
+.chart-container {
+  width: 15%;
+  margin: 0 auto;
+}
+
+.globalite {
+  display: flex;
+  justify-content: space-between;
+}
+
+.globalite p {
+  text-align: center;
+  color: rgb(54, 162, 235);
+  font-size: 30px;
+}
+
+.globalite h1 {
+  font-size: 35px;
+}
+
+.classes table {
+  font-size: 13px;
+  /* Taille ajustée pour une meilleure gestion de l'espace */
+  width: 100%;
+  border-collapse: collapse;
+  text-align: center;
+}
+
+.classes th,
+.classes td {
+  border: 1px solid #ccc;
+  padding: 6px;
+  /* Réduction du padding pour compacter le tableau */
+}
+
+.details {
+  display: flex;
+  justify-content: space-between;
+}
+
+.details section:first-child {
+  margin-right: 150px;
+  margin-left: 50px;
+}
+
+.top {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.top h1 {
+  font-size: larger;
+  font-weight: 700;
+}
+
+.suite h1 {
+  font-size: xx-large;
+}
+
+.fiche table {
+  font-size: 14.5px;
+  /* Taille ajustée pour une meilleure gestion de l'espace */
+  width: 100%;
+  border-collapse: collapse;
+  text-align: center;
+}
+
+.fiche th,
+.fiche td {
+  border: 1px solid #ccc;
+  padding: 6px;
+  /* Réduction du padding pour compacter le tableau */
+}
+
+.fiche th.nom,
+.fiche td.nom {
+  width: 35%;
+}
+
+.fiche td.nom {
+  text-align: left;
+}
+
+.fiche th.date,
+.fiche td.date {
+  width: 15%;
+}
+
+.fiche th.rang,
+.fiche td.rang {
+  width: 12%;
 }/*# sourceMappingURL=app.css.map */

@@ -6,6 +6,7 @@ use App\Repository\ClassesRepository;
 use App\Repository\ElevesRepository;
 use App\Repository\EnseignantsRepository;
 use App\Repository\MatieresRepository;
+use App\Repository\TarifRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -56,6 +57,38 @@ class MainController extends AbstractController
             'masculins' => count($m),
             'feminins' => count($f),
             'nombreParClasse' => $nombre,
+        ]);
+    }
+
+    #[Route('/finances', name: 'app_main_finances', methods: ['GET', 'POST'])]
+    public function finance(
+        ElevesRepository $elevesRepository,
+        ClassesRepository $classesRepository,
+        TarifRepository $tarifRepository
+    ) {
+        $eleves = $elevesRepository->findAll();
+        $classes = $classesRepository->findAll();
+        $tarifInscriptionParClasse = [];
+        $tarifAnnuelParClasse = [];
+        $elevesParClasse = [];
+        $masculins = count($elevesRepository->findBy(['sexe' => 'm']));
+        $feminins = count($elevesRepository->findBy(['sexe' => 'f']));
+
+        foreach ($classes as $classe) {
+            $tarifInscriptionParClasse[$classe->getId()] = $tarifRepository->findOneBy(['classe' => $classe])->getPrixInscription();
+            $tarifAnnuelParClasse[$classe->getId()] =
+                $tarifRepository->findOneBy(['classe' => $classe])->getPrixAnnuel();
+            $elevesParClasse[$classe->getId()] = count($elevesRepository->findBy(['classe' => $classe]));
+        }
+
+        return $this->render('main/finance.html.twig', [
+            'masculins' => $masculins,
+            'feminins' => $feminins,
+            'classes' => $classes,
+            'eleves' => $eleves,
+            'tarifInscriptionParClasse' => $tarifInscriptionParClasse,
+            'tarifAnnuelParClasse' => $tarifAnnuelParClasse,
+            'elevesParClasse' => $elevesParClasse,
         ]);
     }
 }

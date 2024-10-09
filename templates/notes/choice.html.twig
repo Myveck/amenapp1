@@ -7,7 +7,7 @@ block body %}
         <a href="{{ path("app_notes_index") }}" data-section="section1" class="active">Liste des notes</a>
         <a href="{{ path("app_eleves_choice") }}" data-section="section2">Saisir une note</a>
         <a href="{{ path("app_notes_moyennes") }}" data-section="section2">Voir les moyennes</a>
-        <a href="{{ path("app_notes_bulletins") }}" data-section="section2">Voir les bulletins</a>
+        {# <a href="{{ path("app_notes_bulletins") }}" data-section="section2">Voir les bulletins</a> #}
 
       </div>
     </div>
@@ -53,7 +53,7 @@ block body %}
                     {{ note.matiereId.nom }}
                 </td>
                 <td>{{ note.note }}</td>
-                <td>{{ note.typeEvaluation }}</td>
+                <td>{{ note.evaluation.nom }}</td>
                 <td>{{ note.eleveId.classe.nom }}</td>
                 <td>
                     {{ note.dateEvaluation ? note.dateEvaluation|date('Y-m-d H:i:s') : '' }}
@@ -65,7 +65,7 @@ block body %}
                 </tr>
             {% endif %}
             
-            {% if eleve.classe.id == trie %}
+            {% if note.eleveId.classe.id == trie %}
             
                 <tr>
                 <td>
@@ -98,7 +98,7 @@ block body %}
       </tbody>
     </table>
     
-    <a href="{{ path('app_eleve_choice') }}" class="btn btn-secondaire">Creer une nouvelle note</a>
+    {# <a href="{{ path('app_eleve_choice') }}" class="btn btn-secondaire">Creer une nouvelle note</a> #}
     </div>
   </div>
 {% endblock %}
