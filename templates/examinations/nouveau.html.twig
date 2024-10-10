@@ -14,7 +14,7 @@
             </div>
       </div>
     <div class="center">
-      <h1 class="mb-4">Créer une examination pour la classe de <strong>{{classe.nom}}</strong></h1>
+      <h1 class="my-4">Créer une examination pour la classe de <strong>{{classe.nom}}</strong></h1>
       <form action="{{ path('app_examinations_create') }}" method="get" id="matiere-classe-form">
         <div class="hidden mb-2">
           <label for="classe">Classe</label>
@@ -22,16 +22,26 @@
               <option value="{{ classe.id }}">{{ classe.nom }}</option>
           </select>
         </div>
-        <div class="mb-2">
-          <label for="matiere">Matiere</label>
-          <select name="matiere" id="matiere" class="form-select">
+        <div class="mb-2 row">
+          <label for="matiere"><strong>Matière</strong></label>
+          {# <select name="matiere" id="matiere" class="form-select">
             {% for matiere in matieres %}
               <option value="{{ matiere.id }}">{{ matiere.nom }}</option>
             {% endfor %}
-          </select>
+          </select> #}
+            {% for matiere in matieres %}
+          <div class="mx-3 mt-2 form-check col-3">
+            <input class="form-check-input" type="checkbox" value="{{matiere.id}}" id="{{matiere.id}}" name="matieres[]">
+            <label class="form-check-label" for="{{matiere.id}}">
+              {{matiere.nom}}
+            </label>
+          </div>
+            {% endfor %}
+          
         </div>
+
         <div class="mb-2">
-          <label for="evaluation">Type de l'examination</label>
+          <label for="evaluation" class="mb-2"><strong>Type de l'examination</strong></label>
           <select name="evaluation" id="evaluation" class="form-select for-control">
             {% for evaluation in evaluations %}
                 <option value="{{evaluation.id}}">{{evaluation.nom}}</option>
@@ -39,12 +49,12 @@
           </select>
         </div>
         <div class="mb-2">
-          <label for="date_exament">Date de l'examination</label>
+          <label for="date_exament" class="mb-2"><strong>Date de l'examination</strong></label>
           <input type="date" name="date_examen" id="date_examen" class="form-control form-lable">
         </div>
         
         <div class="mb-2">
-          <label for="trimestre">Trimestre de l'évaluation</label>
+          <label for="trimestre" class="mb-2"><strong>Trimestre de l'évaluation</strong></label>
           <select name="trimestre" id="trimestre" class="form-select for-control mb-4">
             <option value="1">1</option>
             <option value="2">2</option>

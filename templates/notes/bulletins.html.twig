@@ -217,7 +217,7 @@
         <p><small>République du Bénin</small></p>
         <h1>{{ ecole.schoolName }}</h1>
         <p>
-          {{ ecole.boite Postale}} Tel: {{ ecole.telephone }} /
+          {{ ecole.boitePostale}} Tel: {{ ecole.telephone }} /
           {{ ecole.cellulaire }}
         </p>
         <p><strong>Abomey-Calavi</strong></p>
@@ -303,24 +303,33 @@
               <td>{{ evaluations.d1 ?? "N/A" }}</td>
               <td>{{ evaluations.d2 ?? "N/A" }}</td>
               <td>{{ evaluations.dh ?? "N/A" }}</td>
-              <td>{{ result.moyenneParMatiere[matiereId] ?? "N/A" }}</td>
-              <td>{{ result.moyenneParMatiere[matiereId] }}</td>
-              <td>{{ rangParMatiere[matiereId][students[key].id] }}</td>
-              <td>{{ plusFaibleMoyenne[matiereId] }}</td>
-              <td>{{ plusForteMoyenne[matiereId] }}</td>
-              <td class="appreciation">
-                {% if result.moyenneParMatiere[matiereId] < 10 %} Insuffisant {%
-                elseif result.moyenneParMatiere[matiereId] >= 10 and
-                result.moyenneParMatiere[matiereId] < 12 %} Passable {% elseif
-                result.moyenneParMatiere[matiereId] >= 12 and
-                result.moyenneParMatiere[matiereId] < 14 %} Assez-bien {% elseif
-                result.moyenneParMatiere[matiereId] >= 14 and
-                result.moyenneParMatiere[matiereId] < 16 %} bien {% elseif
-                result.moyenneParMatiere[matiereId] >= 16 and
-                result.moyenneParMatiere[matiereId] < 18 %} Très bien {% elseif
-                result.moyenneParMatiere[matiereId] >= 18 %} Excellent {% endif
-                %}
-              </td>
+              {% if result.moyenneParMatiere[matiereId] is defined %}
+                <td>{{ result.moyenneParMatiere[matiereId] ?? "N/A" }}</td>
+                <td>{{ result.moyenneParMatiere[matiereId] }}</td>
+                <td>{{ rangParMatiere[matiereId][students[key].id] }}</td>
+                <td>{{ plusFaibleMoyenne[matiereId] }}</td>
+                <td>{{ plusForteMoyenne[matiereId] }}</td>
+                <td class="appreciation">
+                  {% if result.moyenneParMatiere[matiereId] < 10 %} Insuffisant {%
+                  elseif result.moyenneParMatiere[matiereId] >= 10 and
+                  result.moyenneParMatiere[matiereId] < 12 %} Passable {% elseif
+                  result.moyenneParMatiere[matiereId] >= 12 and
+                  result.moyenneParMatiere[matiereId] < 14 %} Assez-bien {% elseif
+                  result.moyenneParMatiere[matiereId] >= 14 and
+                  result.moyenneParMatiere[matiereId] < 16 %} bien {% elseif
+                  result.moyenneParMatiere[matiereId] >= 16 and
+                  result.moyenneParMatiere[matiereId] < 18 %} Très bien {% elseif
+                  result.moyenneParMatiere[matiereId] >= 18 %} Excellent {% endif
+                  %}
+                </td>
+              {% else %}
+              <td>-</td>
+              <td>-</td>
+              <td>-</td>
+              <td>-</td>
+              <td>-</td>
+              <td>-</td>
+              {% endif %}
             </tr>
             {% endfor %}
           </tbody>

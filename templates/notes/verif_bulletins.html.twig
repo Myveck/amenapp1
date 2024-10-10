@@ -35,7 +35,7 @@
                 Troisième
             {% endif %}
             Trimestre
-            <br> Fiche de retrait de bulletin
+            <br> vérification des moyennes
         </h1>
       </div>
     <div class="fiche">
@@ -47,36 +47,26 @@
             <thead>
                 <tr>
                     <th class="nom">Nom et Prénom</th>
-                    <th>Total / Moy / Coef</th>
-                    <th>Total des coef</th>
-                    <th>Moyenne trimestrielle</th>
-                    <th class="rang">Rang</th>
-                    <th class="date">Date</th>
-                    <th>Signature</th>
+                    <th>MI</th>
+                    <th>D1</th>
+                    <th>D2</th>
+                    <th class="rang">Coef</th>
+                    <th class="date">Moy Gen</th>
+                    <th>Date</th>
                 </tr>
             </thead>
             <tbody>
                 {% for key, one in rangGeneral %}
                     <tr>
                         <td class="nom">{{eleves[key].nom }} {{eleves[key].prenom }} </td>
-                        <td>{{results[key]["moyenneGenerale"] * sommeCoefficients}}</td>
+                        <td>{{notesEvaluations[key]["mi"]}}</td>
+                        <td>{{notesEvaluations[key]["d1"]}}</td>
+                        <td>{{notesEvaluations[key]["d2"]}}</td>
                         <td>{{sommeCoefficients}}</td>
-                        <td class="rang">{{results[key]["moyenneGenerale"]}}</td>
                         <td>
-                            {{one}}
-                            {% if one == 1 %}
-                              {% if eleves[key].sexe == 'm' %}
-                                er
-                              {% else %}
-                                ère
-                              {%endif %}
-                            {% else %}
-                                ème
-                            {% endif %}
-                            
+                            {{results[key]["moyenneGenerale"]}}
                         </td>
                         <td class="date"></td>
-                        <td></td>
                     </tr>
                 {% endfor %}
             </tbody>

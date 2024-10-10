@@ -78,7 +78,7 @@ final class MatieresController extends AbstractController
             $entityManager->flush();
 
 
-            return $this->redirectToRoute('app_matieres_index', [], Response::HTTP_SEE_OTHER);
+            return $this->redirectToRoute('app_matieres_new', [], Response::HTTP_SEE_OTHER);
         }
 
         return $this->render('matieres/new.html.twig', [

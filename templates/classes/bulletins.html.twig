@@ -50,7 +50,7 @@ block body %}
               <td class="value">
                     <form action="
                             {% if eleves | length > 0 %} 
-                              {{path('app_notes_bulletins', {'classe' : eleves[0].classe.id})}} 
+                              {{path('app_notes_verif_bulletins', {'classe' : eleves[0].classe.id})}} 
                             {% endif %}" method="get">
                         <select name="trimestre" id="" class="form-control" onchange="this.form.submit()">
                             <option value="">Fiche de vérification</option>

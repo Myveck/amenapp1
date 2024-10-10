@@ -149,14 +149,21 @@ final class ExaminationsController extends AbstractController
         $classe = $classesRepository->findOneBy(["id" => $request->get('classe')]);
         $matiere = $matieresRepository->findOneBy(["id" => $request->get('matiere')]);
         $evaluation = $evaluationsRepository->findOneBy(["id" => $request->get("evaluation")]);
+        $matieres = $request->get("matieres");
 
-        $examination->setClasse($classe);
-        $examination->setMatiere($matiere);
-        $examination->setEvaluation($evaluation);
-        $examination->setDateExamination($date_examen);
-        $examination->setTrimestre(intval($request->get('trimestre')));
+        foreach($matieres as $oneMatiere){
+            $examination = new Examinations();
+            $one = $matieresRepository->findOneBy(['id' => $oneMatiere]);
+            $examination->setClasse($classe);
+            $examination->setMatiere($one);
+            $examination->setEvaluation($evaluation);
+            $examination->setDateExamination($date_examen);
+            $examination->setTrimestre(intval($request->get('trimestre')));
 
-        $entityManager->persist($examination);
+
+            $entityManager->persist($examination);
+        }
+
 
         $entityManager->flush();
 
