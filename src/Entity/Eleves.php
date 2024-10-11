@@ -22,7 +22,7 @@ class Eleves
     #[ORM\Column(length: 255)]
     private ?string $prenom = null;
 
-    #[ORM\Column(type: Types::DATE_MUTABLE)]
+    #[ORM\Column(type: Types::DATE_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $date_naissance = null;
 
     /**
@@ -99,7 +99,7 @@ class Eleves
         return $this->date_naissance;
     }
 
-    public function setDateNaissance(\DateTimeInterface $date_naissance): static
+    public function setDateNaissance($date_naissance): static
     {
         $this->date_naissance = $date_naissance;
 
