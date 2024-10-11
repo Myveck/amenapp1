@@ -12,37 +12,38 @@ block body %}
       </div>
     </div>
     <div class="center">
-    <h1>Moyennes générales</h1>
-    <a href="{{ path("app_notes_moyennes_trimestre", { trimestre: 3 })  }}" data-section="section2" class="active">Trimestre 3</a>
-
-    <table>
-        <thead>
-            <tr>
-                <th>Nom et Prénom</th>
-                <th>MI</th>
-                <th>D1</th>
-                <th>D2</th>
-                <th>Total Coef</th>
-                <th>Moy Gen</th>
-                <th>Date</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for one in moyennes %}
-                {% if one["moyenneGenerale"] != null %}
+      <div class="a4">
+        <h1>Moyennes générales</h1>
+        <a href="{{ path("app_notes_moyennes_trimestre", { trimestre: 3 })  }}" data-section="section2" class="active">Trimestre 3</a>
+        <table>
+            <thead>
                 <tr>
-                    <td>{{one["eleve"].nom }} {{ one["eleve"].prenom }} </td>
-                    <td>{{one["moyenneMi"]}}</td>
-                    <td>{{one["moyenneDevoir1"]}}</td>
-                    <td>{{one["moyenneDevoir2"]}}</td>
-                    <td>{{one["sommeCoefficients"]}}</td>
-                    <td>{{one["moyenneGenerale"]}}</td>
+                    <th>Nom et Prénom</th>
+                    <th>MI</th>
+                    <th>D1</th>
+                    <th>D2</th>
+                    <th>Total Coef</th>
+                    <th>Moy Gen</th>
+                    <th>Date</th>
                 </tr>
-                    
-                {% endif %}       
-            {% endfor %}
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                {% for one in moyennes %}
+                    {% if one["moyenneGenerale"] != null %}
+                    <tr>
+                        <td>{{one["eleve"].nom }} {{ one["eleve"].prenom }} </td>
+                        <td>{{one["moyenneMi"]}}</td>
+                        <td>{{one["moyenneDevoir1"]}}</td>
+                        <td>{{one["moyenneDevoir2"]}}</td>
+                        <td>{{one["sommeCoefficients"]}}</td>
+                        <td>{{one["moyenneGenerale"]}}</td>
+                    </tr>
+        
+                    {% endif %}
+                {% endfor %}
+            </tbody>
+        </table>
+      </div>
 
     </div>
   </div>

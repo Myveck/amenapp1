@@ -304,24 +304,24 @@
               <td>{{ evaluations.d2 ?? "N/A" }}</td>
               <td>{{ evaluations.dh ?? "N/A" }}</td>
               <td>{{ results.moyenneParMatiere[matiereId] ?? "N/A" }}</td>
-              
+
               {% if results.moyenneParMatiere[matiereId] is defined %}
-                <td>{{ results.moyenneParMatiere[matiereId] }}</td>
-                <td>{{ rangParMatiere[matiereId][eleve.id] }}</td>
-                <td>{{ plusFaibleMoyenne[matiereId] }}</td>
-                <td>{{ plusForteMoyenne[matiereId] }}</td>
-                <td class="appreciation">
-                  {% if results.moyenneParMatiere[matiereId] < 10 %} Insuffisant
-                  {% elseif results.moyenneParMatiere[matiereId] >= 10 and
-                  results.moyenneParMatiere[matiereId] < 12 %} Passable {% elseif
-                  results.moyenneParMatiere[matiereId] >= 12 and
-                  results.moyenneParMatiere[matiereId] < 14 %} Assez-bien {%
-                  elseif results.moyenneParMatiere[matiereId] >= 14 and
-                  results.moyenneParMatiere[matiereId] < 16 %} bien {% elseif
-                  results.moyenneParMatiere[matiereId] >= 16 and
-                  results.moyenneParMatiere[matiereId] < 18 %} Très bien {% elseif
-                  results.moyenneParMatiere[matiereId] >= 18 %} Excellent {% endif
-                  %}
+              <td>{{ results.moyenneParMatiere[matiereId] }}</td>
+              <td>{{ rangParMatiere[matiereId][eleve.id] }}</td>
+              <td>{{ plusFaibleMoyenne[matiereId] }}</td>
+              <td>{{ plusForteMoyenne[matiereId] }}</td>
+              <td class="appreciation">
+                {% if results.moyenneParMatiere[matiereId] < 10 %} Insuffisant
+                {% elseif results.moyenneParMatiere[matiereId] >= 10 and
+                results.moyenneParMatiere[matiereId] < 12 %} Passable {% elseif
+                results.moyenneParMatiere[matiereId] >= 12 and
+                results.moyenneParMatiere[matiereId] < 14 %} Assez-bien {%
+                elseif results.moyenneParMatiere[matiereId] >= 14 and
+                results.moyenneParMatiere[matiereId] < 16 %} bien {% elseif
+                results.moyenneParMatiere[matiereId] >= 16 and
+                results.moyenneParMatiere[matiereId] < 18 %} Très bien {% elseif
+                results.moyenneParMatiere[matiereId] >= 18 %} Excellent {% endif
+                %}
               </td>
               {% else %}
               <td>-</td>
@@ -341,17 +341,19 @@
           <table>
             <tr>
               <td class="label"><strong>Moyenne :</strong></td>
-              <td class="value"><strong>{{ results["moyenneGenerale"] }}</strong></td>
+              <td class="value">
+                <strong>{{ results["moyenneGenerale"] }}</strong>
+              </td>
             </tr>
             <tr>
               <td class="label"><strong>Rang :</strong></td>
               <td class="value">
                 <strong>
                   {{ rangGeneral[eleve.id] }}
-                  {% if rangGeneral[eleve.id] == 1 and eleve.sexe == "f" %}ère {%
-                  endif %} {% if rangGeneral[eleve.id] == 1 and eleve.sexe == "m"
-                  %}er {% endif %} {% if rangGeneral[eleve.id] != 1 %}ème{% endif
-                  %}
+                  {% if rangGeneral[eleve.id] == 1 and eleve.sexe == "f" %}ère
+                  {% endif %} {% if rangGeneral[eleve.id] == 1 and eleve.sexe ==
+                  "m" %}er {% endif %} {% if rangGeneral[eleve.id] != 1 %}ème{%
+                  endif %}
                 </strong>
               </td>
             </tr>
@@ -468,10 +470,9 @@
     </div>
 
     <script>
-      // Script pour déclencher l'impression au chargement de la page
-      //   window.onload = function () {
-      //     window.print();
-      //   };
+      window.onload = function () {
+        window.print();
+      };
     </script>
   </body>
 </html>

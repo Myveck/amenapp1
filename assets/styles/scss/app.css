@@ -624,4 +624,51 @@ td.value {
 .fiche th.rang,
 .fiche td.rang {
   width: 12%;
+}
+
+.a4 {
+  width: 210mm;
+  height: auto;
+  margin: 0 auto;
+  padding: 10mm;
+  /* Réduction du padding pour maximiser l'espace */
+  background: white;
+  font-family: "Arial", sans-serif;
+  border: 1px solid #ccc;
+  box-shadow: 0 0 5mm rgba(0, 0, 0, 0.1);
+  page-break-after: always;
+}
+
+@media print {
+  .a4 {
+    border: none;
+    box-shadow: none;
+    padding: 0;
+    margin: 0;
+    width: 210mm;
+    /* Ensure proper size for A4 */
+    height: auto;
+    /* Let the content determine the height */
+    page-break-after: always;
+  }
+  .a4:last-child {
+    page-break-after: auto;
+    /* Pas de saut de page après le dernier bulletin */
+  }
+  .no-print {
+    display: none;
+  }
+  .sidebar {
+    display: none;
+  }
+  .center {
+    overflow: auto;
+    padding: 0;
+    background-color: #fff;
+    box-shadow: 0;
+    border: none;
+  }
+  .top {
+    margin-top: 5px;
+  }
 }/*# sourceMappingURL=app.css.map */

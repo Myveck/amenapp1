@@ -400,7 +400,6 @@ final class NotesController extends AbstractController
                     $sommeDesCoefficients[$eleve->getId()] += $coefficient;
                     $moyennesParMatiere[$matiere->getId()][$eleve->getId()] = $moyenneParMatiere[$matiere->getId()];
                 }
-
             }
 
             // Calcul de la moyenne générale pour l'élève
@@ -537,7 +536,6 @@ final class NotesController extends AbstractController
 
         $classeId = $request->get('classe');
         $trimestre = $request->get('trimestre');
-        $trimestre = 3;
         $classe = $classesRepository->findOneBy(["id" => $classeId]);
         $eleves = $elevesRepository->findBy(["classe" => $classe]);
         $ecole = $ecolesRepository->findOneBy(['id' => 1]);
@@ -591,7 +589,7 @@ final class NotesController extends AbstractController
             'trimestre' => $trimestre,
         ]);
     }
-    
+
     #[Route('/{classe}/verif/bulletins', name: 'app_notes_verif_bulletins', methods: ['GET', 'POST'])]
     public function verifBulletin(
         Request $request,
@@ -614,7 +612,6 @@ final class NotesController extends AbstractController
         $coefficients = 0;
 
         $cMatieres = $classesMatieresRepository->findMatiereByClasse($classe);
-
 
         foreach ($cMatieres as $cMatiere) {
             $matieres[$cMatiere->getMatiere()->getId()] = $cMatiere->getMatiere();
@@ -651,13 +648,13 @@ final class NotesController extends AbstractController
 
         $notesEvaluations = [];
 
-        foreach($results[0] as $unEleve => $result){
+        foreach ($results[0] as $unEleve => $result) {
             $notesEvaluations[$unEleve]['d1'] = 0;
             $notesEvaluations[$unEleve]['d2'] = 0;
             $notesEvaluations[$unEleve]['mi'] = 0;
             $notesEvaluations[$unEleve]['dh'] = 0;
-            foreach($result["notesParEvaluation"] as $evals){
-                foreach($evals as $keyV => $eval){
+            foreach ($result["notesParEvaluation"] as $evals) {
+                foreach ($evals as $keyV => $eval) {
                     $notesEvaluations[$unEleve][$keyV] += $eval;
                 }
             }
