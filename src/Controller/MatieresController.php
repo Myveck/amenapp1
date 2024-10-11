@@ -23,29 +23,103 @@ final class MatieresController extends AbstractController
     #[Route(name: 'app_matieres_index', methods: ['GET'])]
     public function index(Request $request, MatieresRepository $matieresRepository, ClassesMatieresRepository $classeMatiere, ClassesRepository $classesRepository): Response
     {
-        $trie = $request->get("trie");
-        if (!$trie or $trie == "all") {
-            $trie = "all";
-            $matieres = $matieresRepository->findBy([], ['nom' => 'asc']);
-        } else {
-            $classe = $classesRepository->findOneBy(["id" => $trie]);
-            $matieres = $classeMatiere->findMatiereByClasse($classe);
-        }
-
+        $trie = $request->get("trie", "all");
         $matiereCoef = [];
-        if ($matieres) {
+
+        if ($trie === "all") {
+            // Récupérer toutes les matières triées par nom
+            $matieres = $matieresRepository->findBy([], ['nom' => 'asc']);
+
             foreach ($matieres as $matiere) {
-                $matiereCoef[$matiere->getId()] = $classeMatiere->findOneBy(["matiere" => $matiere]);
+                $matiereCoef[$matiere->getId()] = $classeMatiere->findOneBy(['matiere' => $matiere]);
+            }
+        } else {
+            // Récupérer la classe spécifiée par l'ID
+            $classe = $classesRepository->find($trie);
+
+            if ($classe) {
+                // Récupérer uniquement les matières associées à cette classe
+                $matieres = $classeMatiere->findMatiereByClasse($classe);
+            } else {
+                // Si la classe n'existe pas, retourner un tableau vide
+                $matieres = [];
+            }
+            dump($matieres);
+            // Récupération des coefficients pour chaque matière
+            foreach ($matieres as $matiere) {
+                $matiereCoef[$matiere->getId()] = $classeMatiere->findOneBy(['matiere' => $matiere, 'classe' => $classe]);
+                dump($matiereCoef);
             }
         }
 
+
+
+
         return $this->render('matieres/index.html.twig', [
             'matieres' => $matiereCoef,
-            'classeMatieres' => $classeMatiere->findAll(),
+            'classeMatieres' => $classeMatiere->findBy([], ['classe' => 'asc']),
             'niveaux' => ['primaire', 'college', 'lycee'],
             'active' => $trie,
             'classes' => $classesRepository->findBy([], ["classeOrder" => "asc"])
         ]);
+    }
+
+    #[Route('/creation', name: 'app_matieres_creation', methods: ['GET', 'POST'])]
+    public function creation(
+        Request $request,
+        EntityManagerInterface $entityManager,
+        ClassesRepository $classesRepository,
+        AnneeScolaireRepository $anneeScolaireRepository,
+        MatieresRepository $matieresRepository,
+        ClassesMatieresRepository $classesMatieresRepository
+    ): Response {
+        $classe = $classesRepository->findOneBy(['id' => 15]);
+        $matieres = $matieresRepository->findAll();
+        $anneeScolaire = $anneeScolaireRepository->findOneBy(['id' => 1]);
+
+        // To avoid cloning the same Matiere multiple times
+        $clonedMatieres = [];
+
+        foreach ($matieres as $matiere) {
+            if ($matiere->getId() != 19) {
+                // Vérifier si cette matière existe déjà pour cette classe
+                $existingClasseMatiere = $classesMatieresRepository->findOneBy([
+                    'classe' => $classe,
+                    'matiere' => $matiere
+                ]);
+
+                if (!$existingClasseMatiere) {
+                    // Check if we've already cloned this Matiere in this request
+                    if (!array_key_exists($matiere->getId(), $clonedMatieres)) {
+                        // Cloning the Matiere
+                        $nouvelle = new Matieres();
+                        $nouvelle->setNom($matiere->getNom());
+                        $entityManager->persist($nouvelle);
+
+                        // Add the cloned Matiere to the tracking array
+                        $clonedMatieres[$matiere->getId()] = $nouvelle;
+                    } else {
+                        // Reuse the already cloned Matiere
+                        $nouvelle = $clonedMatieres[$matiere->getId()];
+                    }
+
+                    // Create the ClasseMatiere association
+                    $classeMatiere = new ClassesMatieres();
+                    $classeMatiere->setMatiere($nouvelle);
+                    $classeMatiere->setClasse($classe);
+                    $classeMatiere->setAnneeScolaire($anneeScolaire);
+
+                    // Set coefficient
+                    $coef = ($classe->getId() < 16) ? 1 : 2;
+                    $classeMatiere->setCoefficient($coef);
+
+                    $entityManager->persist($classeMatiere);
+                    $entityManager->flush();
+                }
+            }
+        }
+
+        return $this->redirectToRoute('app_matieres_index', [], Response::HTTP_SEE_OTHER);
     }
 
     #[Route('/new', name: 'app_matieres_new', methods: ['GET', 'POST'])]
