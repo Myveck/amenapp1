@@ -1,6 +1,23 @@
 {{ form_start(form) }}
 {{ form_widget(form) }}
-<h1 class="mt-4">Information sur les parents</h1>
+{% if edit is defined %}
+<div class="classe mt-4">
+  <hr />
+  <h2 class="text-center my-4">Modifier la classe</h2>
+  <select name="classe" id="classe" class="form-control">
+    {% for classe in classes %}
+    <option value="{{ classe.id }}"
+    {% if active == classe.id %}
+       selected
+    {% endif %}>
+       {{ classe.nom }}
+      </option>
+    {% endfor %}
+  </select>
+</div>
+{% endif %}
+
+<h2 class="mt-4 text-center">Information sur les parents</h2>
 
 <div class="pere">
   <label for="nom_pere">Nom et Prénom du père</label>
@@ -63,6 +80,8 @@
     aria-describedby="profession de la mère"
   />
 </div>
+
+
 
 <button class="btn btn-primaire my-4">
   {{ button_label|default('Enregistrer') }}

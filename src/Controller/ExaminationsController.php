@@ -122,7 +122,7 @@ final class ExaminationsController extends AbstractController
         ]);
     }
 
-    #[Route('/nouveau/', name: 'app_examinations_nouveau', methods: ['GET', 'POST'])]
+    #[Route('/nouveau', name: 'app_examinations_nouveau', methods: ['GET', 'POST'])]
     public function examinationNew(Request $request, EvaluationsRepository $evaluationsRepository, ClassesRepository $classesRepository, ClassesMatieresRepository $classesMatieresRepository)
     {
         $classe = $classesRepository->findOneBy(["id" => $request->get("oneClasse")]);
@@ -151,7 +151,7 @@ final class ExaminationsController extends AbstractController
         $evaluation = $evaluationsRepository->findOneBy(["id" => $request->get("evaluation")]);
         $matieres = $request->get("matieres");
 
-        foreach($matieres as $oneMatiere){
+        foreach ($matieres as $oneMatiere) {
             $examination = new Examinations();
             $one = $matieresRepository->findOneBy(['id' => $oneMatiere]);
             $examination->setClasse($classe);
@@ -167,7 +167,9 @@ final class ExaminationsController extends AbstractController
 
         $entityManager->flush();
 
-        return $this->redirectToRoute('app_examinations_index');
+        return $this->redirectToRoute('app_examinations_create_notes', [
+            'examination' => $matieres[0],
+        ]);
     }
 
 

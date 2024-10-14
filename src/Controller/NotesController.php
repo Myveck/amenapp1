@@ -454,7 +454,6 @@ final class NotesController extends AbstractController
             $notesRepository,
             $evaluationsRepository
         );
-
         $students = [];
         foreach ($eleves as $un) {
             $students[$un->getId()] = $un;
@@ -464,44 +463,48 @@ final class NotesController extends AbstractController
         $rangParMatiere = [];
 
         $moyennesParMatiere = $results[1];
-        foreach ($moyennesParMatiere as $m => $moy) {
-            arsort($moy);
-            $moyennes[$m] = $moy;
-        }
-
-        $PlusForteMoyenne = [];
-        $PlusFaibleMoyenne = [];
-
-        foreach ($moyennes as $l => $n) {
-            $PlusForteMoyenne[$l] = reset($n);
-            $PlusFaibleMoyenne[$l] = end($n);
-        }
-
-        $rangParMatiere = [];
-        foreach ($moyennes as $l => $n) {
-            arsort($n);
-
-            $rang = 1;
-            foreach ($n as $nKey => $nVal) {
-                $rangParMatiere[$l][$nKey] = $rang++;
+        if ($moyennesParMatiere) {
+            foreach ($moyennesParMatiere as $m => $moy) {
+                arsort($moy);
+                $moyennes[$m] = $moy;
             }
-        }
 
-        $general = [];
-        $rangGeneral = [];
-        foreach ($results[0] as $resKey => $resultat) {
-            $general[$resKey] = $resultat["moyenneGenerale"];
-        }
+            $PlusForteMoyenne = [];
+            $PlusFaibleMoyenne = [];
 
-        arsort($general);
-        $moyenneGForte = reset($general);
-        $moyenneGFaible = end($general);
+            foreach ($moyennes as $l => $n) {
+                $PlusForteMoyenne[$l] = reset($n);
+                $PlusFaibleMoyenne[$l] = end($n);
+            }
 
-        $moyenneGClasse = round(array_sum($general) / count($eleves), 2);
+            $rangParMatiere = [];
+            foreach ($moyennes as $l => $n) {
+                arsort($n);
 
-        $rangG = 1;
-        foreach ($general as $elKey => $elMoy) {
-            $rangGeneral[$elKey] = $rangG++;
+                $rang = 1;
+                foreach ($n as $nKey => $nVal) {
+                    $rangParMatiere[$l][$nKey] = $rang++;
+                }
+            }
+
+            $general = [];
+            $rangGeneral = [];
+            foreach ($results[0] as $resKey => $resultat) {
+                $general[$resKey] = $resultat["moyenneGenerale"];
+            }
+
+            arsort($general);
+            $moyenneGForte = reset($general);
+            $moyenneGFaible = end($general);
+
+            $moyenneGClasse = round(array_sum($general) / count($eleves), 2);
+
+            $rangG = 1;
+            foreach ($general as $elKey => $elMoy) {
+                $rangGeneral[$elKey] = $rangG++;
+            }
+        } else {
+            return $this->redirectToRoute("app_classes_bulletins");
         }
 
         return $this->render('/notes/bulletins.html.twig', [

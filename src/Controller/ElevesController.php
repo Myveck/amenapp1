@@ -78,6 +78,110 @@ final class ElevesController extends AbstractController
         ]);
     }
 
+    // #[Route('/backup')]
+    // public function backup(EntityManagerInterface $entityManager, ClassesRepository $classesRepository, ElevesRepository $elevesRepository)
+    // {
+
+    //     $classe = $classesRepository->findOneBy(['nom' => '2nde CD']);
+    //     $new = $classesRepository->findOneBy(['nom' => '1ere A1']);
+    //     $find = $elevesRepository->findBy([
+    //         'classe' => $classe->getId()
+    //     ]);
+
+    //     foreach ($find as $student) {
+
+    //         $student->setClasse($new);
+
+    //         $entityManager->persist($student);
+    //     }
+    //     $entityManager->flush();
+
+    //     return $this->redirectToRoute('app_eleves_index');
+    //     $fichier = file_get_contents('C:\Users\Zixe\Documents\workspace\programming\agora\students_with_classrooms.json', 'students_with_classrooms.json');
+
+    //     $students = json_decode($fichier, true);
+    //     $i = 1;
+
+    //     foreach ($students as $student) {
+
+
+    //         $elefe = new Eleves();
+    //         $pere = new Parents();
+    //         $mere = new Parents();
+    //         $parentsM = new ParentsEleves();
+    //         $parentsP = new ParentsEleves();
+
+    //         $find = $elevesRepository->findOneBy([
+    //             'nom' => $student['lastname'],
+    //             'prenom' => $student['firstname'],
+    //         ]);
+
+    //         if (!$find) {
+
+    //             $elefe->setNom($student['lastname']);
+    //             $elefe->setPrenom($student['firstname']);
+    //             $elefe->setSexe($student['gender']);
+
+    //             if ($student["classroom"] == '6Ã¨') {
+    //                 $classe = $classesRepository->findOneBy(['nom' => '5e']);
+    //                 $elefe->setClasse($classe);
+    //             } elseif ($student["classroom"] == '5Ã¨') {
+    //                 $classe = $classesRepository->findOneBy(['nom' => '4e']);
+    //                 $elefe->setClasse($classe);
+    //             } elseif ($student["classroom"] == '4Ã¨') {
+    //                 $classe = $classesRepository->findOneBy(['nom' => '3e']);
+    //                 $elefe->setClasse($classe);
+    //             } elseif ($student["classroom"] == '3Ã¨') {
+    //                 $classe = $classesRepository->findOneBy(['nom' => '2nde AB']);
+    //                 $elefe->setClasse($classe);
+    //             } elseif ($student["classroom"] == '1Ã¨re B') {
+    //                 $classe = $classesRepository->findOneBy(['nom' => 'Tle B']);
+    //                 $elefe->setClasse($classe);
+    //             } elseif ($student["classroom"] == '1ere D') {
+    //                 $classe = $classesRepository->findOneBy(['nom' => 'Tle D']);
+    //                 $elefe->setClasse($classe);
+    //             } elseif ($student["classroom"] == '1ere A2') {
+    //                 $classe = $classesRepository->findOneBy(['nom' => 'Tle A2']);
+    //                 $elefe->setClasse($classe);
+    //             } else {
+    //                 $classe = $classesRepository->findOneBy(['nom' => $student["classroom"]]);
+    //                 $elefe->setClasse($classe);
+    //             }
+
+    //             $entityManager->persist($elefe);
+
+    //             $pere->setNom("");
+    //             $pere->setTelephone("");
+    //             $pere->setProfession("");
+    //             $pere->setType("pere");
+    //             $entityManager->persist($pere);
+
+    //             $mere->setNom("");
+    //             $mere->setTelephone("");
+    //             $mere->setProfession("");
+    //             $mere->setType("mere");
+    //             $entityManager->persist($mere);
+
+    //             $parentsM->setEleve($elefe);
+    //             $parentsM->setParent($pere);
+    //             $entityManager->persist($parentsP);
+
+    //             $parentsP->setEleve($elefe);
+    //             $parentsP->setParent($mere);
+    //             $entityManager->persist($parentsM);
+
+    //             $i++;
+
+    //             if ($i >= 20) {
+    //                 $entityManager->flush();
+    //                 $entityManager->clear();
+    //                 $i = 0;
+    //             }
+    //         }
+    //     }
+    //     $entityManager->flush();
+    // }
+
 
     #[Route('/new', name: 'app_eleves_new', methods: ['GET', 'POST'])]
     public function new(Request $request, EntityManagerInterface $entityManager): Response
@@ -149,7 +253,7 @@ final class ElevesController extends AbstractController
     }
 
     #[Route('/{id}/edit', name: 'app_eleves_edit', methods: ['GET', 'POST'])]
-    public function edit(Request $request, Eleves $elefe, EntityManagerInterface $entityManager): Response
+    public function edit(Request $request, Eleves $elefe, EntityManagerInterface $entityManager, ClassesRepository $classesRepository): Response
     {
         $pere = new Parents();
         $mere = new Parents();
@@ -161,6 +265,8 @@ final class ElevesController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
 
+            $elefe->setClasse($classesRepository->findOneBy(["id" => $request->get("classse")]));
+            $entityManager->persist($elefe);
 
             $pere->setNom($request->get("pere_nom"));
             $pere->setTelephone($request->get("pere_telephone"));
@@ -190,6 +296,9 @@ final class ElevesController extends AbstractController
         return $this->render('eleves/edit.html.twig', [
             'elefe' => $elefe,
             'form' => $form,
+            'edit' => 'edit',
+            'classes' => $classesRepository->findAll(),
+            'active' => $elefe->getClasse()->getId(),
         ]);
     }
 
