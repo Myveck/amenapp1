@@ -128,6 +128,7 @@ final class NotesController extends AbstractController
             $entityManager->flush();
         }
 
+        $this->addFlash("success", "Les notes ont bien été modifier");
         return $this->redirectToRoute("app_examinations_index");
     }
 
@@ -356,6 +357,10 @@ final class NotesController extends AbstractController
         $notesParEvaluation = [];
         $moyennesParMatiere = [];
 
+        if (!$eleves) {
+            $message = ['warning', 'Cette classe ne contient aucun élève'];
+        }
+
         // Calculer les moyennes et les notes pour chaque élève
         foreach ($eleves as $eleve) {
             $moyenneParMatiere = [];
@@ -364,6 +369,9 @@ final class NotesController extends AbstractController
             $moyenneGenerale[$eleve->getId()] = 0;
             $sommeDesCoefficients[$eleve->getId()] = 0;
 
+            if (!$matieres) {
+                $message = ['warning', 'Cette classe ne contient aucune matière veuillez en ajouter'];
+            }
             foreach ($matieres as $matiere) {
                 $moyenne = [];
 
@@ -415,6 +423,10 @@ final class NotesController extends AbstractController
             ];
         }
 
+        if (isset($message)) {
+            return [$results, $moyennesParMatiere, $message];
+        }
+
         return [$results, $moyennesParMatiere];
     }
 
@@ -462,51 +474,57 @@ final class NotesController extends AbstractController
         // Classification des moyennes par matière
         $rangParMatiere = [];
 
-        $moyennesParMatiere = $results[1];
-        if ($moyennesParMatiere) {
-            foreach ($moyennesParMatiere as $m => $moy) {
-                arsort($moy);
-                $moyennes[$m] = $moy;
-            }
+        if (isset($results[2])) {
 
-            $PlusForteMoyenne = [];
-            $PlusFaibleMoyenne = [];
-
-            foreach ($moyennes as $l => $n) {
-                $PlusForteMoyenne[$l] = reset($n);
-                $PlusFaibleMoyenne[$l] = end($n);
-            }
-
-            $rangParMatiere = [];
-            foreach ($moyennes as $l => $n) {
-                arsort($n);
-
-                $rang = 1;
-                foreach ($n as $nKey => $nVal) {
-                    $rangParMatiere[$l][$nKey] = $rang++;
-                }
-            }
-
-            $general = [];
-            $rangGeneral = [];
-            foreach ($results[0] as $resKey => $resultat) {
-                $general[$resKey] = $resultat["moyenneGenerale"];
-            }
-
-            arsort($general);
-            $moyenneGForte = reset($general);
-            $moyenneGFaible = end($general);
-
-            $moyenneGClasse = round(array_sum($general) / count($eleves), 2);
-
-            $rangG = 1;
-            foreach ($general as $elKey => $elMoy) {
-                $rangGeneral[$elKey] = $rangG++;
-            }
-        } else {
+            $this->addFlash($results[2][0], $results[2][1]);
             return $this->redirectToRoute("app_classes_bulletins");
-        }
+        } else {
+            if ($results[1]) {
+                $moyennesParMatiere = $results[1];
+                foreach ($moyennesParMatiere as $m => $moy) {
+                    arsort($moy);
+                    $moyennes[$m] = $moy;
+                }
 
+                $PlusForteMoyenne = [];
+                $PlusFaibleMoyenne = [];
+
+                foreach ($moyennes as $l => $n) {
+                    $PlusForteMoyenne[$l] = reset($n);
+                    $PlusFaibleMoyenne[$l] = end($n);
+                }
+
+                $rangParMatiere = [];
+                foreach ($moyennes as $l => $n) {
+                    arsort($n);
+
+                    $rang = 1;
+                    foreach ($n as $nKey => $nVal) {
+                        $rangParMatiere[$l][$nKey] = $rang++;
+                    }
+                }
+
+                $general = [];
+                $rangGeneral = [];
+                foreach ($results[0] as $resKey => $resultat) {
+                    $general[$resKey] = $resultat["moyenneGenerale"];
+                }
+
+                arsort($general);
+                $moyenneGForte = reset($general);
+                $moyenneGFaible = end($general);
+
+                $moyenneGClasse = round(array_sum($general) / count($eleves), 2);
+
+                $rangG = 1;
+                foreach ($general as $elKey => $elMoy) {
+                    $rangGeneral[$elKey] = $rangG++;
+                }
+            } else {
+                $this->addFlash('danger', 'Il n\'existe pas de bulletin pour cette classe ou ce trimestre');
+                return $this->redirectToRoute("app_classes_bulletins");
+            }
+        }
         return $this->render('/notes/bulletins.html.twig', [
             'classe' => $classe,
             'matieres' => $matieres,
@@ -546,40 +564,55 @@ final class NotesController extends AbstractController
         $matieres = [];
         $coefficients = 0;
 
+        if (!$eleves) {
+            $this->addFlash('warning', 'Cette classe est vide, il n\'y a aucun élève');
+            return $this->redirectToRoute("app_classes_bulletins");
+        }
+
         $cMatieres = $classesMatieresRepository->findMatiereByClasse($classe);
 
 
-        foreach ($cMatieres as $cMatiere) {
-            $matieres[$cMatiere->getMatiere()->getId()] = $cMatiere->getMatiere();
-            $coefficients += $cMatiere->getCoefficient();
-        }
+        if ($cMatieres) {
+            foreach ($cMatieres as $cMatiere) {
+                $matieres[$cMatiere->getMatiere()->getId()] = $cMatiere->getMatiere();
+                $coefficients += $cMatiere->getCoefficient();
+            }
 
-        foreach ($eleves as $oneEleve) {
-            $elevesId[$oneEleve->getId()] = $oneEleve;
-        }
+            foreach ($eleves as $oneEleve) {
+                $elevesId[$oneEleve->getId()] = $oneEleve;
+            }
 
-        // Calcul des résultats
-        $results = $this->calculateBulletins(
-            $classe,
-            $eleves,  // Passer un tableau avec un seul élève
-            $trimestre,
-            $classesMatieresRepository,
-            $examinationsRepository,
-            $notesRepository,
-            $evaluationsRepository
-        );
+            // Calcul des résultats
+            $results = $this->calculateBulletins(
+                $classe,
+                $eleves,  // Passer un tableau avec un seul élève
+                $trimestre,
+                $classesMatieresRepository,
+                $examinationsRepository,
+                $notesRepository,
+                $evaluationsRepository
+            );
 
-        $general = [];
-        $rangGeneral = [];
-        foreach ($results[0] as $resKey => $resultat) {
-            $general[$resKey] = $resultat["moyenneGenerale"];
-        }
+            if (isset($results[2])) {
+                $this->addFlash($results[2][0], $results[2][1]);
+                return $this->redirectToRoute("app_classes_bulletins");
+            } else {
+                $general = [];
+                $rangGeneral = [];
+                foreach ($results[0] as $resKey => $resultat) {
+                    $general[$resKey] = $resultat["moyenneGenerale"];
+                }
 
-        arsort($general);
+                arsort($general);
 
-        $rangG = 1;
-        foreach ($general as $elKey => $elMoy) {
-            $rangGeneral[$elKey] = $rangG++;
+                $rangG = 1;
+                foreach ($general as $elKey => $elMoy) {
+                    $rangGeneral[$elKey] = $rangG++;
+                }
+            }
+        } else {
+            $this->addFlash('warning', 'Il n\existe pas de matière pour cette classe ');
+            return $this->redirectToRoute("app_classes_bulletins");
         }
 
         return $this->render('notes/retrait_bulletins.html.twig', [
@@ -616,53 +649,57 @@ final class NotesController extends AbstractController
 
         $cMatieres = $classesMatieresRepository->findMatiereByClasse($classe);
 
-        foreach ($cMatieres as $cMatiere) {
-            $matieres[$cMatiere->getMatiere()->getId()] = $cMatiere->getMatiere();
-            $coefficients += $cMatiere->getCoefficient();
-        }
+        if (!$cMatieres) {
+            $this->addFlash('warning', 'Il n\existe pas de matière pour cette classe ');
+            return $this->redirectToRoute("app_classes_bulletins");
+        } else {
+            foreach ($cMatieres as $cMatiere) {
+                $matieres[$cMatiere->getMatiere()->getId()] = $cMatiere->getMatiere();
+                $coefficients += $cMatiere->getCoefficient();
+            }
 
-        foreach ($eleves as $oneEleve) {
-            $elevesId[$oneEleve->getId()] = $oneEleve;
-        }
+            foreach ($eleves as $oneEleve) {
+                $elevesId[$oneEleve->getId()] = $oneEleve;
+            }
 
-        // Calcul des résultats
-        $results = $this->calculateBulletins(
-            $classe,
-            $eleves,  // Passer un tableau avec un seul élève
-            $trimestre,
-            $classesMatieresRepository,
-            $examinationsRepository,
-            $notesRepository,
-            $evaluationsRepository
-        );
+            // Calcul des résultats
+            $results = $this->calculateBulletins(
+                $classe,
+                $eleves,  // Passer un tableau avec un seul élève
+                $trimestre,
+                $classesMatieresRepository,
+                $examinationsRepository,
+                $notesRepository,
+                $evaluationsRepository
+            );
 
-        $general = [];
-        $rangGeneral = [];
-        foreach ($results[0] as $resKey => $resultat) {
-            $general[$resKey] = $resultat["moyenneGenerale"];
-        }
+            $general = [];
+            $rangGeneral = [];
+            foreach ($results[0] as $resKey => $resultat) {
+                $general[$resKey] = $resultat["moyenneGenerale"];
+            }
 
-        arsort($general);
+            arsort($general);
 
-        $rangG = 1;
-        foreach ($general as $elKey => $elMoy) {
-            $rangGeneral[$elKey] = $rangG++;
-        }
+            $rangG = 1;
+            foreach ($general as $elKey => $elMoy) {
+                $rangGeneral[$elKey] = $rangG++;
+            }
 
-        $notesEvaluations = [];
+            $notesEvaluations = [];
 
-        foreach ($results[0] as $unEleve => $result) {
-            $notesEvaluations[$unEleve]['d1'] = 0;
-            $notesEvaluations[$unEleve]['d2'] = 0;
-            $notesEvaluations[$unEleve]['mi'] = 0;
-            $notesEvaluations[$unEleve]['dh'] = 0;
-            foreach ($result["notesParEvaluation"] as $evals) {
-                foreach ($evals as $keyV => $eval) {
-                    $notesEvaluations[$unEleve][$keyV] += $eval;
+            foreach ($results[0] as $unEleve => $result) {
+                $notesEvaluations[$unEleve]['d1'] = 0;
+                $notesEvaluations[$unEleve]['d2'] = 0;
+                $notesEvaluations[$unEleve]['mi'] = 0;
+                $notesEvaluations[$unEleve]['dh'] = 0;
+                foreach ($result["notesParEvaluation"] as $evals) {
+                    foreach ($evals as $keyV => $eval) {
+                        $notesEvaluations[$unEleve][$keyV] += $eval;
+                    }
                 }
             }
         }
-
 
         return $this->render('notes/verif_bulletins.html.twig', [
             'results' => $results[0],
@@ -768,45 +805,55 @@ final class NotesController extends AbstractController
         // Classification des moyennes par matière
         $rangParMatiere = [];
 
-        $moyennesParMatiere = $results[1];
-        foreach ($moyennesParMatiere as $m => $moy) {
-            arsort($moy);
-            $moyennes[$m] = $moy;
-        }
+        if (isset($results[2])) {
+            $this->addFlash($results[2][0], $results[2][1]);
+            return $this->redirectToRoute("app_classes_bulletins");
+        } else {
+            if ($results[1]) {
+                $moyennesParMatiere = $results[1];
+                foreach ($moyennesParMatiere as $m => $moy) {
+                    arsort($moy);
+                    $moyennes[$m] = $moy;
+                }
 
-        $PlusForteMoyenne = [];
-        $PlusFaibleMoyenne = [];
+                $PlusForteMoyenne = [];
+                $PlusFaibleMoyenne = [];
 
-        foreach ($moyennes as $l => $n) {
-            $PlusForteMoyenne[$l] = reset($n);
-            $PlusFaibleMoyenne[$l] = end($n);
-        }
+                foreach ($moyennes as $l => $n) {
+                    $PlusForteMoyenne[$l] = reset($n);
+                    $PlusFaibleMoyenne[$l] = end($n);
+                }
 
-        $rangParMatiere = [];
-        foreach ($moyennes as $l => $n) {
-            arsort($n);
+                $rangParMatiere = [];
+                foreach ($moyennes as $l => $n) {
+                    arsort($n);
 
-            $rang = 1;
-            foreach ($n as $nKey => $nVal) {
-                $rangParMatiere[$l][$nKey] = $rang++;
+                    $rang = 1;
+                    foreach ($n as $nKey => $nVal) {
+                        $rangParMatiere[$l][$nKey] = $rang++;
+                    }
+                }
+
+                $general = [];
+                $rangGeneral = [];
+                foreach ($results[0] as $resKey => $resultat) {
+                    $general[$resKey] = $resultat["moyenneGenerale"];
+                }
+
+                arsort($general);
+                $moyenneGForte = reset($general);
+                $moyenneGFaible = end($general);
+
+                $moyenneGClasse = round(array_sum($general) / count($eleves), 2);
+
+                $rangG = 1;
+                foreach ($general as $elKey => $elMoy) {
+                    $rangGeneral[$elKey] = $rangG++;
+                }
+            } else {
+                $this->addFlash('warning', 'il n\'existe pas de bulletin pour cette classe ou ce trimestre');
+                return $this->redirectToRoute("app_classes_bulletins");
             }
-        }
-
-        $general = [];
-        $rangGeneral = [];
-        foreach ($results[0] as $resKey => $resultat) {
-            $general[$resKey] = $resultat["moyenneGenerale"];
-        }
-
-        arsort($general);
-        $moyenneGForte = reset($general);
-        $moyenneGFaible = end($general);
-
-        $moyenneGClasse = round(array_sum($general) / count($eleves), 2);
-
-        $rangG = 1;
-        foreach ($general as $elKey => $elMoy) {
-            $rangGeneral[$elKey] = $rangG++;
         }
 
         return $this->render('/notes/bulletin_eleve.html.twig', [

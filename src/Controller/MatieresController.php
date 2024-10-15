@@ -77,7 +77,7 @@ final class MatieresController extends AbstractController
             $entityManager->persist($classeMatiere);
             $entityManager->flush();
 
-
+            $this->addFlash("success", "La matière a été ajoutée avec succès");
             return $this->redirectToRoute('app_matieres_new', [], Response::HTTP_SEE_OTHER);
         }
 
@@ -117,6 +117,7 @@ final class MatieresController extends AbstractController
             $entityManager->persist($classeMatiere);
             $entityManager->flush();
 
+            $this->addFlash("success", "La matière a été modifiée avec succès");
             return $this->redirectToRoute('app_matieres_index', [], Response::HTTP_SEE_OTHER);
         }
 

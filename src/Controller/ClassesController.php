@@ -82,6 +82,7 @@ final class ClassesController extends AbstractController
 
             $entityManager->flush();
 
+            $this->addFlash("success", "La classe a été ajoutée");
             return $this->redirectToRoute('app_classes_index', [], Response::HTTP_SEE_OTHER);
         }
 
@@ -136,6 +137,7 @@ final class ClassesController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $entityManager->flush();
 
+            $this->addFlash("success", "La classe a été modifiée");
             return $this->redirectToRoute('app_classes_index', [], Response::HTTP_SEE_OTHER);
         }
 

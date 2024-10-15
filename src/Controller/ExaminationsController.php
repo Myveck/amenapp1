@@ -86,7 +86,7 @@ final class ExaminationsController extends AbstractController
         }
 
         // Récupération des examens en fonction des filtres
-        $examinations = $examinationsRepository->findBy($filtres);
+        $examinations = $examinationsRepository->findBy($filtres, ['id' => 'desc']);
 
 
         return $this->render('examinations/index.html.twig', [
@@ -154,21 +154,33 @@ final class ExaminationsController extends AbstractController
         foreach ($matieres as $oneMatiere) {
             $examination = new Examinations();
             $one = $matieresRepository->findOneBy(['id' => $oneMatiere]);
-            $examination->setClasse($classe);
-            $examination->setMatiere($one);
-            $examination->setEvaluation($evaluation);
-            $examination->setDateExamination($date_examen);
-            $examination->setTrimestre(intval($request->get('trimestre')));
-
-
+            $verif = $examinationsRepository->findOneBy([
+                'classe' => $classe,
+                'evaluation' => $evaluation,
+                'matiere' => $one,
+                'trimestre' => intval($request->get('trimestre')),
+            ]);
+            if (!$verif) {
+                $examination->setClasse($classe);
+                $examination->setMatiere($one);
+                $examination->setEvaluation($evaluation);
+                $examination->setDateExamination($date_examen);
+                $examination->setTrimestre(intval($request->get('trimestre')));
+            } else {
+                $this->addFlash('warning', 'Cette examin existe déjà');
+                return $this->redirectToRoute('app_examinations_create_notes', [
+                    'examination' => $verif->getId(),
+                ]);
+            }
             $entityManager->persist($examination);
         }
 
 
         $entityManager->flush();
 
+        $this->addFlash('success', 'L\'examin a bien été créé');
         return $this->redirectToRoute('app_examinations_create_notes', [
-            'examination' => $matieres[0],
+            'examination' => intval($matieres[0]),
         ]);
     }
 

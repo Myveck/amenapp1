@@ -219,6 +219,7 @@ final class ElevesController extends AbstractController
 
             $entityManager->flush();
 
+            $this->addFlash("success", "Nouvel élève ajouté");
             return $this->redirectToRoute('app_eleves_index', [], Response::HTTP_SEE_OTHER);
         }
 
@@ -290,6 +291,7 @@ final class ElevesController extends AbstractController
 
             $entityManager->flush();
 
+            $this->addFlash("success", "L'élève a été modifié");
             return $this->redirectToRoute('app_eleves_index', [], Response::HTTP_SEE_OTHER);
         }
 
