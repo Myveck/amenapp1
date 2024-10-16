@@ -18,7 +18,9 @@ class PaiementsType extends AbstractType
             ->add('type')
             ->add('eleve_id', EntityType::class, [
                 'class' => Eleves::class,
-                'choice_label' => 'nom',
+                'choice_label' => function (Eleves $eleve) {
+                    return $eleve->getNom() . ' ' . $eleve->getPrenom();
+                },
             ])
         ;
     }
