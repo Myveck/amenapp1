@@ -1,11 +1,21 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}New Paiements{% endblock %}
+{% block title %}Nouveau paiement{% endblock %}
 
-{% block body %}
-    <h1>Create new Paiements</h1>
-
-    {{ include('paiements/_form.html.twig') }}
-
-    <a href="{{ path('app_paiements_index') }}">back to list</a>
+{% block body %}<div class="wrapper">
+    
+    <div class="sidebar">
+        <div class="sidebar-menu">
+        <a href="{{ path("app_main") }}" data-section="section1">Acceuil</a>
+              <a href="{{ path("app_main_finances") }}" data-section="section1">Dashboard</a>
+        <a href="{{ path("app_paiements_index") }}" data-section="section1">Liste des paiements</a>
+        <a href="{{ path("app_paiements_nouveau") }}" data-section="section2"  class="active">Nouveau paiement</a>
+        </div>
+    </div>
+    <div class="center">
+        <h1>Vous ajoutez un paiement pour <strong>{{ eleve.nom }} {{ eleve.prenom }}</strong> </h1>
+        {{ include('paiements/_form.html.twig') }}
+        <a href="{{ path('app_paiements_nouveau') }}"><-</a>
+    </div>
+</div>
 {% endblock %}

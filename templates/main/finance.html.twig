@@ -1,62 +1,81 @@
 {% extends 'base.html.twig' %} {% block title %}Complexe scolaire Amen!{%
 endblock %} {% block body %}
-    <div class="globalite">
-      <div>
-        <h1>Nombre totale d'inscrits</h1>
-        <p>{{ masculins + feminins }}</p>
-      </div>
-      <div>
-        {% set count = 0 %}
-        <h1>Solde total inscription</h1>
-        {% for eleve in eleves %} {% set count = count +
-        tarifInscriptionParClasse[eleve.classe.id] %} {% endfor %}
-        <p>{{ count }} FCFA</p>
-      </div>
-      <div>
-        {% set annuel = 0 %} {% for eleve in eleves %} {% set annuel = annuel +
-        tarifAnnuelParClasse[eleve.classe.id] %} {% endfor %}
-        <h1>Solde estimé en fin d'année</h1>
-        <p>{{ annuel + count }} FCFA</p>
-      </div>
-    </div>
 
-    <div class="details">
-        <section class="classes">
-            <h5 class="mb-4">Estimation totale par classe 2024-2025</h5>
-            <table>
-                <tr>
-                    <th>Classe</th>
-                    <th>Par année</th>
-                    <th>Par inscription</th>
-                </tr>
-                {% for classe in classes %}
-                
+  <div class="wrapper">
+      <div class="sidebar">
+            <div class="sidebar-menu">
+                <a href="{{ path("app_main") }}" data-section="section1">Acceuil</a>
+                <a href="{{ path("app_main_finances") }}" data-section="section1" class="active">Dashboard</a>
+                <a href="{{ path("app_paiements_index") }}" data-section="section1">Liste des paiements</a>
+                <a href="{{ path("app_paiements_nouveau") }}" data-section="section2">Nouveau paiement</a>
+            </div>
+      </div>
+
+      <div class="center">
+          <div class="globalite">
+              <div>
+                  <h1>Total d'inscrits</h1>
+                  <p>{{ masculins + feminins }}</p>
+              </div>
+              <div>
+                  {% set count = 0 %}
+                  <h1>Solde total des inscriptions</h1>
+                  {% for eleve in eleves %} {% set count = count +
+                  tarifInscriptionParClasse[eleve.classe.id] %} {% endfor %}
+                  <p>{{ count }} FCFA</p>
+              </div>
+              <div>
+
+                  {% set annuel = 0 %} 
+                  {% for eleve in eleves %} 
+                      {% set annuel = annuel + tarifAnnuelParClasse[eleve.classe.id] %} 
+                  {% endfor %}
+                  
+                  <h1>Solde annuel estimé</h1>
+                  <p>{{ annuel + count }} FCFA</p>
+              </div>
+          </div>
+          
+          <div class="details">
+            <section class="classes mt-4">
+                <h5 class="my-4">Estimation totale par classe 2024-2025</h5>
+                <table>
                     <tr>
-                        <td>{{classe.nom}}</td>
-                        <td>{{elevesParClasse[classe.id] * tarifAnnuelParClasse[classe.id] }}</td>
-                        <td>{{elevesParClasse[classe.id] * tarifInscriptionParClasse[classe.id]}}</td>
+                        <th>Classe</th>
+                        <th>Par année</th>
+                        <th>Par inscription</th>
                     </tr>
-                {% endfor %}
-            </table>
-        </section>
-        
-        <section class="circle">
-            <div class="doc">
-                <div><div class="lab lab1"></div> {{masculins }} Garçon</div>
-                <div><div class="lab lab2"></div> {{feminins }} fille</div>
-            </div>
-            <div class="autres mt-4">
-                <div class="pie-chart">
-                    <div class="slice-1"></div>
-                    <div class="slice-2"></div>
+                    {% for classe in classes %}
+                      {% if elevesParClasse[classe.id] * tarifAnnuelParClasse[classe.id] > 0 %}
+                        <tr>
+                            <td>{{classe.nom}}</td>
+                            <td>{{elevesParClasse[classe.id] * tarifAnnuelParClasse[classe.id] }}  FCFA</td>
+                            <td>{{elevesParClasse[classe.id] * tarifInscriptionParClasse[classe.id]}}  FCFA</td>
+                        </tr>
+                      {% endif %}
+                    {% endfor %}
+                </table>
+            </section>
+          
+            <section class="circle">
+                <div class="doc">
+                    <div><div class="lab lab1"></div> {{masculins }} Garçon</div>
+                    <div><div class="lab lab2"></div> {{feminins }} fille</div>
                 </div>
-            </div>
-        </section>
-            <!-- Conteneur du graphique -->
-        <section class="chart-container">
-            <canvas id="myBarChart" width="200" height="200"></canvas>
-        </section>
-    </div>
+                <div class="autres mt-4">
+                    <div class="pie-chart">
+                        <div class="slice-1"></div>
+                        <div class="slice-2"></div>
+                    </div>
+                </div>
+            </section>
+              <!-- Conteneur du graphique -->
+            <section class="chart-container">
+                <canvas id="myBarChart" width="200" height="200"></canvas>
+            </section>
+        </div>
+        </div>
+  </div>
   
     <style>
       

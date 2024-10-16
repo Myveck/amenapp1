@@ -3,7 +3,12 @@
 namespace App\Controller;
 
 use App\Entity\Paiements;
+use App\Entity\PaiementsBackup;
 use App\Form\PaiementsType;
+use App\Repository\AnneeScolaireRepository;
+use App\Repository\EcolesRepository;
+use App\Repository\ElevesBackupRepository;
+use App\Repository\ElevesRepository;
 use App\Repository\PaiementsRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -22,23 +27,48 @@ final class PaiementsController extends AbstractController
         ]);
     }
 
-    #[Route('/new', name: 'app_paiements_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, EntityManagerInterface $entityManager): Response
+    #[Route('/nouveau', name: 'app_paiements_nouveau', methods: ['GET'])]
+    public function nouveau(PaiementsRepository $paiementsRepository): Response
+    {
+        return $this->redirectToRoute('app_eleves_paiements');
+    }
+
+    #[Route('/new/{id}', name: 'app_paiements_new', methods: ['GET', 'POST'])]
+    public function new(Request $request, EntityManagerInterface $entityManager, ElevesRepository $elevesRepository, ElevesBackupRepository $elevesBackupRepository, AnneeScolaireRepository $anneeScolaireRepository): Response
     {
         $paiement = new Paiements();
+        $eleve = $elevesRepository->findOneBy(['id' => $request->get('id')]);
+        $anneeScolaire = $anneeScolaireRepository->findOneBy(['id' => 1]);
         $form = $this->createForm(PaiementsType::class, $paiement);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            $paiement->setEleveId($eleve);
+            $paiement->setAnneeScolaire($anneeScolaire);
             $entityManager->persist($paiement);
+
+            // Gestion du backup
+            $paiementBackup = new PaiementsBackup();
+            $elevedBacked = $elevesBackupRepository->findOneBy([
+                'name' => $eleve->getNom() . ' ' . $eleve->getPrenom(),
+                'classe' => $eleve->getClasse()->getNom(),
+            ]);
+
+            $paiementBackup->setAnneeScolaire($anneeScolaire);
+            $paiementBackup->setEleveBackup($elevedBacked);
+            $paiementBackup->setMontant($paiement->getMontant());
+            $entityManager->persist($paiementBackup);
+
             $entityManager->flush();
 
-            return $this->redirectToRoute('app_paiements_index', [], Response::HTTP_SEE_OTHER);
+            $this->addFlash('success', 'Le paiement a été éffectué avec succès');
+            return $this->redirectToRoute('app_paiements_nouveau', [], Response::HTTP_SEE_OTHER);
         }
 
         return $this->render('paiements/new.html.twig', [
             'paiement' => $paiement,
             'form' => $form,
+            'eleve' => $eleve,
         ]);
     }
 
@@ -71,7 +101,7 @@ final class PaiementsController extends AbstractController
     #[Route('/{id}', name: 'app_paiements_delete', methods: ['POST'])]
     public function delete(Request $request, Paiements $paiement, EntityManagerInterface $entityManager): Response
     {
-        if ($this->isCsrfTokenValid('delete'.$paiement->getId(), $request->getPayload()->getString('_token'))) {
+        if ($this->isCsrfTokenValid('delete' . $paiement->getId(), $request->getPayload()->getString('_token'))) {
             $entityManager->remove($paiement);
             $entityManager->flush();
         }

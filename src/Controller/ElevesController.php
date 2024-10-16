@@ -3,10 +3,12 @@
 namespace App\Controller;
 
 use App\Entity\Eleves;
+use App\Entity\ElevesBackup;
 use App\Entity\Parents;
 use App\Entity\ParentsEleves;
 use App\Form\Eleves1Type;
 use App\Repository\ClassesRepository;
+use App\Repository\ElevesBackupRepository;
 use App\Repository\ElevesRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -28,6 +30,24 @@ final class ElevesController extends AbstractController
             $eleves = $elevesRepository->findBy(['classe' => $trie], ['nom' => 'asc']);
         }
         return $this->render('eleves/index.html.twig', [
+            'eleves' => $eleves,
+            'classes' => $classesRepository->findBy([], ['classeOrder' => 'asc']),
+            'active' => $trie,
+            'nombre' => count($eleves),
+        ]);
+    }
+
+    #[Route('/paiments', name: 'app_eleves_paiements', methods: ['GET'])]
+    public function paiement(Request $request, ElevesRepository $elevesRepository, ClassesRepository $classesRepository): Response
+    {
+        $trie = $request->get('trie');
+        if ($trie == "all" or !$trie) {
+            $eleves = $elevesRepository->findBy([], ['nom' => 'asc']);
+            $trie = "all";
+        } else {
+            $eleves = $elevesRepository->findBy(['classe' => $trie], ['nom' => 'asc']);
+        }
+        return $this->render('paiements/eleves.html.twig', [
             'eleves' => $eleves,
             'classes' => $classesRepository->findBy([], ['classeOrder' => 'asc']),
             'active' => $trie,
@@ -184,7 +204,7 @@ final class ElevesController extends AbstractController
 
 
     #[Route('/new', name: 'app_eleves_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, EntityManagerInterface $entityManager): Response
+    public function new(Request $request, EntityManagerInterface $entityManager, ElevesBackupRepository $elevesBackupRepository): Response
     {
         $elefe = new Eleves();
         $pere = new Parents();
@@ -217,9 +237,16 @@ final class ElevesController extends AbstractController
             $parentsP->setParent($mere);
             $entityManager->persist($parentsM);
 
+            // Gestion du backup
+            $eleveBackup = new ElevesBackup();
+            $eleveBackup->setName($elefe->getNom() . ' ' . $elefe->getPrenom());
+            $eleveBackup->setClasse($elefe->getClasse()->getNom());
+            $entityManager->persist($eleveBackup);
+
+
             $entityManager->flush();
 
-            $this->addFlash("success", "Nouvel élève ajouté");
+            $this->addFlash("success", "Nouvel élève ajouté avec succès");
             return $this->redirectToRoute('app_eleves_index', [], Response::HTTP_SEE_OTHER);
         }
 
@@ -289,9 +316,15 @@ final class ElevesController extends AbstractController
             $parentsP->setParent($mere);
             $entityManager->persist($mere);
 
+            // Gestion du backup
+            $eleveBackup = new ElevesBackup();
+            $eleveBackup->setName($elefe->getNom() . ' ' . $elefe->getPrenom());
+            $eleveBackup->setClasse($elefe->getClasse()->getNom());
+            $entityManager->persist($eleveBackup);
+
             $entityManager->flush();
 
-            $this->addFlash("success", "L'élève a été modifié");
+            $this->addFlash("success", "L'élève a été modifié avec succès");
             return $this->redirectToRoute('app_eleves_index', [], Response::HTTP_SEE_OTHER);
         }
 

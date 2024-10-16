@@ -30,6 +30,11 @@ class Paiements
     #[ORM\JoinColumn(nullable: false)]
     private ?AnneeScolaire $annee_scolaire = null;
 
+    public function __construct()
+    {
+        $this->created_at = new \DateTimeImmutable('now');
+    }
+
     public function getId(): ?int
     {
         return $this->id;
