@@ -237,16 +237,8 @@
               <td class="value">{{ eleve.prenom }}</td>
             </tr>
             <tr>
-              <td class="label">Date de naissance :</td>
-              <td class="value"></td>
-            </tr>
-            <tr>
-              <td class="label">Lieu de naissance :</td>
-              <td class="value"></td>
-            </tr>
-            <tr>
               <td class="label">Sexe :</td>
-              <td class="value">{{ eleve.sexe }}</td>
+              <td class="value">{{ eleve.sexe  | upper}}</td>
             </tr>
           </table>
         </div>
@@ -259,10 +251,6 @@
             <tr>
               <td class="label">Effectif :</td>
               <td class="value">25</td>
-            </tr>
-            <tr>
-              <td class="label">Status :</td>
-              <td class="value">Nouveau</td>
             </tr>
             <tr>
               <td class="label">Année scolaire :</td>

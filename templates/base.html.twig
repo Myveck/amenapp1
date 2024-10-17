@@ -21,7 +21,8 @@
     />
     {% block stylesheets %} {% endblock %}
   </head>
-  <header></header>
+  <header>
+    {% include "_partials/_flash.html.twig" %}</header>
   <body>
     {% block body %} {% endblock %} {% block javascripts %}
     <script

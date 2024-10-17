@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use App\Repository\ExaminationsRepository;
+use DateTimeImmutable;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
@@ -43,6 +44,7 @@ class Examinations
     public function __construct()
     {
         $this->note = new ArrayCollection();
+        $this->date_examination = new \DateTimeImmutable('now');
     }
 
     public function getId(): ?int

@@ -70,7 +70,7 @@
 
     .a4 th,
     .a4 td {
-      border: 1px solid #ccc;
+      border: 1px solid #000;
       padding: 6px;
       /* Réduction du padding pour compacter le tableau */
     }
@@ -167,10 +167,16 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
+      margin-top: 4px;
+      margin-bottom: 4px;
+    }
+
+    .a4 .general div:not(:last-child) {
+      width: 100%;
+      margin-right: 10px;
     }
 
     /* Tableaux ajustés pour compacter la présentation des données générales */
-    .a4 .bilanGeneral,
     .a4 .trimestre,
     .a4 .bilanClasse {
       width: 100%;
@@ -217,7 +223,7 @@
         <p><small>République du Bénin</small></p>
         <h1>{{ ecole.schoolName }}</h1>
         <p>
-          {{ ecole.boitePostale}} Tel: {{ ecole.telephone }} /
+          {{ ecole.boitePostale }} Tel: {{ ecole.telephone }} /
           {{ ecole.cellulaire }}
         </p>
         <p><strong>Abomey-Calavi</strong></p>
@@ -236,14 +242,6 @@
               <td class="value">{{ students[key].prenom }}</td>
             </tr>
             <tr>
-              <td class="label">Date de naissance :</td>
-              <td class="value"></td>
-            </tr>
-            <tr>
-              <td class="label">Lieu de naissance :</td>
-              <td class="value"></td>
-            </tr>
-            <tr>
               <td class="label">Sexe :</td>
               <td class="value">{{ students[key].sexe | upper }}</td>
             </tr>
@@ -258,10 +256,6 @@
             <tr>
               <td class="label">Effectif :</td>
               <td class="value">25</td>
-            </tr>
-            <tr>
-              <td class="label">Status :</td>
-              <td class="value">Nouveau</td>
             </tr>
             <tr>
               <td class="label">Année scolaire :</td>
@@ -299,29 +293,29 @@
             <tr>
               <td class="matiere">{{ matieres[matiereId].nom }}</td>
               <td>1</td>
-              <td>{{ evaluations.mi ?? "N/A" }}</td>
-              <td>{{ evaluations.d1 ?? "N/A" }}</td>
-              <td>{{ evaluations.d2 ?? "N/A" }}</td>
-              <td>{{ evaluations.dh ?? "N/A" }}</td>
+              <td>{{ evaluations.mi ?? "" }}</td>
+              <td>{{ evaluations.d1 ?? "" }}</td>
+              <td>{{ evaluations.d2 ?? "" }}</td>
+              <td>{{ evaluations.dh ?? "" }}</td>
               {% if result.moyenneParMatiere[matiereId] is defined %}
-                <td>{{ result.moyenneParMatiere[matiereId] ?? "N/A" }}</td>
-                <td>{{ result.moyenneParMatiere[matiereId] }}</td>
-                <td>{{ rangParMatiere[matiereId][students[key].id] }}</td>
-                <td>{{ plusFaibleMoyenne[matiereId] }}</td>
-                <td>{{ plusForteMoyenne[matiereId] }}</td>
-                <td class="appreciation">
-                  {% if result.moyenneParMatiere[matiereId] < 10 %} Insuffisant {%
-                  elseif result.moyenneParMatiere[matiereId] >= 10 and
-                  result.moyenneParMatiere[matiereId] < 12 %} Passable {% elseif
-                  result.moyenneParMatiere[matiereId] >= 12 and
-                  result.moyenneParMatiere[matiereId] < 14 %} Assez-bien {% elseif
-                  result.moyenneParMatiere[matiereId] >= 14 and
-                  result.moyenneParMatiere[matiereId] < 16 %} bien {% elseif
-                  result.moyenneParMatiere[matiereId] >= 16 and
-                  result.moyenneParMatiere[matiereId] < 18 %} Très bien {% elseif
-                  result.moyenneParMatiere[matiereId] >= 18 %} Excellent {% endif
-                  %}
-                </td>
+              <td>{{ result.moyenneParMatiere[matiereId] ?? "" }}</td>
+              <td>{{ result.moyenneParMatiere[matiereId] }}</td>
+              <td>{{ rangParMatiere[matiereId][students[key].id] }}</td>
+              <td>{{ plusFaibleMoyenne[matiereId] }}</td>
+              <td>{{ plusForteMoyenne[matiereId] }}</td>
+              <td class="appreciation">
+                {% if result.moyenneParMatiere[matiereId] < 10 %} Insuffisant {%
+                elseif result.moyenneParMatiere[matiereId] >= 10 and
+                result.moyenneParMatiere[matiereId] < 12 %} Passable {% elseif
+                result.moyenneParMatiere[matiereId] >= 12 and
+                result.moyenneParMatiere[matiereId] < 14 %} Assez-bien {% elseif
+                result.moyenneParMatiere[matiereId] >= 14 and
+                result.moyenneParMatiere[matiereId] < 16 %} bien {% elseif
+                result.moyenneParMatiere[matiereId] >= 16 and
+                result.moyenneParMatiere[matiereId] < 18 %} Très bien {% elseif
+                result.moyenneParMatiere[matiereId] >= 18 %} Excellent {% endif
+                %}
+              </td>
               {% else %}
               <td>-</td>
               <td>-</td>
@@ -339,6 +333,11 @@
       <div class="general">
         <div class="bilanGeneral">
           <table>
+            <thead>
+              <tr>
+                <td colspan="2">Billan de l'élève</td>
+              </tr>
+            </thead>
             <tr>
               <td class="label">Moyenne</td>
               <td class="value">{{ result["moyenneGenerale"] }}</td>
@@ -355,7 +354,9 @@
             </tr>
           </table>
         </div>
-        <div class="trimestre">
+
+        {% if trimestre == 3 %}
+        <div class="trimestre mx-4">
           <table>
             <thead>
               <tr>
@@ -379,6 +380,7 @@
             </tbody>
           </table>
         </div>
+        {% endif %}
         <div class="bilanClasse">
           <table>
             <thead>
