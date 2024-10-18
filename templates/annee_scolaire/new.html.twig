@@ -14,7 +14,7 @@
         <div class="center">
             <h1>Ajouter l'année scolaire</h1>
             {{ include('annee_scolaire/_form.html.twig') }}
-            <a href="{{ path('app_annee_scolaire_index') }}" class="btn btn-secondaire">retour</a>
+            <a href="{{ path('app_ecoles_edit', {'id': 1}) }}" class="btn btn-secondaire">retour</a>
         </div>
     </div>
 {% endblock %}

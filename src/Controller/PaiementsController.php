@@ -81,7 +81,7 @@ final class PaiementsController extends AbstractController
     }
 
     #[Route('/{id}/edit', name: 'app_paiements_edit', methods: ['GET', 'POST'])]
-    public function edit(Request $request, Paiements $paiement, EntityManagerInterface $entityManager): Response
+    public function edit(Request $request, Paiements $paiement, EntityManagerInterface $entityManager, ElevesRepository $elevesRepository): Response
     {
         $form = $this->createForm(PaiementsType::class, $paiement);
         $form->handleRequest($request);
@@ -89,12 +89,14 @@ final class PaiementsController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $entityManager->flush();
 
+            $this->addFlash("success", "Le paiement a été modifié avec succès");
             return $this->redirectToRoute('app_paiements_index', [], Response::HTTP_SEE_OTHER);
         }
 
         return $this->render('paiements/edit.html.twig', [
             'paiement' => $paiement,
             'form' => $form,
+            'eleve' => $elevesRepository->findOneBy(['id' => intval($request->get('eleve'))]),
         ]);
     }
 

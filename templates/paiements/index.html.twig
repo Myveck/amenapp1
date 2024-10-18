@@ -18,23 +18,20 @@
             <table class="table">
                 <thead>
                     <tr>
-                        <th>Id</th>
+                        <th>Nom et prénom</th>
                         <th>Montant</th>
                         <th>Type</th>
-                        <th>Created_at</th>
                         <th>actions</th>
                     </tr>
                 </thead>
                 <tbody>
                 {% for paiement in paiements %}
                     <tr>
-                        <td>{{ paiement.id }}</td>
+                        <td>{{ paiement.eleveId.nom }} {{ paiement.eleveId.prenom }}</td>
                         <td>{{ paiement.montant }}</td>
                         <td>{{ paiement.type }}</td>
-                        <td>{{ paiement.createdAt ? paiement.createdAt|date('Y-m-d H:i:s') : '' }}</td>
                         <td>
-                            <a href="{{ path('app_paiements_show', {'id': paiement.id}) }}">show</a>
-                            <a href="{{ path('app_paiements_edit', {'id': paiement.id}) }}">edit</a>
+                            <a href="{{ path('app_paiements_edit', {'id': paiement.id, 'eleve': paiement.eleveId.id}) }}" class="btn btn-primaire">Modifier</a>
                         </td>
                     </tr>
                 {% else %}
@@ -44,7 +41,7 @@
                 {% endfor %}
                 </tbody>
             </table>
-            <a href="{{ path('app_paiements_new') }}">Create new</a>
+            <a href="{{ path('app_paiements_nouveau') }}" class="btn btn-primaire my-4">Ajouter un payement</a>
         </div>
   </div>
 {% endblock %}

@@ -12,26 +12,26 @@ endblock %} {% block body %}
       </div>
 
       <div class="center">
-          <div class="globalite">
-              <div>
-                  <h1>Total d'inscrits</h1>
+          <div class="stats">
+              <div class="item item1"  >
+                  <p>Total d'inscrits</p>
                   <p>{{ masculins + feminins }}</p>
               </div>
-              <div>
+              <div class="item item2">
                   {% set count = 0 %}
-                  <h1>Solde total des inscriptions</h1>
+                  <p>Solde inscriptions</p>
                   {% for eleve in eleves %} {% set count = count +
                   tarifInscriptionParClasse[eleve.classe.id] %} {% endfor %}
                   <p>{{ count }} FCFA</p>
               </div>
-              <div>
+              <div class="item item3">
 
                   {% set annuel = 0 %} 
                   {% for eleve in eleves %} 
                       {% set annuel = annuel + tarifAnnuelParClasse[eleve.classe.id] %} 
                   {% endfor %}
                   
-                  <h1>Solde annuel estimé</h1>
+                  <p>Scolarité estimé</p>
                   <p>{{ annuel + count }} FCFA</p>
               </div>
           </div>
@@ -39,12 +39,14 @@ endblock %} {% block body %}
           <div class="details">
             <section class="classes mt-4">
                 <h5 class="my-4">Estimation totale par classe 2024-2025</h5>
-                <table>
-                    <tr>
-                        <th>Classe</th>
-                        <th>Par année</th>
-                        <th>Par inscription</th>
-                    </tr>
+                <table class="table table-dark">
+                    <thead class="thead-light">
+                      <tr>
+                          <th scope="col">Classe</th>
+                          <th scope="col">Par année</th>
+                          <th scope="col">Par inscription</th>
+                      </tr>
+                    </thead>
                     {% for classe in classes %}
                       {% if elevesParClasse[classe.id] * tarifAnnuelParClasse[classe.id] > 0 %}
                         <tr>
@@ -56,80 +58,7 @@ endblock %} {% block body %}
                     {% endfor %}
                 </table>
             </section>
-          
-            <section class="circle">
-                <div class="doc">
-                    <div><div class="lab lab1"></div> {{masculins }} Garçon</div>
-                    <div><div class="lab lab2"></div> {{feminins }} fille</div>
-                </div>
-                <div class="autres mt-4">
-                    <div class="pie-chart">
-                        <div class="slice-1"></div>
-                        <div class="slice-2"></div>
-                    </div>
-                </div>
-            </section>
-              <!-- Conteneur du graphique -->
-            <section class="chart-container">
-                <canvas id="myBarChart" width="200" height="200"></canvas>
-            </section>
         </div>
         </div>
   </div>
-  
-    <style>
-      
-        .pie-chart {
-            position: relative;
-            width: 200px;
-            height: 200px;
-            border-radius: 50%;
-            background: conic-gradient(
-            rgba(54, 162, 235, 0.6) 0% {{ masculins / (masculins + feminins) * 100 }}%, 
-            rgba(255, 99, 132, 0.6) {{ masculins / (masculins + feminins) * 100 }}% 100%
-            );
-        }
-    </style>
-
-    <!-- Script pour générer le diagramme -->
-    <script> 
-      const ctx = document.getElementById('myBarChart').getContext('2d');
-      const myBarChart = new Chart(ctx, {
-        type: 'bar',  // Type de graphique (bâtons)
-        data: {
-          labels: ['Garçons', 'Filles'],  // Les labels des catégories
-          datasets: [{
-            label: 'Nombre d\'élèves',  // Label du graphique
-            data: [{{ masculins }}, {{ feminins }}],  // Les valeurs dynamiques
-            backgroundColor: [
-              'rgba(54, 162, 235, 0.6)',  // Couleur pour les garçons
-              'rgba(255, 99, 132, 0.6)'   // Couleur pour les filles
-            ],
-            borderColor: [
-              'rgba(54, 162, 235, 1)',
-              'rgba(255, 99, 132, 1)'
-            ],
-            borderWidth: 1
-          }]
-        },
-        options: {
-          scales: {
-            y: {
-              beginAtZero: true  // Le graphique commence à 0 sur l'axe Y
-            }
-          },
-          plugins: {
-            legend: {
-              display: true,
-              position: 'top'
-            },
-            title: {
-              display: true,
-              text: 'Répartition des sommes reçues par classe'
-            }
-          }
-        }
-      });
-    </script>
-    
 {% endblock %}
