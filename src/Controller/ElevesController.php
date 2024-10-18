@@ -304,13 +304,13 @@ final class ElevesController extends AbstractController
         $mere = new Parents();
         $parentsM = new ParentsEleves();
         $parentsP = new ParentsEleves();
+        $trie = $elefe->getClasse()->getId();
 
         $form = $this->createForm(Eleves1Type::class, $elefe);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
 
-            $elefe->setClasse($classesRepository->findOneBy(["id" => $request->get("classse")]));
             $entityManager->persist($elefe);
 
             $pere->setNom($request->get("pere_nom"));
@@ -342,7 +342,7 @@ final class ElevesController extends AbstractController
             $entityManager->flush();
 
             $this->addFlash("success", "L'élève a été modifié avec succès");
-            return $this->redirectToRoute('app_eleves_index', [], Response::HTTP_SEE_OTHER);
+            return $this->redirectToRoute('app_eleves_index', ["trie" => $trie], Response::HTTP_SEE_OTHER);
         }
 
         return $this->render('eleves/edit.html.twig', [
@@ -380,6 +380,7 @@ final class ElevesController extends AbstractController
             $entityManager->flush();
         }
 
-        return $this->redirectToRoute('app_eleves_index', [], Response::HTTP_SEE_OTHER);
+        $this->addFlash("success", "L'élève a été supprimé avec succès");
+        return $this->redirectToRoute('app_eleves_index', ["trie" => $elefe->getClasse()->getId()], Response::HTTP_SEE_OTHER);
     }
 }

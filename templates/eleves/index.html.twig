@@ -53,8 +53,23 @@
               {{ elefe.dateNaissance ? elefe.dateNaissance|date('d-m-Y') : '' }}
             </td>
             <td>
-              <a href="{{ path('app_eleves_show', { id: elefe.id }) }}"class="btn btn-primaire">voir</a>
-              <a href="{{ path('app_eleves_edit', { id: elefe.id }) }}"class="btn btn-secondaire">modifier</a>
+                      <div class="del row">
+            <div class="col-6">
+              <form
+                method="post"
+                action="{{ path('app_eleves_delete', { id: elefe.id }) }}"
+                onsubmit="return confirm('Voulez-vous vraiment le supprimer ?');"
+              >
+                <input
+                  type="hidden"
+                  name="_token"
+                  value="{{ csrf_token('delete' ~ elefe.id) }}"
+                />
+                <button class="btn btn-danger">Supprimer</button>
+              </form>
+            </div>
+              <a href="{{ path('app_eleves_edit', { id: elefe.id }) }}"class="btn btn-secondaire col-6">modifier</a>
+          </div>
             </td>
           </tr>
           {% else %}
