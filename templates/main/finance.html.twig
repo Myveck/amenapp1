@@ -6,59 +6,77 @@ endblock %} {% block body %}
             <div class="sidebar-menu">
                 <a href="{{ path("app_main") }}" data-section="section1">Acceuil</a>
                 <a href="{{ path("app_main_finances") }}" data-section="section1" class="active">Dashboard</a>
-                <a href="{{ path("app_paiements_index") }}" data-section="section1">Liste des paiements</a>
-                <a href="{{ path("app_paiements_nouveau") }}" data-section="section2">Nouveau paiement</a>
+                <a href="{{ path("app_paiements_index") }}" data-section="section1">Paiements</a>
+                <a href="{{ path("app_paiements_nouveau") }}" data-section="section2">Etat</a>
             </div>
       </div>
 
       <div class="center">
-          <div class="stats">
-              <div class="item item1"  >
-                  <p>Total d'inscrits</p>
-                  <p>{{ masculins + feminins }}</p>
-              </div>
-              <div class="item item2">
-                  {% set count = 0 %}
-                  <p>Solde inscriptions</p>
-                  {% for eleve in eleves %} {% set count = count +
-                  tarifInscriptionParClasse[eleve.classe.id] %} {% endfor %}
-                  <p>{{ count }} FCFA</p>
-              </div>
-              <div class="item item3">
+          <form action="{{path('app_main_finances')}}">
+            <div class="col-2">
+              <select name="annee" id="anne" class="form-control" onchange="this.form.submit()">
+                {% for anneeScolaire in anneesScolaires %}
+                <option value="{{anneeScolaire.id}}" 
+                {% if active.id == anneeScolaire.id %}
+                  selected
+                {% endif %}
+                > {{anneeScolaire.annee}} </option>
+                {% endfor %}
+              </select>
+            </div>
+          </form>
+        {% if affiche is defined %}
+            <div class="stats">
+                <div class="item item1"  >
+                    <p>Total d'inscrits</p>
+                    <p>{{ total }}</p>
+                </div>
+                <div class="item item2">
+                    {% set count = 0 %}
+                    <p>Solde inscriptions</p>
+                    {% for eleve in eleves %} {% set count = count +
+                    tarifInscriptionParClasse[eleve.classe.id] %} {% endfor %}
+                    <p>{{ count }} FCFA</p>
+                </div>
+                <div class="item item3">
 
-                  {% set annuel = 0 %} 
-                  {% for eleve in eleves %} 
-                      {% set annuel = annuel + tarifAnnuelParClasse[eleve.classe.id] %} 
-                  {% endfor %}
-                  
-                  <p>Scolarité estimé</p>
-                  <p>{{ annuel + count }} FCFA</p>
-              </div>
-          </div>
-          
-          <div class="details">
-            <section class="classes mt-4">
-                <h5 class="my-4">Estimation totale par classe 2024-2025</h5>
-                <table class="table table-dark">
-                    <thead class="thead-light">
-                      <tr>
-                          <th scope="col">Classe</th>
-                          <th scope="col">Par année</th>
-                          <th scope="col">Par inscription</th>
-                      </tr>
-                    </thead>
-                    {% for classe in classes %}
-                      {% if elevesParClasse[classe.id] * tarifAnnuelParClasse[classe.id] > 0 %}
-                        <tr>
-                            <td>{{classe.nom}}</td>
-                            <td>{{elevesParClasse[classe.id] * tarifAnnuelParClasse[classe.id] }}  FCFA</td>
-                            <td>{{elevesParClasse[classe.id] * tarifInscriptionParClasse[classe.id]}}  FCFA</td>
-                        </tr>
-                      {% endif %}
+                    {% set annuel = 0 %} 
+                    {% for eleve in eleves %} 
+                        {% set annuel = annuel + tarifAnnuelParClasse[eleve.classe.id] %} 
                     {% endfor %}
-                </table>
-            </section>
-        </div>
-        </div>
+                    
+                    <p>Scolarité estimé</p>
+                    <p>{{ annuel + count }} FCFA</p>
+                </div>
+            </div>          
+            <div class="details">
+              <section class="classes mt-4">
+                  <h5 class="my-4">Estimation totale par classe({{active.annee}})</h5>
+                  <table class="table table-dark">
+                      <thead class="thead-light">
+                        <tr>
+                            <th scope="col">Classe</th>
+                            <th scope="col">Par année</th>
+                            <th scope="col">Par inscription</th>
+                        </tr>
+                      </thead>
+                      {% for classe in classes %}
+                        {% if elevesParClasse[classe.id] * tarifAnnuelParClasse[classe.id] > 0 %}
+                          <tr>
+                              <td>{{classe.nom}}</td>
+                              <td>{{elevesParClasse[classe.id] * tarifAnnuelParClasse[classe.id] }}  FCFA</td>
+                              <td>{{elevesParClasse[classe.id] * tarifInscriptionParClasse[classe.id]}}  FCFA</td>
+                          </tr>
+                        {% endif %}
+                      {% endfor %}
+                  </table>
+              </section>
+            </div>
+        {% else %}
+          <div class="detail my-4 py-4">
+            <p class="my-4 py-4">Il n'existe pas de données pour cette année scolaire</p>
+          </div>
+        {% endif %}
+      </div>
   </div>
 {% endblock %}

@@ -30,6 +30,9 @@ class ElevesBackup
     #[ORM\OneToMany(targetEntity: PaiementsBackup::class, mappedBy: 'eleveBackup', orphanRemoval: true)]
     private Collection $paiementsBackups;
 
+    #[ORM\Column(length: 30, nullable: true)]
+    private ?string $anneeScolaire = null;
+
     public function __construct()
     {
         $this->paiementsBackups = new ArrayCollection();
@@ -103,6 +106,18 @@ class ElevesBackup
                 $paiementsBackup->setEleveBackup(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getAnneeScolaire(): ?string
+    {
+        return $this->anneeScolaire;
+    }
+
+    public function setAnneeScolaire(?string $anneeScolaire): static
+    {
+        $this->anneeScolaire = $anneeScolaire;
 
         return $this;
     }

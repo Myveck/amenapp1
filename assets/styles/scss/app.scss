@@ -666,7 +666,9 @@ td.value {
 
 .details{
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
+    justify-items: center;
+    
 }
 
 .details section:first-child{

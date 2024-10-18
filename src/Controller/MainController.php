@@ -2,8 +2,11 @@
 
 namespace App\Controller;
 
+use App\Repository\AnneeScolaireRepository;
+use App\Repository\ClassesBackupRepository;
 use App\Repository\ClassesRepository;
 use App\Repository\EcolesRepository;
+use App\Repository\ElevesBackupRepository;
 use App\Repository\ElevesRepository;
 use App\Repository\EnseignantsRepository;
 use App\Repository\MatieresRepository;
@@ -65,33 +68,66 @@ class MainController extends AbstractController
 
     #[Route('/finances', name: 'app_main_finances', methods: ['GET', 'POST'])]
     public function finance(
+        Request $request,
         ElevesRepository $elevesRepository,
         ClassesRepository $classesRepository,
-        TarifRepository $tarifRepository
+        TarifRepository $tarifRepository,
+        AnneeScolaireRepository $anneeScolaireRepository,
+        EcolesRepository $ecolesRepository,
+        ElevesBackupRepository $elevesBackupRepository,
+        ClassesBackupRepository $classesBackupRepository,
     ) {
-        $eleves = $elevesRepository->findAll();
-        $classes = $classesRepository->findAll();
         $tarifInscriptionParClasse = [];
         $tarifAnnuelParClasse = [];
         $elevesParClasse = [];
-        $masculins = count($elevesRepository->findBy(['sexe' => 'm']));
-        $feminins = count($elevesRepository->findBy(['sexe' => 'f']));
 
-        foreach ($classes as $classe) {
-            $tarifInscriptionParClasse[$classe->getId()] = $tarifRepository->findOneBy(['classe' => $classe])->getPrixInscription();
-            $tarifAnnuelParClasse[$classe->getId()] =
-                $tarifRepository->findOneBy(['classe' => $classe])->getPrixAnnuel();
-            $elevesParClasse[$classe->getId()] = count($elevesRepository->findBy(['classe' => $classe]));
+        if (!$request->get('annee')) {
+            $active = $ecolesRepository->findOneBy(['id' => 1])->getAnneeScolaire();
+            $eleves = $elevesRepository->findAll();
+            $classes = $classesRepository->findAll();
+            $total = count($elevesRepository->findAll());
+        } else {
+            $active = $anneeScolaireRepository->findOneBy(['id' => $request->get('annee')]);
+            $ecoleAS = $ecolesRepository->findOneBy(['id' => 1])->getAnneeScolaire();
+            $eleves = $elevesRepository->findAll();
+
+            if ($ecoleAS->getId() == $active->getId()) {
+                $classes = $classesRepository->findAll();
+                $total = count($elevesRepository->findAll());
+            } else {
+                $eleves = $elevesBackupRepository->findBy(['anneeScolaire' => $active->getAnnee()]);
+                $classes = $classesBackupRepository->findBy(['anneeScolaire' => $active]);
+                $total = count($elevesBackupRepository->findBy([
+                    'anneeScolaire' => $active,
+                ]));
+            }
         }
 
-        return $this->render('main/finance.html.twig', [
-            'masculins' => $masculins,
-            'feminins' => $feminins,
-            'classes' => $classes,
-            'eleves' => $eleves,
-            'tarifInscriptionParClasse' => $tarifInscriptionParClasse,
-            'tarifAnnuelParClasse' => $tarifAnnuelParClasse,
-            'elevesParClasse' => $elevesParClasse,
-        ]);
+        if ($classes) {
+            foreach ($classes as $classe) {
+                $tarifInscriptionParClasse[$classe->getId()] = $tarifRepository->findOneBy(['classe' => $classe])->getPrixInscription();
+                $tarifAnnuelParClasse[$classe->getId()] =
+                    $tarifRepository->findOneBy(['classe' => $classe])->getPrixAnnuel();
+                $elevesParClasse[$classe->getId()] = count($elevesRepository->findBy(['classe' => $classe]));
+            }
+
+            return $this->render('main/finance.html.twig', [
+                'total' => $total,
+                'classes' => $classes,
+                'eleves' => $eleves,
+                'tarifInscriptionParClasse' => $tarifInscriptionParClasse,
+                'tarifAnnuelParClasse' => $tarifAnnuelParClasse,
+                'elevesParClasse' => $elevesParClasse,
+                'anneesScolaires' => $anneeScolaireRepository->findAll(),
+                'active' => $active,
+                'affiche' => 1
+            ]);
+        } else {
+            $active = $anneeScolaireRepository->findOneBy(['id' => $request->get('annee')]);
+            return $this->render('main/finance.html.twig', [
+                'anneesScolaires' => $anneeScolaireRepository->findAll(),
+                'active' => $active,
+            ]);
+        }
     }
 }
