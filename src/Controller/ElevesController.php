@@ -264,7 +264,7 @@ final class ElevesController extends AbstractController
             $entityManager->flush();
 
             $this->addFlash("success", "Nouvel élève ajouté avec succès");
-            return $this->redirectToRoute('app_eleves_index', [], Response::HTTP_SEE_OTHER);
+            return $this->redirectToRoute('app_eleves_new', [], Response::HTTP_SEE_OTHER);
         }
 
         return $this->render('eleves/new.html.twig', [
