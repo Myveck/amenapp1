@@ -3,9 +3,18 @@
 {% block title %}New AnneeScolaire{% endblock %}
 
 {% block body %}
-    <h1>Create new AnneeScolaire</h1>
-
-    {{ include('annee_scolaire/_form.html.twig') }}
-
-    <a href="{{ path('app_annee_scolaire_index') }}">back to list</a>
+    <div class="wrapper">
+        <div class="sidebar">
+            <div class="top"><a href="{{ path("app_main") }}" data-section="section1">Acceuil</a></div>
+            <div class="sidebar-menu">
+                <a href="{{ path("app_ecoles_edit", {'id': 1 }) }}" data-section="section1" >Ecole</a>
+                <a href="{{ path("app_annee_scolaire_new")}}" data-section="section1" class="active">Années scolaires</a>
+            </div>
+        </div>
+        <div class="center">
+            <h1>Ajouter l'année scolaire</h1>
+            {{ include('annee_scolaire/_form.html.twig') }}
+            <a href="{{ path('app_annee_scolaire_index') }}" class="btn btn-secondaire">retour</a>
+        </div>
+    </div>
 {% endblock %}

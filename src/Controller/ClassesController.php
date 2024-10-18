@@ -6,6 +6,7 @@ use App\Entity\Classes;
 use App\Entity\Tarif;
 use App\Form\ClassesType;
 use App\Repository\ClassesRepository;
+use App\Repository\EcolesRepository;
 use App\Repository\ElevesRepository;
 use App\Repository\TarifRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -60,10 +61,11 @@ final class ClassesController extends AbstractController
     }
 
     #[Route('/new', name: 'app_classes_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, EntityManagerInterface $entityManager): Response
+    public function new(Request $request, EntityManagerInterface $entityManager, EcolesRepository $ecolesRepository): Response
     {
         $classe = new Classes();
         $tarif = new Tarif();
+        $anneeScolaire = $ecolesRepository->findOneBy(["id" => 1])->getAnneeScolaire()->getAnnee();
 
         $form = $this->createForm(ClassesType::class, $classe);
         $form->handleRequest($request);
@@ -76,7 +78,7 @@ final class ClassesController extends AbstractController
             $tarif->setPrixInscription($request->get("prix_inscription"));
             $tarif->setPrixReinscription($request->get("prix_reinscription"));
             $tarif->setClasse($classe);
-            $tarif->setAnneeScolaire($classe->getAnneeScolaire());
+            $tarif->setAnneeScolaire($anneeScolaire);
 
             $entityManager->persist($tarif);
 

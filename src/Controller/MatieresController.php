@@ -10,6 +10,7 @@ use App\Form\MatieresType;
 use App\Repository\AnneeScolaireRepository;
 use App\Repository\ClassesMatieresRepository;
 use App\Repository\ClassesRepository;
+use App\Repository\EcolesRepository;
 use App\Repository\MatieresRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -53,7 +54,8 @@ final class MatieresController extends AbstractController
         Request $request,
         EntityManagerInterface $entityManager,
         ClassesRepository $classesRepository,
-        AnneeScolaireRepository $anneeScolaireRepository
+        AnneeScolaireRepository $anneeScolaireRepository,
+        EcolesRepository $ecolesRepository
     ): Response {
         $matiere = new Matieres();
         $tarif = new Tarif();
@@ -66,7 +68,7 @@ final class MatieresController extends AbstractController
 
             $entityManager->persist($matiere);
 
-            $anneeScolaire = $anneeScolaireRepository->findOneBy(['id' => $request->get("annee_scolaire")]);
+            $anneeScolaire = $ecolesRepository->findOneBy(['id' => 1])->getAnneeScolaire();
 
             // Working on classeMatiere
             $classeMatiere->setMatiere($matiere);

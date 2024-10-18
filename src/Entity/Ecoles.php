@@ -37,6 +37,9 @@ class Ecoles
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $logo = null;
 
+    #[ORM\ManyToOne(inversedBy: 'ecoles')]
+    private ?AnneeScolaire $anneeScolaire = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -134,6 +137,18 @@ class Ecoles
     public function setLogo(?string $logo): static
     {
         $this->logo = $logo;
+
+        return $this;
+    }
+
+    public function getAnneeScolaire(): ?AnneeScolaire
+    {
+        return $this->anneeScolaire;
+    }
+
+    public function setAnneeScolaire(?AnneeScolaire $anneeScolaire): static
+    {
+        $this->anneeScolaire = $anneeScolaire;
 
         return $this;
     }

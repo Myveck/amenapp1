@@ -2,7 +2,9 @@
 
 namespace App\Form;
 
+use App\Entity\AnneeScolaire;
 use App\Entity\Ecoles;
+use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -20,6 +22,11 @@ class EcolesType extends AbstractType
             ->add('cellulaire')
             ->add('email')
             ->add('logo')
+            ->add('annee_scolaire', EntityType::class, [
+                'class' => AnneeScolaire::class,
+                'choice_label' => 'annee',
+                'label' => 'Année scolaire actuelle'
+            ])
         ;
     }
 

@@ -34,11 +34,11 @@ final class PaiementsController extends AbstractController
     }
 
     #[Route('/new/{id}', name: 'app_paiements_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, EntityManagerInterface $entityManager, ElevesRepository $elevesRepository, ElevesBackupRepository $elevesBackupRepository, AnneeScolaireRepository $anneeScolaireRepository): Response
+    public function new(Request $request, EntityManagerInterface $entityManager, ElevesRepository $elevesRepository, ElevesBackupRepository $elevesBackupRepository, AnneeScolaireRepository $anneeScolaireRepository, EcolesRepository $ecolesRepository): Response
     {
         $paiement = new Paiements();
         $eleve = $elevesRepository->findOneBy(['id' => $request->get('id')]);
-        $anneeScolaire = $anneeScolaireRepository->findOneBy(['id' => 1]);
+        $anneeScolaire = $ecolesRepository->findOneBy(['id' => 1])->getAnneeScolaire();
         $form = $this->createForm(PaiementsType::class, $paiement);
         $form->handleRequest($request);
 

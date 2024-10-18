@@ -128,7 +128,7 @@ final class NotesController extends AbstractController
             $entityManager->flush();
         }
 
-        $this->addFlash("success", "Les notes ont bien été modifier");
+        $this->addFlash("success", "Les notes ont bien été modifiée");
         return $this->redirectToRoute("app_examinations_index");
     }
 

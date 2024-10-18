@@ -4,13 +4,18 @@
 
 {% block body %}
       <div class="wrapper">
-          <div class="sidebar">
-            <div class="sidebar-menu">
-              <a href="{{ path("app_main") }}" data-section="section1">Acceuil</a>
-              <a href="{{ path("app_classes_index") }}" data-section="section1">Liste des classes</a>
-              <a href="{{ path("app_classes_new") }}" data-section="section2" class="active">Créer une classe</a>
-            </div>
-          </div>
+         
+      <div class="sidebar">
+        <div class="top"><a href="{{ path("app_main") }}" data-section="section1">Acceuil</a></div>
+
+        <div class="sidebar-menu">
+            <a href="{{ path("app_main_ecole") }}" data-section="section1">Dashboard</a>
+            <a href="{{ path("app_eleves_index") }}" data-section="section1">Elèves</a>
+            <a href="{{ path("app_classes_index") }}" data-section="section2" class="active">Classes</a>
+            <a href="{{ path("app_matieres_index") }}" data-section="section2">Cours</a>
+            <a href="{{ path("app_enseignants_index") }}" data-section="section2">Professeurs</a>
+        </div>
+      </div>
               <div class="center">
             <h1>Créer une classe</h1>
             {{ include('classes/_form.html.twig') }}

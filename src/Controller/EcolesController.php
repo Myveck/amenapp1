@@ -59,9 +59,13 @@ final class EcolesController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $entityManager->flush();
 
-            return $this->redirectToRoute('app_ecoles_index', [], Response::HTTP_SEE_OTHER);
+            $this->addFlash("success", "Modifications effectuées avec succès");
+            return $this->redirectToRoute('app_ecoles_edit', ["id" => 1], Response::HTTP_SEE_OTHER);
         }
 
+        if ($request->get("ed")) {
+            $this->addFlash("success", "Modifier l'année actuelle en bas");
+        }
         return $this->render('ecoles/edit.html.twig', [
             'ecole' => $ecole,
             'form' => $form,
@@ -71,7 +75,7 @@ final class EcolesController extends AbstractController
     #[Route('/{id}', name: 'app_ecoles_delete', methods: ['POST'])]
     public function delete(Request $request, Ecoles $ecole, EntityManagerInterface $entityManager): Response
     {
-        if ($this->isCsrfTokenValid('delete'.$ecole->getId(), $request->getPayload()->getString('_token'))) {
+        if ($this->isCsrfTokenValid('delete' . $ecole->getId(), $request->getPayload()->getString('_token'))) {
             $entityManager->remove($ecole);
             $entityManager->flush();
         }

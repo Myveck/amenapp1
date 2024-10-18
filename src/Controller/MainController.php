@@ -3,23 +3,26 @@
 namespace App\Controller;
 
 use App\Repository\ClassesRepository;
+use App\Repository\EcolesRepository;
 use App\Repository\ElevesRepository;
 use App\Repository\EnseignantsRepository;
 use App\Repository\MatieresRepository;
 use App\Repository\TarifRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
 class MainController extends AbstractController
 {
     #[Route('/', name: 'app_main')]
-    public function index(): Response
+    public function index(EcolesRepository $ecolesRepository): Response
     {
-        $next = date("Y") + 1;
-        $year = date("Y");
+        $schoolYear = $ecolesRepository->findOneBy(['id' => 1])->getAnneeScolaire()->getAnnee();
+        // $next = date("Y") + 1;
+        // $year = date("Y");
 
-        $schoolYear = strval($year) . '-' . strval($next);
+        // $schoolYear = strval($year) . '-' . strval($next);
         return $this->render('main/index.html.twig', [
             'controller_name' => 'MainController',
             'annee_actuelle' => $schoolYear
