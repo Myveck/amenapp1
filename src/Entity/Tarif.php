@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\Repository\EcolesRepository;
 use App\Repository\TarifRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
@@ -29,6 +30,14 @@ class Tarif
 
     #[ORM\Column]
     private ?int $prix_reinscription = null;
+
+    #[ORM\ManyToOne(inversedBy: 'tarif')]
+    private ?AnneeScolaire $anneeScolaire = null;
+
+    public function __construct(EcolesRepository $ecolesRepository)
+    {
+        $this->annee_scolaire = $ecolesRepository->getAnneeScolaire();
+    }
 
     public function getId(): ?int
     {

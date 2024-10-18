@@ -66,6 +66,18 @@ class AnneeScolaire
     #[ORM\OneToMany(targetEntity: ClassesBackup::class, mappedBy: 'anneeScolaire', orphanRemoval: true)]
     private Collection $classesBackups;
 
+    /**
+     * @var Collection<int, Tarif>
+     */
+    #[ORM\OneToMany(targetEntity: Tarif::class, mappedBy: 'anneeScolaire')]
+    private Collection $tarif;
+
+    /**
+     * @var Collection<int, TarifBackup>
+     */
+    #[ORM\OneToMany(targetEntity: TarifBackup::class, mappedBy: 'AnneeScolaire')]
+    private Collection $tarifBackups;
+
     public function __construct()
     {
         $this->classes = new ArrayCollection();
@@ -76,6 +88,8 @@ class AnneeScolaire
         $this->paiementsBackups = new ArrayCollection();
         $this->ecoles = new ArrayCollection();
         $this->classesBackups = new ArrayCollection();
+        $this->tarif = new ArrayCollection();
+        $this->tarifBackups = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -329,6 +343,44 @@ class AnneeScolaire
             // set the owning side to null (unless already changed)
             if ($classesBackup->getAnneeScolaire() === $this) {
                 $classesBackup->setAnneeScolaire(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Tarif>
+     */
+    public function getTarif(): Collection
+    {
+        return $this->tarif;
+    }
+
+    /**
+     * @return Collection<int, TarifBackup>
+     */
+    public function getTarifBackups(): Collection
+    {
+        return $this->tarifBackups;
+    }
+
+    public function addTarifBackup(TarifBackup $tarifBackup): static
+    {
+        if (!$this->tarifBackups->contains($tarifBackup)) {
+            $this->tarifBackups->add($tarifBackup);
+            $tarifBackup->setAnneeScolaire($this);
+        }
+
+        return $this;
+    }
+
+    public function removeTarifBackup(TarifBackup $tarifBackup): static
+    {
+        if ($this->tarifBackups->removeElement($tarifBackup)) {
+            // set the owning side to null (unless already changed)
+            if ($tarifBackup->getAnneeScolaire() === $this) {
+                $tarifBackup->setAnneeScolaire(null);
             }
         }
 

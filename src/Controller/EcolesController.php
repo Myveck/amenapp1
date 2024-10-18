@@ -4,7 +4,12 @@ namespace App\Controller;
 
 use App\Entity\Ecoles;
 use App\Form\EcolesType;
+use App\Repository\ClassesMatieresRepository;
+use App\Repository\ClassesRepository;
 use App\Repository\EcolesRepository;
+use App\Repository\PaiementsRepository;
+use App\Repository\TarifBackupRepository;
+use App\Repository\TarifRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -51,15 +56,46 @@ final class EcolesController extends AbstractController
     }
 
     #[Route('/{id}/edit', name: 'app_ecoles_edit', methods: ['GET', 'POST'])]
-    public function edit(Request $request, Ecoles $ecole, EntityManagerInterface $entityManager): Response
+    public function edit(Request $request, Ecoles $ecole, EntityManagerInterface $entityManager, ClassesRepository $classesRepository, ClassesMatieresRepository $classesMatieresRepository, TarifRepository $tarifRepository, PaiementsRepository $paiementsRepository): Response
     {
+        $anneeActuelle = $ecole->getAnneeScolaire()->getId();
         $form = $this->createForm(EcolesType::class, $ecole);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager->flush();
 
+            // On vérifie si on a changé d'année scolaire 
+            if ($anneeActuelle != $ecole->getAnneeScolaire()->getId()) {
+                $classes = $classesRepository->findAll();
+                $cMatieres = $classesMatieresRepository->findAll();
+                $tarifs = $tarifRepository->findAll();
+                $paiements = $paiementsRepository->findAll();
+                // Si c'est le cas on assigne la nouvelle année scolaire aux classes existantes
+                $j = 1;
+                foreach ($classes as $classe) {
+                    $classe->setAnneeScolaire($ecole->getAnneeScolaire());
+                    $entityManager->persist($classe);
+                    $j++;
+                    if ($j > 20) {
+                        $entityManager->flush();
+                        $entityManager->clear();
+                        $j = 0;
+                    }
+                }
+                foreach ($cMatieres as $cMatiere) {
+                    $cMatiere->setAnneeScolaire($ecole->getAnneeScolaire());
+                    $entityManager->persist($classe);
+                    if ($j > 20) {
+                        $entityManager->flush();
+                        $entityManager->clear();
+                        $j = 0;
+                    }
+                }
+            }
+
+            $entityManager->flush();
             $this->addFlash("success", "Modifications effectuées avec succès");
+
             return $this->redirectToRoute('app_ecoles_edit', ["id" => 1], Response::HTTP_SEE_OTHER);
         }
 
