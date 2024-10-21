@@ -14,6 +14,7 @@
     </div>
     <div class="center">
         <h1>Vous ajoutez un paiement pour <strong>{{ eleve.nom }} {{ eleve.prenom }}</strong> </h1>
+        <center>Classe : {{ eleve.classe.nom}}</center>
         {{ include('paiements/_form.html.twig') }}
         <a href="{{ path('app_paiements_nouveau') }}"><-</a>
     </div>

@@ -33,6 +33,7 @@ class Paiements
     public function __construct()
     {
         $this->created_at = new \DateTimeImmutable('now');
+        $this->type = "scolarite";
     }
 
     public function getId(): ?int

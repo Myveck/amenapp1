@@ -768,3 +768,35 @@ td.value {
         margin-top: 5px;
     }
 }
+
+.etat table{
+    width: 100%;
+}
+
+.etat td{
+    border-bottom: 1px solid #ccc;
+}
+.etat tr{
+    height: 100px;
+}
+
+.etat tr:first-child{
+    border-top: 1px solid #ccc;
+}
+
+.progress-bar-container {
+    width: 100%;
+    background-color: #f3f3f3;
+    border-radius: 5px;
+    padding: 3px;
+}
+
+.progress-bar {
+    height: 30px;
+    background-color: #4caf50;
+    border-radius: 5px;
+    text-align: center;
+    color: white;
+    line-height: 30px;
+    /* Alignement vertical du texte */
+}       

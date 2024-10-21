@@ -1,7 +1,9 @@
 {{ form_start(form) }}
 {{ form_row(form.montant) }}
+    <div class="hidden">
 {{ form_row(form.type) }}
-    <div class="hidden">{{ form_row(form.eleve_id) }}</div>
+    {{ form_row(form.eleve_id) }}
+    </div>
     <button class="btn btn-primaire my-4">{{ button_label|default('Enregistrer') }}</button>
 
     <div class="hidden"><input type="text" name="eleve" id="eleve" value="{{eleve.id}}"></div>

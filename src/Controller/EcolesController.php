@@ -100,7 +100,7 @@ final class EcolesController extends AbstractController
         }
 
         if ($request->get("ed")) {
-            $this->addFlash("success", "Modifier l'année actuelle en bas");
+            $this->addFlash("warning", "Modifier l'année scolaire actuelle en bas");
         }
         return $this->render('ecoles/edit.html.twig', [
             'ecole' => $ecole,

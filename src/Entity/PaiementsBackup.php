@@ -27,9 +27,13 @@ class PaiementsBackup
     #[ORM\JoinColumn(nullable: false)]
     private ?ElevesBackup $eleveBackup = null;
 
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $maj = null;
+
     public function __construct()
     {
         $this->created_at = new \DateTimeImmutable('now');
+        $this->maj = 0;
     }
 
     public function getId(): ?int
@@ -81,6 +85,18 @@ class PaiementsBackup
     public function setEleveBackup(?ElevesBackup $eleveBackup): static
     {
         $this->eleveBackup = $eleveBackup;
+
+        return $this;
+    }
+
+    public function getMaj(): ?string
+    {
+        return $this->maj;
+    }
+
+    public function setMaj(?string $maj): static
+    {
+        $this->maj = $maj;
 
         return $this;
     }

@@ -7,20 +7,20 @@
   <div class="wrapper">
       <div class="sidebar">
             <div class="sidebar-menu">
-            <a href="{{ path("app_main") }}" data-section="section1">Acceuil</a>
-              <a href="{{ path("app_main_finances") }}" data-section="section1">Dashboard</a>
-            <a href="{{ path("app_paiements_index") }}" data-section="section1" class="active">Liste des paiements</a>
-            <a href="{{ path("app_paiements_nouveau") }}" data-section="section2">Nouveau paiement</a>
+                <a href="{{ path("app_main") }}" data-section="section1">Acceuil</a>
+                <a href="{{ path("app_main_finances") }}" data-section="section1">Dashboard</a>
+                <a href="{{ path("app_paiements_index") }}" data-section="section1" class="active">Paiements</a>
+                <a href="{{ path("app_paiements_etat") }}" data-section="section2">Etat</a>
             </div>
         </div>
         <div class="center">
-            <h1>Paiements index</h1>
+            <h1>Liste des paiements</h1>
             <table class="table">
                 <thead>
                     <tr>
                         <th>Nom et prénom</th>
                         <th>Montant</th>
-                        <th>Type</th>
+                        <th>Date du paiement</th>
                         <th>actions</th>
                     </tr>
                 </thead>
@@ -29,7 +29,8 @@
                     <tr>
                         <td>{{ paiement.eleveId.nom }} {{ paiement.eleveId.prenom }}</td>
                         <td>{{ paiement.montant }}</td>
-                        <td>{{ paiement.type }}</td>
+                        <td>{{ paiement.createdAt ? paiement.createdAt|date('d-m-Y') : '' }}</td>
+
                         <td>
                             <a href="{{ path('app_paiements_edit', {'id': paiement.id, 'eleve': paiement.eleveId.id}) }}" class="btn btn-primaire">Modifier</a>
                         </td>

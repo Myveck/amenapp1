@@ -1,0 +1,61 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Paiements index{% endblock %}
+
+{% block body %}
+
+  <div class="wrapper">
+      <div class="sidebar">
+            <div class="sidebar-menu">
+                <a href="{{ path("app_main") }}" data-section="section1">Acceuil</a>
+                <a href="{{ path("app_main_finances") }}" data-section="section1">Dashboard</a>
+                <a href="{{ path("app_paiements_index") }}" data-section="section1">Paiements</a>
+                <a href="{{ path("app_paiements_etat") }}" data-section="section2"  class="active">Etat</a>
+            </div>
+        </div>
+        <div class="center">
+            <div class="my-4">
+                <form action="#" method="get">
+                    <div class="col-2">
+                        <select name="classe" id="classe" onchange="this.form.submit()" class="form-control">
+                        <option value="0">Toutes les classes</option>
+                            {% for classe in classes %}
+                                <option value="{{classe.id}}">{{ classe.nom }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <h4>Tranche</h4>
+            <p>{{totalReceived | number_format(0, '', ' ')}} / {{tarifEcole | number_format(0, '', ' ')}} F</p>
+
+            <div class="etat">
+                <table>
+                {% set count = 1 %}
+                    {% for classe in classes %}
+                        <tr>
+                            <td>{{classe.nom}}</td>
+                            <td>
+                                <div class="progress-bar-container">
+                                    <div class="progress-bar" style="width:
+                                            {% if tarifParClasse[classe.id] > 0 %} 
+                                                {{ (tranchesParClasse[classe.id] / tarifParClasse[classe.id]) * 100 }}%;
+                                            {% else %}
+                                                0%
+                                            {% endif %}
+                                        ">
+                                        {% if tarifParClasse[classe.id] > 0 %} 
+                                            {{ (tranchesParClasse[classe.id]  / tarifParClasse[classe.id]) * 100 }}
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </td>
+                            <td>{{tranchesParClasse[classe.id] | number_format(0, '', ' ' )}} / {{tarifParClasse[classe.id] | number_format(0, '', ' ')}}</td>
+                        </tr>
+                    {% endfor %}
+                </table>
+            </div>
+
+        </div>
+  </div>
+{% endblock %}

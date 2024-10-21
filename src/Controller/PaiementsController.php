@@ -6,10 +6,13 @@ use App\Entity\Paiements;
 use App\Entity\PaiementsBackup;
 use App\Form\PaiementsType;
 use App\Repository\AnneeScolaireRepository;
+use App\Repository\ClassesRepository;
 use App\Repository\EcolesRepository;
 use App\Repository\ElevesBackupRepository;
 use App\Repository\ElevesRepository;
+use App\Repository\PaiementsBackupRepository;
 use App\Repository\PaiementsRepository;
+use App\Repository\TarifRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -31,6 +34,57 @@ final class PaiementsController extends AbstractController
     public function nouveau(PaiementsRepository $paiementsRepository): Response
     {
         return $this->redirectToRoute('app_eleves_paiements');
+    }
+
+    #[Route('/etat', name: 'app_paiements_etat', methods: ['GET'])]
+    public function etat(PaiementsRepository $paiementsRepository, ClassesRepository $classesRepository, ElevesRepository $elevesRepository, TarifRepository $tarifRepository): Response
+    {
+        $paiements = $paiementsRepository->findAll();
+        $classes = $classesRepository->findAll();
+        $tarifs = $tarifRepository->findAll();
+        $tarifEcole = 0;
+        $totalReceived = 0;
+
+        $tranchesParClasse = [];
+        $tarifParClasse = [];
+
+        foreach ($tarifs as $tarif) {
+            $elevesPC = count($elevesRepository->findBy(['classe' => $tarif->getClasse()]));
+            $tarifParClasse[$tarif->getClasse()->getId()] = $tarif->getPrixAnnuel() * $elevesPC;
+        }
+
+        foreach ($tarifParClasse as $tarif) {
+            $tarifEcole += $tarif;
+        }
+
+        foreach ($classes as $classe) {
+            $students = $elevesRepository->findBy(['classe' => $classe]);
+            $tranchesParClasse[$classe->getId()] = 0;
+
+            if ($students) {
+                foreach ($students as $student) {
+                    $studentPaiements = $paiementsRepository->findBy(['eleve' => $student]);
+                    if ($studentPaiements) {
+                        foreach ($studentPaiements as $studentPaiement) {
+                            $tranchesParClasse[$classe->getId()] += $studentPaiement->getMontant();
+                        }
+                    }
+                }
+            }
+        }
+
+        foreach ($tranchesParClasse as $one) {
+            $totalReceived += $one;
+        }
+
+        // Calcul des tranches reçues par classe
+        return $this->render('paiements/etat.html.twig', [
+            'classes' => $classes,
+            'tranchesParClasse' => $tranchesParClasse,
+            'tarifParClasse' => $tarifParClasse,
+            'tarifEcole' => $tarifEcole,
+            'totalReceived' => $totalReceived,
+        ]);
     }
 
     #[Route('/new/{id}', name: 'app_paiements_new', methods: ['GET', 'POST'])]

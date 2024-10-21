@@ -256,9 +256,16 @@ final class ElevesController extends AbstractController
 
             // Gestion du backup
             $eleveBackup = new ElevesBackup();
-            $eleveBackup->setName($elefe->getNom() . ' ' . $elefe->getPrenom());
-            $eleveBackup->setClasse($elefe->getClasse()->getNom());
-            $entityManager->persist($eleveBackup);
+            $verif = $elevesBackupRepository->findOneBy([
+                "name" => $elefe->getNom() . ' ' . $elefe->getPrenom(),
+                "classe" => $elefe->getClasse()->getNom()
+            ]);
+
+            if (!$verif) {
+                $eleveBackup->setName($elefe->getNom() . ' ' . $elefe->getPrenom());
+                $eleveBackup->setClasse($elefe->getClasse()->getNom());
+                $entityManager->persist($eleveBackup);
+            }
 
 
             $entityManager->flush();
