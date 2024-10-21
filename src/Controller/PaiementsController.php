@@ -23,10 +23,33 @@ use Symfony\Component\Routing\Attribute\Route;
 final class PaiementsController extends AbstractController
 {
     #[Route(name: 'app_paiements_index', methods: ['GET'])]
-    public function index(PaiementsRepository $paiementsRepository): Response
+    public function index(Request $request, PaiementsRepository $paiementsRepository, ClassesRepository $classesRepository, ElevesRepository $elevesRepository): Response
     {
+        $classes = $classesRepository->findAll();
+        $paiements = $paiementsRepository->findAll();
+        $paiementsParClasse = [];
+        $trie = $request->get('classe') ?? 0;
+
+        if ($request->get('classe')) {
+            $classe = $classesRepository->findOneBy(['id' => $request->get('classe')]);
+            $eleves = $elevesRepository->findBy(['classe' => $classe]);
+
+            foreach ($eleves as $eleve) {
+                $elevePaiments = $paiementsRepository->findBy(['eleve' => $eleve]);
+                if ($elevePaiments) {
+                    foreach ($elevePaiments as $elevePaiment) {
+                        $paiementsParClasse[$eleve->getId()] = $elevePaiment;
+                    }
+                }
+            }
+            $paiements = $paiementsParClasse;
+        }
+
         return $this->render('paiements/index.html.twig', [
-            'paiements' => $paiementsRepository->findAll(),
+            'paiements' => $paiements,
+            'classes' => $classes,
+            'paiementsParClasse' => $paiementsParClasse,
+            'trie' => $trie,
         ]);
     }
 
@@ -39,7 +62,6 @@ final class PaiementsController extends AbstractController
     #[Route('/etat', name: 'app_paiements_etat', methods: ['GET'])]
     public function etat(PaiementsRepository $paiementsRepository, ClassesRepository $classesRepository, ElevesRepository $elevesRepository, TarifRepository $tarifRepository): Response
     {
-        $paiements = $paiementsRepository->findAll();
         $classes = $classesRepository->findAll();
         $tarifs = $tarifRepository->findAll();
         $tarifEcole = 0;
@@ -84,6 +106,44 @@ final class PaiementsController extends AbstractController
             'tarifParClasse' => $tarifParClasse,
             'tarifEcole' => $tarifEcole,
             'totalReceived' => $totalReceived,
+        ]);
+    }
+    #[Route('/details/{id}', name: 'app_paiements_details', methods: ['GET'])]
+    public function details(Request $request, PaiementsRepository $paiementsRepository, ClassesRepository $classesRepository, ElevesRepository $elevesRepository, TarifRepository $tarifRepository): Response
+    {
+        $tranchesParEleves = [];
+        $tarifClasse = 0;
+        $totalReceived = 0;
+
+        $classe = $classesRepository->findOneBy(['id' => $request->get('id')]);
+        $tarif = $tarifRepository->findOneBy(['classe' => $classe]);
+
+        $eleves = $elevesRepository->findBy(['classe' => $classe]);
+        $elevesPC = count($elevesRepository->findBy(['classe' => $classe]));
+        $tarifClasse = $tarif->getPrixAnnuel() * $elevesPC;
+
+        foreach ($eleves as $eleve) {
+            $paiementsEleve = $paiementsRepository->findBy(['eleve' => $eleve]);
+
+            $elevesId[$eleve->getId()] = $eleve;
+            $tranchesParEleves[$eleve->getId()] = 0;
+            if ($paiementsEleve) {
+                foreach ($paiementsEleve as $paiementEleve) {
+                    $tranchesParEleves[$eleve->getId()] += $paiementEleve->getMontant();
+                    $totalReceived += $paiementEleve->getMontant();
+                }
+            }
+        }
+        arsort($tranchesParEleves);
+
+        // Calcul des tranches reçues par classe
+        return $this->render('paiements/details.html.twig', [
+            'tarifClasse' => $tarif->getPrixAnnuel(),
+            'total' => $tarifClasse,
+            'totalReceived' => $totalReceived,
+            'tranchesParEleves' => $tranchesParEleves,
+            'classe' => $classe,
+            'eleves' => $elevesId,
         ]);
     }
 

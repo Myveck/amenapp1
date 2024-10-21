@@ -14,20 +14,27 @@
             </div>
         </div>
         <div class="center">
-            <div class="my-4">
-                <form action="#" method="get">
-                    <div class="col-2">
-                        <select name="classe" id="classe" onchange="this.form.submit()" class="form-control">
-                        <option value="0">Toutes les classes</option>
-                            {% for classe in classes %}
-                                <option value="{{classe.id}}">{{ classe.nom }}</option>
-                            {% endfor %}
-                        </select>
+            <center>
+                <h4>Tranche</h4>
+                <p>
+                    {{totalReceived | number_format(0, '', ' ')}} F / {{tarifEcole | number_format(0, '', ' ')}} F
+                </p>
+            </center>
+                <div class="col-3 mb-4">
+                    <div class="progress-bar-container">
+                        <div class="progress-bar" style="width:
+                                {% if tarifEcole > 0 %}
+                                    {{ (totalReceived / tarifEcole) * 100}}%;
+                                {% else %}
+                                    0%
+                                {% endif %}
+                            ">
+                            {% if tarifEcole > 0 %}
+                                {{ (totalReceived  / tarifEcole) * 100}}
+                            {% endif %}
+                        </div>
                     </div>
-                </form>
-            </div>
-            <h4>Tranche</h4>
-            <p>{{totalReceived | number_format(0, '', ' ')}} / {{tarifEcole | number_format(0, '', ' ')}} F</p>
+                </div>
 
             <div class="etat">
                 <table>
@@ -50,7 +57,8 @@
                                     </div>
                                 </div>
                             </td>
-                            <td>{{tranchesParClasse[classe.id] | number_format(0, '', ' ' )}} / {{tarifParClasse[classe.id] | number_format(0, '', ' ')}}</td>
+                            <td>{{tranchesParClasse[classe.id] | number_format(0, '', ' ' )}} F / {{tarifParClasse[classe.id] | number_format(0, '', ' ')}} F</td>
+                            <td><a href="{{path('app_paiements_details', {'id': classe.id})}}" class="btn btn-primaire">Détails</a></td>
                         </tr>
                     {% endfor %}
                 </table>

@@ -15,6 +15,20 @@
         </div>
         <div class="center">
             <h1>Liste des paiements</h1>
+            
+            <div class="my-4">
+                <form action="#" method="get">
+                    <div class="col-2">
+                        <select name="classe" id="classe" onchange="this.form.submit()" class="form-control">
+                        <option value="0">Toutes les classes</option>
+                            {% for classe in classes %}
+                                <option value="{{classe.id}}" {% if trie == classe.id %} selected {% endif %}>{{ classe.nom }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </form>
+            </div>
+            
             <table class="table">
                 <thead>
                     <tr>

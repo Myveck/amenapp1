@@ -1,0 +1,49 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Paiements index{% endblock %}
+
+{% block body %}
+
+  <div class="wrapper">
+        <div class="sidebar">
+            <div class="sidebar-menu">
+                <a href="{{ path("app_main") }}" data-section="section1">Acceuil</a>
+                <a href="{{ path("app_main_finances") }}" data-section="section1">Dashboard</a>
+                <a href="{{ path("app_paiements_index") }}" data-section="section1">Paiements</a>
+                <a href="{{ path("app_paiements_etat") }}" data-section="section2"  class="active">Etat</a>
+            </div>
+        </div>
+        <div class="center">
+            <center>
+                <h4>Tranche</h4>
+                <p>
+                    {{totalReceived | number_format(0, '', ' ')}} F / {{total | number_format(0, '', ' ')}} F
+                </p>
+            </center>
+
+            <div class="etat">
+                <table>
+                {% set count = 1 %}
+                    {% for cle, tranchesParEleve in tranchesParEleves %}
+                        <tr>
+                            <td>{{eleves[cle].nom}} {{eleves[cle].prenom}}</td>
+                            <td>
+                                <div class="progress-bar-container">
+                                    <div class="progress-bar" style="width: 
+                                                {{ (tranchesParEleve / tarifClasse) * 100 }}%;
+                                        ">
+                                        {% if tranchesParEleve > 0 %} 
+                                            {{ (tranchesParEleve  / tarifClasse) * 100 }}
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </td>
+                            <td>{{tranchesParEleve | number_format(0, '', ' ' )}} F / {{tarifClasse | number_format(0, '', ' ')}} F</td>
+                        </tr>
+                    {% endfor %}
+                </table>
+            </div>
+
+        </div>
+  </div>
+{% endblock %}
