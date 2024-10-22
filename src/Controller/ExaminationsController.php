@@ -2,7 +2,6 @@
 
 namespace App\Controller;
 
-use App\Entity\Evaluations;
 use App\Entity\Examinations;
 use App\Form\ExaminationsType;
 use App\Repository\ClassesMatieresRepository;
@@ -12,7 +11,6 @@ use App\Repository\EvaluationsRepository;
 use App\Repository\ExaminationsRepository;
 use App\Repository\MatieresRepository;
 use DateTime;
-use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -29,6 +27,7 @@ final class ExaminationsController extends AbstractController
         $matieres = "";
         $trimestre = "";
         $examinations = $examinationsRepository->findAll();
+
         $classes = $classesRepository->findAll();
         $allClasses = $classesRepository->findAll();
         $evaluations = $evaluationsRepository->findAll();

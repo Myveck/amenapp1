@@ -42,7 +42,7 @@
                 {% for paiement in paiements %}
                     <tr>
                         <td>{{ paiement.eleveId.nom }} {{ paiement.eleveId.prenom }}</td>
-                        <td>{{ paiement.montant }}</td>
+                        <td>{{ paiement.montant | number_format(0, '', ' ') }} F</td>
                         <td>{{ paiement.createdAt ? paiement.createdAt|date('d-m-Y') : '' }}</td>
 
                         <td>

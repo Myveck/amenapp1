@@ -2,10 +2,8 @@
 
 namespace App\Controller;
 
-use App\DataFixtures\Classes;
 use App\Entity\Eleves;
 use App\Entity\Evaluations;
-use App\Entity\Examinations;
 use App\Entity\Matieres;
 use App\Entity\Notes;
 use App\Form\NotesType;
@@ -15,11 +13,9 @@ use App\Repository\EcolesRepository;
 use App\Repository\ElevesRepository;
 use App\Repository\EvaluationsRepository;
 use App\Repository\ExaminationsRepository;
-use App\Repository\MatieresRepository;
 use App\Repository\NotesRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -308,8 +304,8 @@ final class NotesController extends AbstractController
     //     return $this->render('/notes/bulletins.html.twig');
     // }
 
-    private  // Fonction utilitaire pour récupérer les notes à partir de la relation avec note
-    function getNoteForEvaluation($notesRepository, $examinationsRepository, $matiere, $evaluation, $trimestre, $eleve)
+    // Fonction utilitaire pour récupérer les notes à partir de la relation avec note
+    private function getNoteForEvaluation($notesRepository, $examinationsRepository, $matiere, $evaluation, $trimestre, $eleve)
     {
         $examination = $examinationsRepository->findOneBy([
             "matiere" => $matiere,
@@ -448,6 +444,8 @@ final class NotesController extends AbstractController
         $ecole = $ecolesRepository->findOneBy(['id' => 1]);
         $matieres = [];
         $matiereCoef = [];
+        $results1 = [];
+        $results2 = [];
 
         $cMatieres = $classesMatieresRepository->findMatiereByClasse($classe);
 
@@ -466,6 +464,8 @@ final class NotesController extends AbstractController
             $notesRepository,
             $evaluationsRepository
         );
+
+        // Classification des élèves avec Id comme clé dans un tableau afin de mieux les utiliser dans le twig
         $students = [];
         foreach ($eleves as $un) {
             $students[$un->getId()] = $un;
@@ -525,6 +525,46 @@ final class NotesController extends AbstractController
                 return $this->redirectToRoute("app_classes_bulletins");
             }
         }
+
+        // Si c'est le troisième trimestre, on aurait besoin des résultats des trimestres passé
+        if ($trimestre == 3) {
+            $results1 = $this->calculateBulletins(
+                $classe,
+                $eleves,
+                1,
+                $classesMatieresRepository,
+                $examinationsRepository,
+                $notesRepository,
+                $evaluationsRepository
+            );
+            $results2 = $this->calculateBulletins(
+                $classe,
+                $eleves,
+                2,
+                $classesMatieresRepository,
+                $examinationsRepository,
+                $notesRepository,
+                $evaluationsRepository
+            );
+
+            if (isset($results1[2])) {
+
+                $this->addFlash($results[2][0], $results[2][1]);
+                return $this->redirectToRoute("app_classes_bulletins");
+            } else {
+                // On ne prend que les moyennes générales de ce trimestre
+                $results1 = $results1[0];
+            }
+
+            if (isset($results2[2])) {
+
+                $this->addFlash($results[2][0], $results[2][1]);
+                return $this->redirectToRoute("app_classes_bulletins");
+            } else {
+                $results2 = $results2[0];
+            }
+        }
+
         return $this->render('/notes/bulletins.html.twig', [
             'classe' => $classe,
             'matieres' => $matieres,
@@ -539,6 +579,8 @@ final class NotesController extends AbstractController
             'trimestre' => $trimestre,
             'ecole' => $ecole,
             'matiereCoef' => $matiereCoef,
+            'results1' => $results1,
+            'results2' => $results2,
             'results' => $results,  // Contient les moyennes et résultats de chaque élève
         ]);
     }

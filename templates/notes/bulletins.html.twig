@@ -215,7 +215,6 @@
       }
     }
   </style>
-
   <body>
     {% for key, result in results[0] %}
     <div class="a4">
@@ -298,31 +297,31 @@
               <td>{{ evaluations.d2 ?? "" }}</td>
               <td>{{ evaluations.dh ?? "" }}</td>
               {% if result.moyenneParMatiere[matiereId] is defined %}
-              <td>{{ result.moyenneParMatiere[matiereId] ?? "" }}</td>
-              <td>{{ result.moyenneParMatiere[matiereId] }}</td>
-              <td>{{ rangParMatiere[matiereId][students[key].id] }}</td>
-              <td>{{ plusFaibleMoyenne[matiereId] }}</td>
-              <td>{{ plusForteMoyenne[matiereId] }}</td>
-              <td class="appreciation">
-                {% if result.moyenneParMatiere[matiereId] < 10 %} Insuffisant {%
-                elseif result.moyenneParMatiere[matiereId] >= 10 and
-                result.moyenneParMatiere[matiereId] < 12 %} Passable {% elseif
-                result.moyenneParMatiere[matiereId] >= 12 and
-                result.moyenneParMatiere[matiereId] < 14 %} Assez-bien {% elseif
-                result.moyenneParMatiere[matiereId] >= 14 and
-                result.moyenneParMatiere[matiereId] < 16 %} bien {% elseif
-                result.moyenneParMatiere[matiereId] >= 16 and
-                result.moyenneParMatiere[matiereId] < 18 %} Très bien {% elseif
-                result.moyenneParMatiere[matiereId] >= 18 %} Excellent {% endif
-                %}
-              </td>
+                <td>{{ result.moyenneParMatiere[matiereId] ?? "" }}</td>
+                <td>{{ result.moyenneParMatiere[matiereId] }}</td>
+                <td>{{ rangParMatiere[matiereId][students[key].id] }}</td>
+                <td>{{ plusFaibleMoyenne[matiereId] }}</td>
+                <td>{{ plusForteMoyenne[matiereId] }}</td>
+                <td class="appreciation">
+                  {% if result.moyenneParMatiere[matiereId] < 10 %} Insuffisant {%
+                    elseif result.moyenneParMatiere[matiereId] >= 10 and
+                    result.moyenneParMatiere[matiereId] < 12 %} Passable {% elseif
+                    result.moyenneParMatiere[matiereId] >= 12 and
+                    result.moyenneParMatiere[matiereId] < 14 %} Assez-bien {% elseif
+                    result.moyenneParMatiere[matiereId] >= 14 and
+                    result.moyenneParMatiere[matiereId] < 16 %} bien {% elseif
+                    result.moyenneParMatiere[matiereId] >= 16 and
+                    result.moyenneParMatiere[matiereId] < 18 %} Très bien {% elseif
+                    result.moyenneParMatiere[matiereId] >= 18 %} Excellent {% endif
+                  %}
+                </td>
               {% else %}
-              <td>-</td>
-              <td>-</td>
-              <td>-</td>
-              <td>-</td>
-              <td>-</td>
-              <td>-</td>
+                <td>-</td>
+                <td>-</td>
+                <td>-</td>
+                <td>-</td>
+                <td>-</td>
+                <td>-</td>
               {% endif %}
             </tr>
             {% endfor %}
@@ -367,15 +366,17 @@
             <tbody>
               <tr>
                 <td>1er Trimestre</td>
-                <td></td>
+                <td>{{ results1[key]["moyenneGenerale"] }}</td>
               </tr>
               <tr>
                 <td>2e Trimestre</td>
-                <td></td>
+                <td>{{ results2[key]["moyenneGenerale"] }}</td>
               </tr>
               <tr>
-                <td>3e Trimestre</td>
-                <td></td>
+                <td>Général</td>
+                <td>
+                  {{ (results1[key]["moyenneGenerale"] + results2[key]["moyenneGenerale"] + result["moyenneGenerale"]) / 3 }}
+                </td>
               </tr>
             </tbody>
           </table>
