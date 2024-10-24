@@ -441,6 +441,7 @@ final class NotesController extends AbstractController
         $trimestre = $request->get('trimestre');
         $classe = $classesRepository->findOneBy(["id" => $classeId]);
         $eleves = $elevesRepository->findBy(["classe" => $classe]);
+        $effectif = count($eleves);
         $ecole = $ecolesRepository->findOneBy(['id' => 1]);
         $matieres = [];
         $matiereCoef = [];
@@ -567,6 +568,7 @@ final class NotesController extends AbstractController
 
         return $this->render('/notes/bulletins.html.twig', [
             'classe' => $classe,
+            'effectif' => $effectif,
             'matieres' => $matieres,
             'students' => $students,
             'rangParMatiere' => $rangParMatiere,
@@ -772,8 +774,11 @@ final class NotesController extends AbstractController
         $classe = $classesRepository->findOneBy(["id" => $classeId]);
         $eleve = $elevesRepository->findOneBy(["id" => $eleveId]);
         $eleves = $elevesRepository->findBy(["classe" => $classe]);
+        $effectif = count($eleves);
         $ecole = $ecolesRepository->findOneBy(['id' => 1]);
         $matieres = [];
+        $results1 = [];
+        $results2 = [];
 
         $cMatieres = $classesMatieresRepository->findMatiereByClasse($classe);
 
@@ -791,58 +796,6 @@ final class NotesController extends AbstractController
             $notesRepository,
             $evaluationsRepository
         );
-
-        // if ($trimestre == 3) {
-        //     $resultstTrimestre1 =
-        //         $this->calculateBulletins(
-        //             $classe,
-        //             $eleves,  // Passer un tableau avec un seul élève
-        //             1,
-        //             $classesMatieresRepository,
-        //             $examinationsRepository,
-        //             $notesRepository,
-        //             $evaluationsRepository
-        //         );
-        //     $moyenneTrimestre1 = $resultstTrimestre1[0][$eleve->getId()]["moyenneGeneral"];
-
-        //     $resultstTrimestre2 =
-        //         $this->calculateBulletins(
-        //             $classe,
-        //             $eleves,  // Passer un tableau avec un seul élève
-        //             2,
-        //             $classesMatieresRepository,
-        //             $examinationsRepository,
-        //             $notesRepository,
-        //             $evaluationsRepository
-        //         );
-        //     $moyenneTrimestre2 = $resultstTrimestre2[0][$eleve->getId()]["moyenneGeneral"];
-
-        //     $resultsTrimestre3 = $results;
-        // } elseif ($trimestre == 2) {
-        //     $resultstTrimestre1 =
-        //         $this->calculateBulletins(
-        //             $classe,
-        //             $eleves,  // Passer un tableau avec un seul élève
-        //             1,
-        //             $classesMatieresRepository,
-        //             $examinationsRepository,
-        //             $notesRepository,
-        //             $evaluationsRepository
-        //         );
-        //     $moyenneTrimestre1 = $resultstTrimestre1[0][$eleve->getId()]["moyenneGeneral"];
-
-        //     $resultstTrimestre2 = $results;
-        //     $moyenneTrimestre2 = $resultstTrimestre2[0][$eleve->getId()]["moyenneGeneral"];
-
-        //     $resultsTrimestre3 = "";
-        // } else {
-        //     $resultstTrimestre1 = $results;
-        //     $moyenneTrimestre2 = '';
-        //     $moyenneTrimestre3 = '';
-
-        //     $moyenneTrimestre1 = $resultstTrimestre1[0][$eleve->getId()]["moyenneGeneral"];
-        // }
-
 
         // Classification des moyennes par matière
         $rangParMatiere = [];
@@ -898,8 +851,48 @@ final class NotesController extends AbstractController
             }
         }
 
+        // Si c'est le troisième trimestre, on aurait besoin des résultats des trimestres passés
+        if ($trimestre == 3) {
+            $results1 = $this->calculateBulletins(
+                $classe,
+                $eleves,
+                1,
+                $classesMatieresRepository,
+                $examinationsRepository,
+                $notesRepository,
+                $evaluationsRepository
+            );
+            $results2 = $this->calculateBulletins(
+                $classe,
+                $eleves,
+                2,
+                $classesMatieresRepository,
+                $examinationsRepository,
+                $notesRepository,
+                $evaluationsRepository
+            );
+
+            if (isset($results1[2])) {
+
+                $this->addFlash($results[2][0], $results[2][1]);
+                return $this->redirectToRoute("app_classes_bulletins");
+            } else {
+                // On ne prend que les moyennes générales de ce trimestre
+                $results1 = $results1[0][$eleve->getId()];
+            }
+
+            if (isset($results2[2])) {
+
+                $this->addFlash($results[2][0], $results[2][1]);
+                return $this->redirectToRoute("app_classes_bulletins");
+            } else {
+                $results2 = $results2[0][$eleve->getId()];
+            }
+        }
+
         return $this->render('/notes/bulletin_eleve.html.twig', [
             'classe' => $classe,
+            'effectif' => $effectif,
             'matieres' => $matieres,
             'trimestre' => $trimestre,
             'eleve' => $eleve,
@@ -912,8 +905,8 @@ final class NotesController extends AbstractController
             'moyenneGClasse' => $moyenneGClasse,
             'results' => $results[0][$eleve->getId()],
             'ecole' => $ecole,
-            // 't1' => $moyenneTrimestre1,
-            // 't2' => $moyenneTrimestre2,
+            'results1' => $results1,
+            'results2' => $results2,
             // 't3' => $moyenneTrimestre3,
         ]);
     }

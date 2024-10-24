@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Ecoles;
+use App\Entity\TarifBackup;
 use App\Form\EcolesType;
 use App\Repository\ClassesMatieresRepository;
 use App\Repository\ClassesRepository;
@@ -56,7 +57,7 @@ final class EcolesController extends AbstractController
     }
 
     #[Route('/{id}/edit', name: 'app_ecoles_edit', methods: ['GET', 'POST'])]
-    public function edit(Request $request, Ecoles $ecole, EntityManagerInterface $entityManager, ClassesRepository $classesRepository, ClassesMatieresRepository $classesMatieresRepository, TarifRepository $tarifRepository, PaiementsRepository $paiementsRepository): Response
+    public function edit(Request $request, Ecoles $ecole, EntityManagerInterface $entityManager, ClassesRepository $classesRepository, ClassesMatieresRepository $classesMatieresRepository, TarifRepository $tarifRepository, PaiementsRepository $paiementsRepository, TarifBackupRepository $tarifBackupRepository): Response
     {
         $anneeActuelle = $ecole->getAnneeScolaire()->getId();
         $form = $this->createForm(EcolesType::class, $ecole);
@@ -70,7 +71,8 @@ final class EcolesController extends AbstractController
                 $cMatieres = $classesMatieresRepository->findAll();
                 $tarifs = $tarifRepository->findAll();
                 $paiements = $paiementsRepository->findAll();
-                // Si c'est le cas on assigne la nouvelle année scolaire aux classes existantes
+
+                // Si c'est le cas on assigne la nouvelle année scolaire à toutes les entités qui sont liées à l'année scolaire
                 $j = 1;
                 foreach ($classes as $classe) {
                     $classe->setAnneeScolaire($ecole->getAnneeScolaire());
@@ -83,9 +85,36 @@ final class EcolesController extends AbstractController
                     }
                 }
                 foreach ($cMatieres as $cMatiere) {
+                    $j++;
                     $cMatiere->setAnneeScolaire($ecole->getAnneeScolaire());
-                    $entityManager->persist($classe);
+                    $entityManager->persist($cMatiere);
                     if ($j > 20) {
+                        $entityManager->flush();
+                        $entityManager->clear();
+                        $j = 0;
+                    }
+                }
+                foreach ($tarifs as $tarif) {
+                    $j++;
+                    $tarif->setAnneeScolaire($ecole->getAnneeScolaire());
+                    $entityManager->persist($tarif);
+
+                    // Ajout des tarifs de cette année dans la table backupTarif
+                    $findTB = $tarifBackupRepository->findOneBy([
+                        'annee_scolaire' => $ecole->getAnneeScolaire(),
+                        'classe' => $tarif->getClasse(),
+                    ]);
+                    if (!$findTB) {
+                        $tarifB = new TarifBackup();
+                        $tarifB->setAnneeScolaire($ecole->getAnneeScolaire());
+                        $tarifB->setClasse($tarif->getClasse()->getNom());
+                        $tarifB->setPrixAnnuel($tarif->getPrixAnnuel());
+                        $tarifB->setPrixInscription($tarif->getPrixInscription());
+                        $tarifB->setPrixReinscription($tarif->getPrixReinscription());
+                        $entityManager->persist($tarifB);
+                    }
+
+                    if ($j > 10) {
                         $entityManager->flush();
                         $entityManager->clear();
                         $j = 0;

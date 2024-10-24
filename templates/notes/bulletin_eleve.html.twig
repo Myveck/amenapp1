@@ -250,7 +250,7 @@
             </tr>
             <tr>
               <td class="label">Effectif :</td>
-              <td class="value">25</td>
+              <td class="value">{{effectif}}</td>
             </tr>
             <tr>
               <td class="label">Année scolaire :</td>
@@ -347,30 +347,34 @@
             </tr>
           </table>
         </div>
-        <div class="trimestre">
-          <table>
-            <thead>
-              <tr>
-                <th>Trimestre</th>
-                <th>Moyenne</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>1er Trimestre :</td>
-                <td></td>
-              </tr>
-              <tr>
-                <td>2e Trimestre :</td>
-                <td></td>
-              </tr>
-              <tr>
-                <td>3e Trimestre :</td>
-                <td></td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+         {% if trimestre == 3 %}
+          <div class="trimestre mx-4">
+            <table>
+              <thead>
+                <tr>
+                  <th>Trimestre</th>
+                  <th>Moyenne</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>1er Trimestre</td>
+                  <td>{{ results1["moyenneGenerale"] }}</td>
+                </tr>
+                <tr>
+                  <td>2e Trimestre</td>
+                  <td>{{ results2["moyenneGenerale"] }}</td>
+                </tr>
+                <tr>
+                  <td>Général</td>
+                  <td>
+                    {{ (results1["moyenneGenerale"] + results2["moyenneGenerale"] + results["moyenneGenerale"]) / 3 }}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        {% endif %}
         <div class="bilanClasse">
           <table>
             <thead>
