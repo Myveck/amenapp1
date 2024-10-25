@@ -3,11 +3,15 @@
 namespace App\Controller;
 
 use App\Entity\Classes;
+use App\Entity\ClassesBackup;
 use App\Entity\Tarif;
+use App\Entity\TarifBackup;
 use App\Form\ClassesType;
+use App\Repository\ClassesBackupRepository;
 use App\Repository\ClassesRepository;
 use App\Repository\EcolesRepository;
 use App\Repository\ElevesRepository;
+use App\Repository\TarifBackupRepository;
 use App\Repository\TarifRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -61,16 +65,17 @@ final class ClassesController extends AbstractController
     }
 
     #[Route('/new', name: 'app_classes_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, EntityManagerInterface $entityManager, EcolesRepository $ecolesRepository): Response
+    public function new(Request $request, EntityManagerInterface $entityManager, EcolesRepository $ecolesRepository, TarifBackupRepository $tarifBackupRepository, ClassesBackupRepository $classesBackupRepository): Response
     {
+        $anneeScolaire = $ecolesRepository->findOneBy(["id" => 1])->getAnneeScolaire();
         $classe = new Classes();
-        $tarif = new Tarif();
-        $anneeScolaire = $ecolesRepository->findOneBy(["id" => 1])->getAnneeScolaire()->getAnnee();
+        $tarif = new Tarif($anneeScolaire);
 
         $form = $this->createForm(ClassesType::class, $classe);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            $classe->setAnneeScolaire($anneeScolaire);
             $entityManager->persist($classe);
 
             // Working on Tarif
@@ -78,9 +83,40 @@ final class ClassesController extends AbstractController
             $tarif->setPrixInscription($request->get("prix_inscription"));
             $tarif->setPrixReinscription($request->get("prix_reinscription"));
             $tarif->setClasse($classe);
-            $tarif->setAnneeScolaire($anneeScolaire);
-
             $entityManager->persist($tarif);
+
+            // Working on backup
+            // Class backup
+            $classB = $classesBackupRepository->findOneBy([
+                'nom' => $classe->getNom(),
+                'anneeScolaire' => $anneeScolaire,
+            ]);
+            if (!$classB) {
+                $classB = new ClassesBackup();
+                $classB->setNom($classe->getNom());
+                $classB->setAnneeScolaire($classe->getAnneeScolaire());
+                $entityManager->persist($classB);
+            } else {
+                $classB->setNom($classe->getNom());
+                $classB->setAnneeScolaire($classe->getAnneeScolaire());
+                $entityManager->persist($classB);
+            }
+
+            // Tarif backup
+            $verif = $tarifBackupRepository->findOneBy([
+                'classe' => $classe->getNom(),
+                'AnneeScolaire' => $anneeScolaire
+            ]);
+
+            if (!$verif) {
+                $tarifB = new TarifBackup();
+                $tarifB->setPrixAnnuel($request->get("prix_annuel"));
+                $tarifB->setPrixInscription($request->get("prix_inscription"));
+                $tarifB->setPrixReinscription($request->get("prix_reinscription"));
+                $tarifB->setClasse($classe->getNom());
+                $tarifB->setAnneeScolaire($anneeScolaire);
+                $entityManager->persist($tarifB);
+            }
 
             $entityManager->flush();
 
@@ -130,16 +166,46 @@ final class ClassesController extends AbstractController
     }
 
     #[Route('/{id}/edit', name: 'app_classes_edit', methods: ['GET', 'POST'])]
-    public function edit(Request $request, Classes $class, EntityManagerInterface $entityManager, TarifRepository $tarifRepository): Response
+    public function edit(Request $request, Classes $class, EntityManagerInterface $entityManager, TarifRepository $tarifRepository, ClassesBackupRepository $classesBackupRepository): Response
     {
         $form = $this->createForm(ClassesType::class, $class);
         $tarif = $tarifRepository->findOneBy(['classe' => $class]);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+
+            // Working on Tarif
+            $tarif->setPrixAnnuel($request->get("prix_annuel"));
+            $tarif->setPrixInscription($request->get("prix_inscription"));
+            $tarif->setPrixReinscription($request->get("prix_reinscription"));
+            $tarif->setClasse($class);
+            $tarif->setAnneeScolaire($class->getAnneeScolaire());
+            $entityManager->persist($tarif);
+
+            // Working on Backup
+
+            // Class backup, Création de la classe modifiée
+            $classB = $classesBackupRepository->findOneBy([
+                'nom' => $class->getNom(),
+                'anneeScolaire' => $class->getAnneeScolaire(),
+            ]);
+            if (!$classB) {
+                $classB = new ClassesBackup();
+                $classB->setNom($class->getNom());
+                $classB->setAnneeScolaire($class->getAnneeScolaire());
+                $entityManager->persist($classB);
+            }
+            // Création du nouveau tarifBackup, à chaque modif on ajoute le tarif comme nouveau dans les backups
+            $tarifB = new TarifBackup();
+            $tarifB->setPrixAnnuel($request->get("prix_annuel"));
+            $tarifB->setPrixInscription($request->get("prix_inscription"));
+            $tarifB->setPrixReinscription($request->get("prix_reinscription"));
+            $tarifB->setClasse($class->getNom());
+            $tarifB->setAnneeScolaire($class->getAnneeScolaire());
+            $entityManager->persist($tarifB);
             $entityManager->flush();
 
-            $this->addFlash("success", "La classe a été modifiée");
+            $this->addFlash("success", "La classe a été modifiée avec succès");
             return $this->redirectToRoute('app_classes_index', [], Response::HTTP_SEE_OTHER);
         }
 

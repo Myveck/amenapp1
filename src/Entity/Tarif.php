@@ -31,12 +31,9 @@ class Tarif
     #[ORM\Column]
     private ?int $prix_reinscription = null;
 
-    #[ORM\ManyToOne(inversedBy: 'tarif')]
-    private ?AnneeScolaire $anneeScolaire = null;
-
-    public function __construct(EcolesRepository $ecolesRepository)
+    public function __construct(AnneeScolaire $annee_scolaire)
     {
-        $this->annee_scolaire = $ecolesRepository->getAnneeScolaire();
+        $this->annee_scolaire = $annee_scolaire;
     }
 
     public function getId(): ?int

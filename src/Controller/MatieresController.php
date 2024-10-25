@@ -27,21 +27,14 @@ final class MatieresController extends AbstractController
         $trie = $request->get("trie");
         if (!$trie or $trie == "all") {
             $trie = "all";
-            $matieres = $matieresRepository->findBy([], ['nom' => 'asc']);
+            $cmatieres = $matieresRepository->findBy([], ['nom' => 'asc']);
         } else {
             $classe = $classesRepository->findOneBy(["id" => $trie]);
-            $matieres = $classeMatiere->findMatiereByClasse($classe);
-        }
-
-        $matiereCoef = [];
-        if ($matieres) {
-            foreach ($matieres as $matiere) {
-                $matiereCoef[$matiere->getId()] = $classeMatiere->findOneBy(["matiere" => $matiere]);
-            }
+            $cmatieres = $classeMatiere->findMatiereByClasse($classe);
         }
 
         return $this->render('matieres/index.html.twig', [
-            'matieres' => $matiereCoef,
+            'matieres' => $cmatieres,
             'classeMatieres' => $classeMatiere->findAll(),
             'niveaux' => ['primaire', 'college', 'lycee'],
             'active' => $trie,
@@ -54,18 +47,16 @@ final class MatieresController extends AbstractController
         Request $request,
         EntityManagerInterface $entityManager,
         ClassesRepository $classesRepository,
-        AnneeScolaireRepository $anneeScolaireRepository,
         EcolesRepository $ecolesRepository
     ): Response {
         $matiere = new Matieres();
-        $tarif = new Tarif();
         $classeMatiere = new ClassesMatieres();
+        $anneeScolaire = $ecolesRepository->findOneBy(['id' => 1])->getAnneeScolaire();
 
         $form = $this->createForm(MatieresType::class, $matiere);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-
             $entityManager->persist($matiere);
 
             $anneeScolaire = $ecolesRepository->findOneBy(['id' => 1])->getAnneeScolaire();
