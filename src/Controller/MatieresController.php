@@ -22,12 +22,12 @@ use Symfony\Component\Routing\Attribute\Route;
 final class MatieresController extends AbstractController
 {
     #[Route(name: 'app_matieres_index', methods: ['GET'])]
-    public function index(Request $request, MatieresRepository $matieresRepository, ClassesMatieresRepository $classeMatiere, ClassesRepository $classesRepository): Response
+    public function index(Request $request, ClassesMatieresRepository $classeMatiere, ClassesRepository $classesRepository): Response
     {
         $trie = $request->get("trie");
         if (!$trie or $trie == "all") {
             $trie = "all";
-            $cmatieres = $matieresRepository->findBy([], ['nom' => 'asc']);
+            $cmatieres = $classeMatiere->findBy([], ['classe' => 'asc']);
         } else {
             $classe = $classesRepository->findOneBy(["id" => $trie]);
             $cmatieres = $classeMatiere->findMatiereByClasse($classe);
