@@ -23,15 +23,24 @@ use Symfony\Component\Routing\Attribute\Route;
 final class ClassesController extends AbstractController
 {
     #[Route(name: 'app_classes_index', methods: ['GET'])]
-    public function index(Request $request, ClassesRepository $classesRepository, TarifRepository $tarifRepository): Response
+    public function index(Request $request, ClassesRepository $classesRepository, TarifRepository $tarifRepository, EcolesRepository $ecolesRepository): Response
     {
+        $anneeScolaire = $ecolesRepository->findOneBy(['id' => 1])->getAnneeScolaire();
         $trie = $request->get('trie');
         if (!$trie or $trie == "all") {
             $trie = "all";
-            $classes = $classesRepository->findBy([], ['classeOrder' => 'asc']);
+            $classes = $classesRepository->findBy(['annee_scolaire' => $anneeScolaire], ['classeOrder' => 'asc']);
         } else {
 
-            $classes = $classesRepository->findBy(["niveau" => $trie], ['nom'  => 'asc']);
+            $classes = $classesRepository->findBy(
+                [
+                    "niveau" => $trie,
+                    'annee_scolaire' => $anneeScolaire
+                ],
+                [
+                    'nom'  => 'asc'
+                ]
+            );
         }
 
         $classeTarif = [];
@@ -49,14 +58,18 @@ final class ClassesController extends AbstractController
     }
 
     #[Route('/bulletins', name: 'app_classes_bulletins')]
-    public function bulletin(ClassesRepository $classesRepository, ElevesRepository $elevesRepository): Response
+    public function bulletin(ClassesRepository $classesRepository, ElevesRepository $elevesRepository, EcolesRepository $ecolesRepository): Response
     {
-        $classes = $classesRepository->findAll();
+        $anneeScolaire = $ecolesRepository->findOneBy(['id' => 1])->getAnneeScolaire();
+        $classes = $classesRepository->findBy(['annee_scolaire' => $anneeScolaire]);
 
         $classeEleves = [];
 
         foreach ($classes as $classe) {
-            $classeEleves[$classe->getNom()] = $elevesRepository->findBy(["classe" => $classe]);
+            $classeEleves[$classe->getNom()] = $elevesRepository->findBy([
+                "classe" => $classe,
+                'annee_scolaire' => $anneeScolaire
+            ]);
         }
 
         return $this->render('classes/bulletins.html.twig', [

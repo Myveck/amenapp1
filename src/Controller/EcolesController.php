@@ -2,12 +2,17 @@
 
 namespace App\Controller;
 
+use App\Entity\Classes;
+use App\Entity\ClassesMatieres;
 use App\Entity\Ecoles;
+use App\Entity\Matieres;
+use App\Entity\Tarif;
 use App\Entity\TarifBackup;
 use App\Form\EcolesType;
 use App\Repository\ClassesMatieresRepository;
 use App\Repository\ClassesRepository;
 use App\Repository\EcolesRepository;
+use App\Repository\ElevesRepository;
 use App\Repository\PaiementsRepository;
 use App\Repository\TarifBackupRepository;
 use App\Repository\TarifRepository;
@@ -57,7 +62,7 @@ final class EcolesController extends AbstractController
     }
 
     #[Route('/{id}/edit', name: 'app_ecoles_edit', methods: ['GET', 'POST'])]
-    public function edit(Request $request, Ecoles $ecole, EntityManagerInterface $entityManager, ClassesRepository $classesRepository, ClassesMatieresRepository $classesMatieresRepository, TarifRepository $tarifRepository, PaiementsRepository $paiementsRepository, TarifBackupRepository $tarifBackupRepository): Response
+    public function edit(Request $request, Ecoles $ecole, EntityManagerInterface $entityManager, ClassesRepository $classesRepository, ClassesMatieresRepository $classesMatieresRepository, TarifRepository $tarifRepository, ElevesRepository $elevesRepository): Response
     {
         $anneeActuelle = $ecole->getAnneeScolaire()->getId();
         $form = $this->createForm(EcolesType::class, $ecole);
@@ -67,54 +72,73 @@ final class EcolesController extends AbstractController
 
             // On vérifie si on a changé d'année scolaire 
             if ($anneeActuelle != $ecole->getAnneeScolaire()->getId()) {
-                $classes = $classesRepository->findAll();
-                $cMatieres = $classesMatieresRepository->findAll();
-                $tarifs = $tarifRepository->findAll();
-                $paiements = $paiementsRepository->findAll();
 
-                // Si c'est le cas on assigne la nouvelle année scolaire à toutes les entités qui sont liées à l'année scolaire
+                // Si c'est le cas on duplique les classes et on assigne la nouvelle année aux classes dupliquées
+                $classes = $classesRepository->findAll();
                 $j = 1;
                 foreach ($classes as $classe) {
-                    $classe->setAnneeScolaire($ecole->getAnneeScolaire());
-                    $entityManager->persist($classe);
-                    $j++;
-                    if ($j > 20) {
-                        $entityManager->flush();
-                        $entityManager->clear();
-                        $j = 0;
-                    }
-                }
-                foreach ($cMatieres as $cMatiere) {
-                    $j++;
-                    $cMatiere->setAnneeScolaire($ecole->getAnneeScolaire());
-                    $entityManager->persist($cMatiere);
-                    if ($j > 20) {
-                        $entityManager->flush();
-                        $entityManager->clear();
-                        $j = 0;
-                    }
-                }
-                foreach ($tarifs as $tarif) {
-                    $j++;
-                    $tarif->setAnneeScolaire($ecole->getAnneeScolaire());
-                    $entityManager->persist($tarif);
-
-                    // Ajout des tarifs de cette année dans la table backupTarif
-                    $findTB = $tarifBackupRepository->findOneBy([
+                    $verifClasse = $classesRepository->findOneBy([
+                        'nom' => $classe->getNom(),
+                        'niveau' => $classe->getNiveau(),
+                        'classeOrder' => $classe->getClasseOrder(),
                         'annee_scolaire' => $ecole->getAnneeScolaire(),
-                        'classe' => $tarif->getClasse(),
                     ]);
-                    if (!$findTB) {
-                        $tarifB = new TarifBackup();
-                        $tarifB->setAnneeScolaire($ecole->getAnneeScolaire());
-                        $tarifB->setClasse($tarif->getClasse()->getNom());
-                        $tarifB->setPrixAnnuel($tarif->getPrixAnnuel());
-                        $tarifB->setPrixInscription($tarif->getPrixInscription());
-                        $tarifB->setPrixReinscription($tarif->getPrixReinscription());
-                        $entityManager->persist($tarifB);
+                    if (!$verifClasse) {
+                        $newClasse = new Classes();
+                        $newClasse->setNom($classe->getNom());
+                        $newClasse->setClasseOrder($classe->getClasseOrder());
+                        $newClasse->setNiveau($classe->getNiveau());
+                        $newClasse->setAnneeScolaire($ecole->getAnneeScolaire());
+                        $entityManager->persist($newClasse);
+                    }
+                    // Working on Tarif
+                    $lastTarif = $tarifRepository->findOneBy(['classe' => $classe]);
+                    $verifTarif = $tarifRepository->findOneBy([
+                        'classe' => $classe->getNom(),
+                        'AnneeScolaire' => $ecole->getAnneeScolaire()
+                    ]);
+                    if (!$verifTarif) {
+                        $tarif = new Tarif($ecole->getAnneeScolaire());
+                        $tarif->setPrixAnnuel($lastTarif->getPrixAnnuel());
+                        $tarif->setPrixInscription($lastTarif->getPrixInscription());
+                        $tarif->setPrixReinscription($lastTarif->getPrixPrixReinscription());
+                        $tarif->setClasse($classe);
+                        $entityManager->persist($tarif);
                     }
 
-                    if ($j > 10) {
+                    // Assignation des matières à la nouvelle classe
+                    $cMatieres = $classesMatieresRepository->findMatiereByClasse($classe);
+                    if ($cMatieres) {
+                        foreach ($cMatieres as $cMatiere) {
+                            $newMatiere = new Matieres();
+                            $newMatiere->setNom($cMatiere->getMatiere()->getNom());
+                            $entityManager->persist($newMatiere);
+
+                            // Working on classeMatiere
+                            $verif = $classesMatieresRepository->findOneBy([
+                                'classe' => $classe,
+                                'matiere' => $newMatiere,
+                                'coefficient' => $cMatiere->getCoefficient(),
+                                'annee_scolaire' => $ecole->getAnneeScolaire(),
+                            ]);
+                            if (!$verif) {
+                                $newCMatiere = new ClassesMatieres();
+                                $newCMatiere->setMatiere($newMatiere);
+                                $newCMatiere->setClasse($classe);
+                                $newCMatiere->setCoefficient($cMatiere->getCoefficient());
+                                $newCMatiere->setAnneeScolaire($ecole->getAnneeScolaire());
+                                $entityManager->persist($newCMatiere);
+                            }
+                        }
+                    }
+
+                    // Gestion des élève
+                    $eleves = $elevesRepository->findBy(['classe' => $classe]);
+                    if ($eleves) {
+                    }
+
+                    $j++;
+                    if ($j >= 4) {
                         $entityManager->flush();
                         $entityManager->clear();
                         $j = 0;
