@@ -68,7 +68,6 @@ final class ClassesController extends AbstractController
         foreach ($classes as $classe) {
             $classeEleves[$classe->getNom()] = $elevesRepository->findBy([
                 "classe" => $classe,
-                'annee_scolaire' => $anneeScolaire
             ]);
         }
 
