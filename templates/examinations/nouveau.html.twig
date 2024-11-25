@@ -30,12 +30,12 @@
             {% endfor %}
           </select> #}
             {% for matiere in matieres %}
-          <div class="mx-3 mt-2 form-check col-3">
-            <input class="form-check-input" type="checkbox" value="{{matiere.id}}" id="{{matiere.id}}" name="matieres[]">
-            <label class="form-check-label" for="{{matiere.id}}">
-              {{matiere.nom}}
-            </label>
-          </div>
+              <div class="mx-3 mt-2 form-check col-3">
+                <input class="form-check-input" type="checkbox" value="{{matiere.id}}" id="{{matiere.id}}" name="matieres[]">
+                <label class="form-check-label" for="{{matiere.id}}">
+                  {{matiere.nom}}
+                </label>
+              </div>
             {% endfor %}
           
         </div>

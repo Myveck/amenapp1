@@ -174,12 +174,15 @@ final class ExaminationsController extends AbstractController
             $entityManager->persist($examination);
         }
 
-
         $entityManager->flush();
-
+        $exam = $examinationsRepository->findOneBy([
+            'matiere' => $matieres[0],
+            'classe' => $classe,
+            'trimestre' => intval($request->get('trimestre')),
+        ]);
         $this->addFlash('success', 'L\'examin a bien été créé');
         return $this->redirectToRoute('app_examinations_create_notes', [
-            'examination' => intval($matieres[0]),
+            'examination' => $exam->getId(),
         ]);
     }
 
@@ -206,8 +209,7 @@ final class ExaminationsController extends AbstractController
     public function createNote(request $request, ExaminationsRepository $examinationsRepository, ElevesRepository $elevesRepository): Response
     {
         $examination = $examinationsRepository->findOneBy(["id" => intval($request->get("examination"))]);
-
-        $eleves = $elevesRepository->findBy(["classe" => $examination->getClasse()]);
+        $eleves = $elevesRepository->findBy(["classe" => $examination->getClasse()], ['nom' => 'asc']);
 
         $notes = $examination->getNote();
 

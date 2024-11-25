@@ -57,7 +57,7 @@ class Notes
         return $this->note;
     }
 
-    public function setNote(float $note): static
+    public function setNote(int|float $note): static
     {
         $this->note = $note;
 

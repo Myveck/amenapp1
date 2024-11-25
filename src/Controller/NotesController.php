@@ -93,7 +93,6 @@ final class NotesController extends AbstractController
     {
         $notes = $request->get('notes');
         $examination = $examinationsRepository->findOneBy(["id" => $request->get('examination')]);
-
         foreach ($notes as $id => $noteEleve) {
             $eleve = $eleveRepository->findOneBy(["id" => $id]);
 
@@ -111,7 +110,8 @@ final class NotesController extends AbstractController
                 // Sinon, on créé la note
 
                 $note = new Notes();
-                $note->setNote($noteEleve);
+                $elevenote = $noteEleve ?: 0.0;
+                $note->setNote($elevenote);
                 $note->setDateEvaluation($examination->getDateExamination());
                 $note->setEleveId($eleve);
                 $note->setMatiereId($examination->getMatiere());
@@ -125,7 +125,7 @@ final class NotesController extends AbstractController
         }
 
         $this->addFlash("success", "Les notes ont bien été modifiée");
-        return $this->redirectToRoute("app_examinations_index");
+        return $this->redirectToRoute("app_examinations_index", ['classe' => $examination->getClasse()->getId()]);
     }
 
     #[Route('/moyennes', name: 'app_notes_moyennes', methods: ['GET'])]
