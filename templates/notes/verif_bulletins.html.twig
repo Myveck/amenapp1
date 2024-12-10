@@ -52,21 +52,19 @@
                     <th>D2</th>
                     <th class="rang">Coef</th>
                     <th class="date">Moy Gen</th>
-                    <th>Date</th>
                 </tr>
             </thead>
             <tbody>
                 {% for key, one in rangGeneral %}
                     <tr>
                         <td class="nom">{{eleves[key].nom }} {{eleves[key].prenom }} </td>
-                        <td>{{notesEvaluations[key]["mi"]}}</td>
-                        <td>{{notesEvaluations[key]["d1"]}}</td>
-                        <td>{{notesEvaluations[key]["d2"]}}</td>
+                        <td>{{notesEvaluations[key]["mi"] / nb }}</td>
+                        <td>{{notesEvaluations[key]["d1"] / nb }}</td>
+                        <td>{{notesEvaluations[key]["d2"] / nb }}</td>
                         <td>{{sommeCoefficients}}</td>
                         <td>
                             {{results[key]["moyenneGenerale"]}}
                         </td>
-                        <td class="date"></td>
                     </tr>
                 {% endfor %}
             </tbody>

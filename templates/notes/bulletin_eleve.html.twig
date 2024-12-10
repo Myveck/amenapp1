@@ -286,12 +286,12 @@
             {% for matiereId, evaluations in results.notesParEvaluation %}
             <tr>
               <td class="matiere">{{ matieres[matiereId].nom }}</td>
-              <td>1</td>
-              <td>{{ evaluations.mi ?? "N/A" }}</td>
-              <td>{{ evaluations.d1 ?? "N/A" }}</td>
-              <td>{{ evaluations.d2 ?? "N/A" }}</td>
-              <td>{{ evaluations.dh ?? "N/A" }}</td>
-              <td>{{ results.moyenneParMatiere[matiereId] ?? "N/A" }}</td>
+              <td>{{ results.coefficientParMatiere[matiereId] }}</td>
+              <td>{{ evaluations.mi ?? "" }}</td>
+              <td>{{ evaluations.d1 ?? "" }}</td>
+              <td>{{ evaluations.d2 ?? "" }}</td>
+              <td>{{ evaluations.dh ?? "" }}</td>
+              <td>{{ results.moyenneParMatiere[matiereId] ?? "" }}</td>
 
               {% if results.moyenneParMatiere[matiereId] is defined %}
               <td>{{ results.moyenneParMatiere[matiereId] }}</td>

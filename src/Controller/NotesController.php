@@ -352,6 +352,7 @@ final class NotesController extends AbstractController
         $sommeDesCoefficients = [];
         $notesParEvaluation = [];
         $moyennesParMatiere = [];
+        $coefficientParMatiere = [];
 
         if (!$eleves) {
             $message = ['warning', 'Cette classe ne contient aucun élève'];
@@ -394,6 +395,7 @@ final class NotesController extends AbstractController
                 // Calcul des notes totales et moyenne par matière
                 $notesParMatiere[$matiere->getId()] = array_sum($moyenne);
                 $coefficient = $classesMatieresRepository->findCoefficientByMatiere($matiere)[0]["coefficient"];
+                $coefficientParMatiere[$matiere->getId()] = $coefficient;
 
                 $noteCount = count($moyenne);
                 if ($noteCount > 0) {
@@ -416,6 +418,7 @@ final class NotesController extends AbstractController
                 'moyenneParMatiere' => $moyenneParMatiere,
                 'moyenneGenerale' => $moyenneGenerale[$eleve->getId()],
                 'notesParEvaluation' => $notesParEvaluation[$eleve->getId()],
+                'coefficientParMatiere' => $coefficientParMatiere,
             ];
         }
 
@@ -745,6 +748,7 @@ final class NotesController extends AbstractController
             }
         }
 
+        $matiereCount = count($matieres);
         return $this->render('notes/verif_bulletins.html.twig', [
             'results' => $results[0],
             'ecole' => $ecole,
@@ -754,6 +758,7 @@ final class NotesController extends AbstractController
             'classe' => $classe,
             'trimestre' => $trimestre,
             'notesEvaluations' => $notesEvaluations,
+            'nb' => $matiereCount
         ]);
     }
 

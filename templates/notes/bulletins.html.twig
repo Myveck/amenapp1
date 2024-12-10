@@ -291,7 +291,7 @@
             {% for matiereId, evaluations in result.notesParEvaluation %}
             <tr>
               <td class="matiere">{{ matieres[matiereId].nom }}</td>
-              <td>1</td>
+              <td>{{ result.coefficientParMatiere[matiereId] }}</td>
               <td>{{ evaluations.mi ?? "" }}</td>
               <td>{{ evaluations.d1 ?? "" }}</td>
               <td>{{ evaluations.d2 ?? "" }}</td>
