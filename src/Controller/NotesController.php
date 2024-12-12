@@ -400,10 +400,9 @@ final class NotesController extends AbstractController
 
                 $noteCount = count($moyenne);
                 if ($noteCount > 0) {
-                    $moyenneParMatiere[$matiere->getId()] = ($notesParMatiere[$matiere->getId()]);
                     $moyenneCoef[$matiere->getId()] = round(($notesParMatiere[$matiere->getId()] / $noteCount) * $coefficient, 2);
+                    $moyenneParMatiere[$matiere->getId()] = round(($notesParMatiere[$matiere->getId()] / $noteCount), 2);
 
-                    // dd($moyenneCoef);
 
                     // Ajouter à la moyenne générale et à la somme des coefficients
                     $moyenneGenerale[$eleve->getId()] += $moyenneCoef[$matiere->getId()];

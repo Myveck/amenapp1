@@ -303,16 +303,16 @@
                 <td>{{ plusFaibleMoyenne[matiereId] }}</td>
                 <td>{{ plusForteMoyenne[matiereId] }}</td>
                 <td class="appreciation">
-                  {% if result.moyenneCoef[matiereId] < 10 %} Insuffisant {%
+                  {% if result.moyenneParMatiere[matiereId] < 10 %} Insuffisant {%
                     elseif result.moyenneParMatiere[matiereId] >= 10 and
-                    result.moyenneCoef[matiereId] < 12 %} Passable {% elseif
-                    result.moyenneCoef[matiereId] >= 12 and
-                    result.moyenneCoef[matiereId] < 14 %} Assez-bien {% elseif
-                    result.moyenneCoef[matiereId] >= 14 and
-                    result.moyenneCoef[matiereId] < 16 %} bien {% elseif
-                    result.moyenneCoef[matiereId] >= 16 and
-                    result.moyenneCoef[matiereId] < 18 %} Très bien {% elseif
-                    result.moyenneCoef[matiereId] >= 18 %} Excellent {% endif
+                    result.moyenneParMatiere[matiereId] < 12 %} Passable {% elseif
+                    result.moyenneParMatiere[matiereId] >= 12 and
+                    result.moyenneParMatiere[matiereId] < 14 %} Assez-bien {% elseif
+                    result.moyenneParMatiere[matiereId] >= 14 and
+                    result.moyenneParMatiere[matiereId] < 16 %} bien {% elseif
+                    result.moyenneParMatiere[matiereId] >= 16 and
+                    result.moyenneParMatiere[matiereId] < 18 %} Très bien {% elseif
+                    result.moyenneParMatiere[matiereId] >= 18 %} Excellent {% endif
                   %}
                 </td>
               {% else %}
