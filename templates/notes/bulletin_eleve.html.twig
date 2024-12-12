@@ -287,10 +287,10 @@
             <tr>
               <td class="matiere">{{ matieres[matiereId].nom }}</td>
               <td>{{ results.coefficientParMatiere[matiereId] }}</td>
-              <td>{{ evaluations.mi ?? "" }}</td>
-              <td>{{ evaluations.d1 ?? "" }}</td>
-              <td>{{ evaluations.d2 ?? "" }}</td>
-              <td>{{ evaluations.dh ?? "" }}</td>
+              <td>{{ evaluations.mi in [null, 0] ? '' : evaluations.mi }}</td>
+              <td>{{ evaluations.d1 in [null, 0] ? '' : evaluations.d1}}</td>
+              <td>{{ evaluations.d2 in [null, 0] ? '' : evaluations.d2 }}</td>
+              <td>{{ evaluations.dh in [null, 0] ? '' : evaluations.dh }}</td>
               <td>{{ results.moyenneParMatiere[matiereId] ?? "" }}</td>
 
               {% if results.moyenneParMatiere[matiereId] is defined %}
