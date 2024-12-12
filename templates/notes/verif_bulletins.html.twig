@@ -58,9 +58,9 @@
                 {% for key, one in rangGeneral %}
                     <tr>
                         <td class="nom">{{eleves[key].nom }} {{eleves[key].prenom }} </td>
-                        <td>{{notesEvaluations[key]["mi"] / nb }}</td>
-                        <td>{{notesEvaluations[key]["d1"] / nb }}</td>
-                        <td>{{notesEvaluations[key]["d2"] / nb }}</td>
+                        <td>{{(notesEvaluations[key]["mi"] / nb)|round(1, 'floor') }}</td>
+                        <td>{{(notesEvaluations[key]["d1"] / nb)|round(1, 'floor') }}</td>
+                        <td>{{(notesEvaluations[key]["d2"] / nb)|round(1, 'floor') }}</td>
                         <td>{{sommeCoefficients}}</td>
                         <td>
                             {{results[key]["moyenneGenerale"]}}

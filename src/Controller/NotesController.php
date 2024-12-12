@@ -361,6 +361,7 @@ final class NotesController extends AbstractController
         // Calculer les moyennes et les notes pour chaque élève
         foreach ($eleves as $eleve) {
             $moyenneParMatiere = [];
+            $moyenneCoef = [];
             $notesParMatiere = [];
             $notesParEvaluation[$eleve->getId()] = [];
             $moyenneGenerale[$eleve->getId()] = 0;
@@ -387,10 +388,10 @@ final class NotesController extends AbstractController
                 ];
 
                 // Ajout des notes pour calculer la moyenne
-                if ($noteD1) $moyenne[] = $noteD1->getNote();
-                if ($noteD2) $moyenne[] = $noteD2->getNote();
-                if ($noteMi) $moyenne[] = $noteMi->getNote();
-                if ($noteDh) $moyenne[] = $noteDh->getNote();
+                if ($noteD1 && $noteD1->getNote() != 0) $moyenne[] = $noteD1->getNote();
+                if ($noteD2 && $noteD2->getNote() != 0) $moyenne[] = $noteD2->getNote();
+                if ($noteMi && $noteMi->getNote() != 0) $moyenne[] = $noteMi->getNote();
+                if ($noteDh && $noteDh->getNote() != 0) $moyenne[] = $noteDh->getNote();
 
                 // Calcul des notes totales et moyenne par matière
                 $notesParMatiere[$matiere->getId()] = array_sum($moyenne);
@@ -399,12 +400,15 @@ final class NotesController extends AbstractController
 
                 $noteCount = count($moyenne);
                 if ($noteCount > 0) {
-                    $moyenneParMatiere[$matiere->getId()] = round(($notesParMatiere[$matiere->getId()] / $noteCount) * $coefficient, 2);
+                    $moyenneParMatiere[$matiere->getId()] = ($notesParMatiere[$matiere->getId()]);
+                    $moyenneCoef[$matiere->getId()] = round(($notesParMatiere[$matiere->getId()] / $noteCount) * $coefficient, 2);
+
+                    // dd($moyenneCoef);
 
                     // Ajouter à la moyenne générale et à la somme des coefficients
-                    $moyenneGenerale[$eleve->getId()] += $moyenneParMatiere[$matiere->getId()];
+                    $moyenneGenerale[$eleve->getId()] += $moyenneCoef[$matiere->getId()];
                     $sommeDesCoefficients[$eleve->getId()] += $coefficient;
-                    $moyennesParMatiere[$matiere->getId()][$eleve->getId()] = $moyenneParMatiere[$matiere->getId()];
+                    $moyennesParMatiere[$matiere->getId()][$eleve->getId()] = $moyenneCoef[$matiere->getId()];
                 }
             }
 
@@ -416,6 +420,7 @@ final class NotesController extends AbstractController
             // Stocker les résultats pour cet élève
             $results[$eleve->getId()] = [
                 'moyenneParMatiere' => $moyenneParMatiere,
+                'moyenneCoef' => $moyenneCoef,
                 'moyenneGenerale' => $moyenneGenerale[$eleve->getId()],
                 'notesParEvaluation' => $notesParEvaluation[$eleve->getId()],
                 'coefficientParMatiere' => $coefficientParMatiere,
