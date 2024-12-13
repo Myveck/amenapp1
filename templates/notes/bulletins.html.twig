@@ -56,7 +56,7 @@
 
     .top {
       text-align: center;
-      margin-top: -15px;
+      margin-bottom: 15px;
     }
 
     /* Styles pour les tableaux avec ajustement d'espacement */
@@ -214,20 +214,35 @@
         display: none;
       }
     }
+    .schoolTop{
+      display: flex;
+    }
+    
+    .schoolTop .top{
+      margin-left: 20px;
+    }
+    
+    .schoolTop .topImg{
+      margin-top: -20px;
+    }
+
   </style>
   <body>
     {% for key, result in results[0] %}
     <div class="a4">
-      <div class="top">
-        <p><small>République du Bénin</small></p>
-        <h1>{{ ecole.schoolName }}</h1>
-        <p>
-          {{ ecole.boitePostale }} Tel: {{ ecole.telephone }} /
-          {{ ecole.cellulaire }}
-        </p>
-        <p><strong>Abomey-Calavi</strong></p>
-        <p>Discipline-Travail-Succès</p>
-      </div>
+    <div class="schoolTop">
+      <div class="topImg"><img src="{{ asset('assets/images/logo.png')}}" alt=""></div>
+        <div class="top">
+          <p><small>République du Bénin</small></p>
+          <h1>{{ ecole.schoolName }}</h1>
+          <p>
+            {{ ecole.boitePostale }} Tel: {{ ecole.telephone }} /
+            {{ ecole.cellulaire }}
+          </p>
+          <p><strong>Abomey-Calavi</strong></p>
+          <p>Discipline-Travail-Succès</p>
+        </div>
+    </div>
       <hr class="solid" />
       <div class="student">
         <div class="oneitem oneitem1 personnel">
@@ -266,7 +281,15 @@
       </div>
 
       <div class="presentation">
-        <h1>BULLETIN DE NOTE DU DEUXIEME TRIMESTRE</h1>
+        <h1>BULLETIN DE NOTE DU 
+        {% if trimestre == 1 %}
+            PREMIER
+        {% elseif trimestre == 2%}
+            DEUXIEME
+        {% else %}
+            TROISIEME
+        {% endif %}
+         TRIMESTRE</h1>
       </div>
       <div class="bulletin">
         <table>
@@ -345,9 +368,9 @@
               <td class="label">Rang</td>
               <td class="value">
                 {{ rangGeneral[students[key].id] }}
-                {% if rangGeneral[students[key].id] == 1 and students[key].sexe
+                {% if rangGeneral[students[key].id] == 1 and students[key].sexe|lower
                 == "f" %}ère {% endif %} {% if rangGeneral[students[key].id] ==
-                1 and students[key].sexe == "m" %}er {% endif %} {% if
+                1 and students[key].sexe|lower == "m" %}er {% endif %} {% if
                 rangGeneral[students[key].id] != 1 %}ème{% endif %}
               </td>
             </tr>
