@@ -126,6 +126,15 @@ a {
   overflow: scroll;
 }
 
+.center2 {
+  width: 100%;
+  padding: 10px 50px 50px 50px;
+  height: 100vh;
+  /* Ombre légère pour effet surélevé */
+  border-radius: 10px;
+  background-color: #fff;
+}
+
 .tableau {
   height: 60vh;
   overflow: scroll;
@@ -219,7 +228,9 @@ small {
   transition: color 0.3s ease, transform 0.3s ease;
 }
 
-.btn-primaire:hover, .btn-secondaire:hover, .btn-tertiaire:hover {
+.btn-primaire:hover,
+.btn-secondaire:hover,
+.btn-tertiaire:hover {
   background-color: #A0D8F1;
   transform: scale(1.05);
   color: #3a3939;
@@ -505,7 +516,8 @@ td.value {
   margin-top: 50px;
 }
 
-.autres, .doc {
+.autres,
+.doc {
   width: 100%;
   display: flex;
   justify-content: center;
@@ -663,12 +675,15 @@ td.value {
   .sidebar {
     display: none;
   }
+  body {
+    background-color: #fff;
+  }
   .center {
-    overflow: auto;
     padding: 0;
     background-color: #fff;
     box-shadow: 0;
     border: none;
+    overflow: visible !important;
   }
   .top {
     margin-top: 5px;

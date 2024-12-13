@@ -15,14 +15,14 @@
     </div>
     <div class="center">
         <div class="top">
-        <p><small>République du Bénin</small></p>
-        <h1 class="my-1">{{ ecole.schoolName }}</h1>
-        <p>
-          {{ ecole.boitePostale}} Tel: {{ ecole.telephone }} /
-          {{ ecole.cellulaire }}
-        </p>
-        <p><strong>Abomey-Calavi</strong></p>
-        <p>Discipline-Travail-Succès</p>
+          <p><small>République du Bénin</small></p>
+          <h1 class="my-1">{{ ecole.schoolName }}</h1>
+          <p>
+            {{ ecole.boitePostale}} Tel: {{ ecole.telephone }} /
+            {{ ecole.cellulaire }}
+          </p>
+          <p><strong>Abomey-Calavi</strong></p>
+          <p>Discipline-Travail-Succès</p>
       </div>
       <div class="suite">
         <p>Classe : {{classe.nom}}</p>
@@ -38,7 +38,7 @@
             <br> Fiche de retrait de bulletin
         </h1>
       </div>
-    <div class="fiche">
+      <div class="fiche">
         <table>
           {% if not rangGeneral %}
             <p>Aucune moyenne disponible</p>
@@ -83,8 +83,7 @@
           {% endif %}
         
         </table>
-    </div>
-
+      </div>
     </div>
   </div>
   

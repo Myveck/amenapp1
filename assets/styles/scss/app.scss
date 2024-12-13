@@ -1,14 +1,16 @@
 body {
-    margin: auto;font-family: "Nunito", sans-serif;
-    font-optical-sizing: auto;font-style: normal;
+    margin: auto;
+    font-family: "Nunito", sans-serif;
+    font-optical-sizing: auto;
+    font-style: normal;
     background-color: #F2F2F2;
 }
 
-.tout{
+.tout {
     height: 100vh;
     background-color: #333;
-        /* Fond plus sombre pour un meilleur contraste */
-        color: #fff;
+    /* Fond plus sombre pour un meilleur contraste */
+    color: #fff;
 }
 
 .head {
@@ -120,12 +122,21 @@ a {
     height: 100vh;
     background-color: #FAF9F6;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        /* Ombre légère pour effet surélevé */
+    /* Ombre légère pour effet surélevé */
     border-radius: 10px;
     overflow: scroll;
 }
 
-.tableau{
+.center2 {
+    width: 100%;
+    padding: 10px 50px 50px 50px;
+    height: 100vh;
+    /* Ombre légère pour effet surélevé */
+    border-radius: 10px;
+    background-color: #fff;
+}
+
+.tableau {
     height: 60vh;
     overflow: scroll;
 }
@@ -239,12 +250,14 @@ a {
     justify-content: space-between;
 }
 
-.petit-wrapper{
+.petit-wrapper {
     display: flex;
 }
-.petit-wrapper div:last-child{
+
+.petit-wrapper div:last-child {
     margin-left: 200px;
 }
+
 // .small-wrapper:last-child{
 //     margin-top: 50px;
 // }
@@ -253,7 +266,7 @@ a {
     height: 100vh;
     width: 300px;
     margin-right: 20px;
-    background-color: #FAF9F6;  
+    background-color: #FAF9F6;
 }
 
 .wrapper .sidebar .sidebar-menu {
@@ -271,6 +284,7 @@ a {
     transition: background-color 0.3s ease;
     color: #000;
 }
+
 .sidebar .top {
     margin-top: 20px;
     text-transform: uppercase;
@@ -294,11 +308,11 @@ section.active {
     /* Afficher seulement la section active */
 }
 
-small{
+small {
     color: #4A6FA5;
 }
 
-.btn-primaire{
+.btn-primaire {
     background-color: #4A6FA5;
     color: white;
     transition: color 0.3s ease, transform 0.3s ease;
@@ -309,31 +323,34 @@ small{
     transition: color 0.3s ease, transform 0.3s ease;
 }
 
-.btn-tertiaire{
+.btn-tertiaire {
     box-shadow: inset;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
     transition: color 0.3s ease, transform 0.3s ease;
 }
 
-.btn-primaire:hover, .btn-secondaire:hover, .btn-tertiaire:hover{
+.btn-primaire:hover,
+.btn-secondaire:hover,
+.btn-tertiaire:hover {
     background-color: #A0D8F1;
     transform: scale(1.05);
     color: #3a3939;
 }
 
 
-.hidden{
+.hidden {
     display: none;
 }
 
-.center p span{
+.center p span {
     font-weight: bold;
 }
 
-.right a{
+.right a {
     display: block;
 }
-.right{
+
+.right {
     display: flex;
     justify-content: right;
 }
@@ -452,7 +469,7 @@ small{
     width: auto;
 }
 
-.a4 th{
+.a4 th {
     height: 10px;
 }
 
@@ -548,16 +565,17 @@ hr.solid {
         display: none;
     }
 }
+
 /** ******************************************************Ici s'arrête le design des bulletins****************** ************************************************************************************************************ **/
 
-.stats{
+.stats {
     margin-top: 30px;
     display: flex;
     justify-content: center;
     gap: 50px;
 }
 
-.item{
+.item {
     border-radius: 5px;
     color: white;
     width: 200px;
@@ -566,158 +584,171 @@ hr.solid {
     padding-top: 30px;
 }
 
-.item1{
+.item1 {
     background-color: #e44545;
 }
-.item2{
+
+.item2 {
     background-color: #1c4722;
 }
-.item3{
+
+.item3 {
     background-color: #444eda;
 }
-.item4{
+
+.item4 {
     background-color: #ad4cee;
 }
 
-  /* Ajustement de la largeur des cellules du tableau personnel */
+/* Ajustement de la largeur des cellules du tableau personnel */
 td.label {
-      width: 130px;
-      /* Réduction de la largeur des labels */
-      text-align: left;
-      padding-right: 5px;
-      padding-bottom: 25px;
-      cursor: pointer;
-  }
+    width: 130px;
+    /* Réduction de la largeur des labels */
+    text-align: left;
+    padding-right: 5px;
+    padding-bottom: 25px;
+    cursor: pointer;
+}
 
 td.value {
-      text-align: left;padding-bottom: 25px;
-  }
+    text-align: left;
+    padding-bottom: 25px;
+}
 
-.after{
+.after {
     width: 300px;
     padding-right: 20px;
     padding-top: 50px;
 }
 
-.doc{
+.doc {
     margin-top: 50px;
 }
-.autres, .doc{
+
+.autres,
+.doc {
     width: 100%;
     display: flex;
     justify-content: center;
 }
 
-.doc div:last-child{
+.doc div:last-child {
     margin-left: 20px;
 }
 
-.lab{
+.lab {
     width: 20px;
     height: 20px;
 }
 
-.lab1{
+.lab1 {
     background-color: rgba(54, 162, 235, 0.6);
 }
 
-.lab2{
+.lab2 {
     background-color: rgba(255, 99, 132, 0.6);
 }
 
-.doc div{
+.doc div {
     display: flex;
 }
 
- /* Centrer le canvas */
- .chart-container {
-     width: 15%;
-     margin: 0 auto;
- }
+/* Centrer le canvas */
+.chart-container {
+    width: 15%;
+    margin: 0 auto;
+}
 
- .globalite{
-     display: flex;
-     justify-content: space-between;
- }
+.globalite {
+    display: flex;
+    justify-content: space-between;
+}
 
- .globalite p {
-     text-align: center;
-     color: rgba(54, 162, 235);
-     font-size: 22px;
- }
+.globalite p {
+    text-align: center;
+    color: rgba(54, 162, 235);
+    font-size: 22px;
+}
 
- .globalite h1{
+.globalite h1 {
     font-size: 30px;
     margin-top: 20px;
- }
- .classes table{
-     font-size: 13px;
-     /* Taille ajustée pour une meilleure gestion de l'espace */
-     width: 100%;
-     border-collapse: collapse;
-     text-align: center;
- }
-  .classes th,
-  .classes td {
-      border: 1px solid #ccc;
-      padding: 6px;
-      /* Réduction du padding pour compacter le tableau */
-  }
+}
 
-.details{
+.classes table {
+    font-size: 13px;
+    /* Taille ajustée pour une meilleure gestion de l'espace */
+    width: 100%;
+    border-collapse: collapse;
+    text-align: center;
+}
+
+.classes th,
+.classes td {
+    border: 1px solid #ccc;
+    padding: 6px;
+    /* Réduction du padding pour compacter le tableau */
+}
+
+.details {
     display: flex;
     justify-content: center;
     justify-items: center;
-    
+
 }
 
-.details section:first-child{
+.details section:first-child {
     margin-right: 150px;
     margin-left: 50px;
 }
 
- .top {
-     text-align: center;
-     margin-bottom: 20px;
- }
+.top {
+    text-align: center;
+    margin-bottom: 20px;
+}
 
- .top h1{
+.top h1 {
     font-size: larger;
     font-weight: 700;
- }
+}
 
- .suite h1{
+.suite h1 {
     font-size: xx-large;
- }
+}
 
- .fiche table{
+.fiche table {
     font-size: 14.5px;
     /* Taille ajustée pour une meilleure gestion de l'espace */
     width: 100%;
     border-collapse: collapse;
     text-align: center;
 }
-  .fiche th,
-  .fiche td {
-      border: 1px solid #ccc;
-      padding: 6px;
-      /* Réduction du padding pour compacter le tableau */
-  }
-  .fiche th.nom,
-  .fiche td.nom {
-      width: 35%;
-  }
-  .fiche td.nom {
-      text-align: left;
-  }
-  .fiche th.date,
-  .fiche td.date {
-      width: 15%;
-  }
-  .fiche th.rang,
-  .fiche td.rang {
-      width: 12%;
-  }
+
+.fiche th,
+.fiche td {
+    border: 1px solid #ccc;
+    padding: 6px;
+    /* Réduction du padding pour compacter le tableau */
+}
+
+.fiche th.nom,
+.fiche td.nom {
+    width: 35%;
+}
+
+.fiche td.nom {
+    text-align: left;
+}
+
+.fiche th.date,
+.fiche td.date {
+    width: 15%;
+}
+
+.fiche th.rang,
+.fiche td.rang {
+    width: 12%;
+}
 
 .a4 {
     width: 210mm;
@@ -733,6 +764,7 @@ td.value {
 }
 
 @media print {
+
     .a4 {
         border: none;
         box-shadow: none;
@@ -754,33 +786,40 @@ td.value {
         display: none;
     }
 
-    .sidebar{
+    .sidebar {
         display: none;
     }
-    .center{
-        overflow: auto;
+
+    body {
+        background-color: #fff;
+    }
+
+    .center {
         padding: 0;
         background-color: #fff;
         box-shadow: 0;
         border: none;
+        overflow: visible !important;
     }
-    .top{
+
+    .top {
         margin-top: 5px;
     }
 }
 
-.etat table{
+.etat table {
     width: 100%;
 }
 
-.etat td{
+.etat td {
     border-bottom: 1px solid #ccc;
 }
-.etat tr{
+
+.etat tr {
     height: 100px;
 }
 
-.etat tr:first-child{
+.etat tr:first-child {
     border-top: 1px solid #ccc;
 }
 
@@ -798,4 +837,4 @@ td.value {
     text-align: center;
     color: white;
     line-height: 30px;
-}       
+}
