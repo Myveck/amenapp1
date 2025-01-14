@@ -22,10 +22,7 @@ class MainController extends AbstractController
     public function index(EcolesRepository $ecolesRepository): Response
     {
         $schoolYear = $ecolesRepository->findOneBy(['id' => 1])->getAnneeScolaire()->getAnnee();
-        // $next = date("Y") + 1;
-        // $year = date("Y");
 
-        // $schoolYear = strval($year) . '-' . strval($next);
         return $this->render('main/index.html.twig', [
             'controller_name' => 'MainController',
             'annee_actuelle' => $schoolYear
@@ -44,8 +41,8 @@ class MainController extends AbstractController
         $matieres = $matieresRepository->findAll();
         $ensignants = $enseignantsRepository->findAll();
 
-        $m = $elevesRepository->findBy(["sexe" => "m"]);
-        $f = $elevesRepository->findBy(["sexe" => "f"]);
+        $m = count($elevesRepository->findBy(["sexe" => "m"]));
+        $f = count($elevesRepository->findBy(["sexe" => "f"]));
 
         $nombre = [];
         foreach ($classes as $classe) {
@@ -60,8 +57,8 @@ class MainController extends AbstractController
             'classes' => count($classes),
             'matieres' => count($matieres),
             'enseignants' => count($ensignants),
-            'masculins' => count($m),
-            'feminins' => count($f),
+            'masculins' => $m,
+            'feminins' => $f,
             'nombreParClasse' => $nombre,
         ]);
     }

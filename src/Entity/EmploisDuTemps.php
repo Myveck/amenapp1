@@ -16,10 +16,6 @@ class EmploisDuTemps
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\ManyToOne(inversedBy: 'emploisDuTemps')]
-    #[ORM\JoinColumn(nullable: false)]
-    private ?Classes $classe = null;
-
     /**
      * @var Collection<int, Matieres>
      */
@@ -43,18 +39,6 @@ class EmploisDuTemps
     public function getId(): ?int
     {
         return $this->id;
-    }
-
-    public function getClasseId(): ?Classes
-    {
-        return $this->classe;
-    }
-
-    public function setClasseId(?Classes $classe_id): static
-    {
-        $this->classe = $classe_id;
-
-        return $this;
     }
 
     /**

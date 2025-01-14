@@ -19,6 +19,12 @@ class AnneeScolaire
     private ?string $annee = null;
 
     /**
+     * @var Collection<int, Classes>
+     */
+    #[ORM\OneToMany(targetEntity: Classes::class, mappedBy: 'annee_scolaire')]
+    private Collection $classes;
+
+    /**
      * @var Collection<int, Paiements>
      */
     #[ORM\OneToMany(targetEntity: Paiements::class, mappedBy: 'annee_scolaire')]
@@ -66,14 +72,9 @@ class AnneeScolaire
     #[ORM\OneToMany(targetEntity: TarifBackup::class, mappedBy: 'AnneeScolaire')]
     private Collection $tarifBackups;
 
-    /**
-     * @var Collection<int, Matieres>
-     */
-    #[ORM\OneToMany(targetEntity: Matieres::class, mappedBy: 'AnneeScolaire')]
-    private Collection $matieres;
-
     public function __construct()
     {
+        $this->classes = new ArrayCollection();
         $this->paiements = new ArrayCollection();
         $this->classesMatieres = new ArrayCollection();
         $this->tarifs = new ArrayCollection();
@@ -82,7 +83,6 @@ class AnneeScolaire
         $this->ecoles = new ArrayCollection();
         $this->classesBackups = new ArrayCollection();
         $this->tarifBackups = new ArrayCollection();
-        $this->matieres = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -345,11 +345,34 @@ class AnneeScolaire
         return $this;
     }
 
+
     /**
-     * @return Collection<int, Matieres>
+     * @return Collection<int, Classes>
      */
-    public function getMatieres(): Collection
+    public function getClasses(): Collection
     {
-        return $this->matieres;
+        return $this->classes;
+    }
+
+    public function addClasses(Classes $classe): static
+    {
+        if (!$this->classes->contains($classe)) {
+            $this->classes->add($classe);
+            $classe->setAnneeScolaire($this);
+        }
+
+        return $this;
+    }
+
+    public function removeClasses(TarifBackup $classe): static
+    {
+        if ($this->tarifBackups->removeElement($classe)) {
+            // set the owning side to null (unless already changed)
+            if ($classe->getAnneeScolaire() === $this) {
+                $classe->setAnneeScolaire(null);
+            }
+        }
+
+        return $this;
     }
 }

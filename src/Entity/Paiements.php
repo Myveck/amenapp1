@@ -58,9 +58,9 @@ class Paiements
         return $this->eleve;
     }
 
-    public function setEleveId(?Eleves $eleve_id): static
+    public function setEleveId(?Eleves $eleveid): static
     {
-        $this->eleve = $eleve_id;
+        $this->eleve = $eleveid;
 
         return $this;
     }

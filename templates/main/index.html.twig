@@ -5,7 +5,7 @@ endblock %} {% block body %}
     <nav>
       <ul>
         <li><a href="{{ path('app_ecoles_edit', {"id": 1, "ed": 2}) }}">{{annee_actuelle}}</a></li>
-        <li>Emmanuel</li>
+        <li>GTS</li>
       </ul>
     </nav>
   </header>
@@ -18,7 +18,7 @@ endblock %} {% block body %}
         <nav>
           <ul class="line">
             <li>
-              <a href="{{ path('app_eleves_new') }}" aria-label="Inscription">
+              <a href="{{ path('app_eleves_new', {'annee': annee_actuelle }) }}" aria-label="Inscription">
                 <img
                   src="{{ asset('assets/images/educational.png') }}"
                   alt="Icone d'inscription"

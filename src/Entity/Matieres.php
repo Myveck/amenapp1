@@ -21,19 +21,19 @@ class Matieres
     /**
      * @var Collection<int, Notes>
      */
-    #[ORM\OneToMany(targetEntity: Notes::class, mappedBy: 'matiere_id', orphanRemoval: true)]
+    #[ORM\OneToMany(targetEntity: Notes::class, mappedBy: 'matiere', orphanRemoval: true)]
     private Collection $notes;
 
     /**
      * @var Collection<int, Enseignants>
      */
-    #[ORM\OneToMany(targetEntity: Enseignants::class, mappedBy: 'matiere_id')]
+    #[ORM\OneToMany(targetEntity: Enseignants::class, mappedBy: 'matiere')]
     private Collection $enseignants;
 
     /**
      * @var Collection<int, EmploisDuTemps>
      */
-    #[ORM\ManyToMany(targetEntity: EmploisDuTemps::class, mappedBy: 'matiere_id')]
+    #[ORM\ManyToMany(targetEntity: EmploisDuTemps::class, mappedBy: 'matiere')]
     private Collection $emploisDuTemps;
 
     /**

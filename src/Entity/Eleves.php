@@ -28,13 +28,13 @@ class Eleves
     /**
      * @var Collection<int, Notes>
      */
-    #[ORM\OneToMany(targetEntity: Notes::class, mappedBy: 'eleve_id')]
+    #[ORM\OneToMany(targetEntity: Notes::class, mappedBy: 'eleve')]
     private Collection $notes;
 
     /**
      * @var Collection<int, Paiements>
      */
-    #[ORM\OneToMany(targetEntity: Paiements::class, mappedBy: 'eleve_id')]
+    #[ORM\OneToMany(targetEntity: Paiements::class, mappedBy: 'eleve')]
     private Collection $paiements;
 
     #[ORM\Column]

@@ -24,6 +24,7 @@ final class ExaminationsController extends AbstractController
     #[Route(name: 'app_examinations_index', methods: ['GET'])]
     public function index(Request $request, ExaminationsRepository $examinationsRepository, ClassesRepository $classesRepository, MatieresRepository $matieresRepository, EvaluationsRepository $evaluationsRepository, ClassesMatieresRepository $classesMatieresRepository): Response
     {
+        $maxLimit = null;
         $matieres = "";
         $trimestre = "";
         $examinations = $examinationsRepository->findAll();
@@ -56,6 +57,9 @@ final class ExaminationsController extends AbstractController
             foreach ($cMatieres as $cMatiere) {
                 $matieres[] = $cMatiere->getMatiere();
             }
+            $maxLimit = 30;
+        } else {
+            $maxLimit = 15;
         }
 
         // Si une matière est spécifiée (autre que "all")
@@ -85,7 +89,7 @@ final class ExaminationsController extends AbstractController
         }
 
         // Récupération des examens en fonction des filtres
-        $examinations = $examinationsRepository->findBy($filtres, ['id' => 'desc']);
+        $examinations = $examinationsRepository->findBy($filtres, ['id' => 'desc'], $maxLimit);
 
 
         return $this->render('examinations/index.html.twig', [
@@ -188,7 +192,7 @@ final class ExaminationsController extends AbstractController
 
 
     #[Route('/matieres/{classeId}', name: 'app_examinations_matieres')]
-    public function getMatieres($classeId, Request $request, ClassesRepository $classesRepository, ClassesMatieresRepository $classesMatieresRepository, ExaminationsRepository $examinationsRepository)
+    public function getMatieres($classeId, ClassesRepository $classesRepository, ClassesMatieresRepository $classesMatieresRepository)
     {
         $classe = $classesRepository->findOneBy(["id" => $classeId]);
         $matieres = $classesMatieresRepository->findBy(["classe" => $classe]);

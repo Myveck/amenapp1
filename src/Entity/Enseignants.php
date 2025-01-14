@@ -27,12 +27,6 @@ class Enseignants
     #[ORM\ManyToOne(inversedBy: 'enseignants')]
     private ?Matieres $matiere = null;
 
-    /**
-     * @var Collection<int, EmploisDuTemps>
-     */
-    #[ORM\OneToMany(targetEntity: EmploisDuTemps::class, mappedBy: 'enseignant_id')]
-    private Collection $emploisDuTemps;
-
     #[ORM\Column(options: ['default' => 'CURRENT_TIMESTAMP'])]
     private ?\DateTimeImmutable $created_at = null;
 
@@ -41,7 +35,6 @@ class Enseignants
 
     public function __construct()
     {
-        $this->emploisDuTemps = new ArrayCollection();
         $this->created_at = new \DateTimeImmutable("now");
     }
 
@@ -94,36 +87,6 @@ class Enseignants
     public function setMatiereId(?Matieres $matiere_id): static
     {
         $this->matiere = $matiere_id;
-
-        return $this;
-    }
-
-    /**
-     * @return Collection<int, EmploisDuTemps>
-     */
-    public function getEmploisDuTemps(): Collection
-    {
-        return $this->emploisDuTemps;
-    }
-
-    public function addEmploisDuTemp(EmploisDuTemps $emploisDuTemp): static
-    {
-        if (!$this->emploisDuTemps->contains($emploisDuTemp)) {
-            $this->emploisDuTemps->add($emploisDuTemp);
-            $emploisDuTemp->setEnseignantId($this);
-        }
-
-        return $this;
-    }
-
-    public function removeEmploisDuTemp(EmploisDuTemps $emploisDuTemp): static
-    {
-        if ($this->emploisDuTemps->removeElement($emploisDuTemp)) {
-            // set the owning side to null (unless already changed)
-            if ($emploisDuTemp->getEnseignantId() === $this) {
-                $emploisDuTemp->setEnseignantId(null);
-            }
-        }
 
         return $this;
     }

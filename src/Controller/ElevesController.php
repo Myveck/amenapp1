@@ -220,11 +220,26 @@ final class ElevesController extends AbstractController
     //     return $this->redirectToRoute('app_eleves_index');
     // }
 
+    #[Route('/renew', name: 'app_eleves_renew', methods: ['GET', 'POST'])]
+    public function renew(Request $request, ElevesRepository $elevesRepository, ClassesRepository $classesRepository): Response
+    {
+        $trie = $request->get('trie');
+        if (!$trie or $trie == "all") {
+            $eleves = $elevesRepository->findBy([], ['nom' => 'asc']);
+        } else {
+            $eleves = $elevesRepository->findBy(['classe' => $trie], ['nom' => 'asc']);
+        }
+        return $this->render('eleves/renew.html.twig', [
+            'eleves' => $eleves,
+            'classes' => $classesRepository->findBy([], ['classeOrder' => 'asc']),
+            'active' => $trie,
+        ]);
+    }
 
-    #[Route('/new', name: 'app_eleves_new', methods: ['GET', 'POST'])]
+    #[Route('/{annee}/new', name: 'app_eleves_new', methods: ['GET', 'POST'])]
     public function new(Request $request, EntityManagerInterface $entityManager, ElevesBackupRepository $elevesBackupRepository, EcolesRepository $ecolesRepository): Response
     {
-        $anneeScolaire = $ecolesRepository->findOneBy(['id' => 1])->getAnneeScolaire()->getAnnee();
+        $anneeScolaire = $request->get('annee');
         $elefe = new Eleves();
         $pere = new Parents();
         $mere = new Parents();
@@ -282,23 +297,6 @@ final class ElevesController extends AbstractController
             'form' => $form,
         ]);
     }
-
-    #[Route('/renew', name: 'app_eleves_renew', methods: ['GET', 'POST'])]
-    public function renew(Request $request, ElevesRepository $elevesRepository, ClassesRepository $classesRepository): Response
-    {
-        $trie = $request->get('trie');
-        if (!$trie or $trie == "all") {
-            $eleves = $elevesRepository->findBy([], ['nom' => 'asc']);
-        } else {
-            $eleves = $elevesRepository->findBy(['classe' => $trie], ['nom' => 'asc']);
-        }
-        return $this->render('eleves/renew.html.twig', [
-            'eleves' => $eleves,
-            'classes' => $classesRepository->findBy([], ['classeOrder' => 'asc']),
-            'active' => $trie,
-        ]);
-    }
-
     #[Route('/{id}', name: 'app_eleves_show', methods: ['GET'])]
     public function show(Eleves $elefe): Response
     {
