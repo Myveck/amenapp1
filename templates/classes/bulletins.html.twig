@@ -24,7 +24,7 @@ block body %}
               <td class="value">
                     <form action="
                             {% if eleves | length > 0 %} 
-                              {{path('app_notes_bulletins', {'classe' : eleves[0].classe.id})}} 
+                              {{path('app_notes_bulletins', {'classe' : eleves[0].classe.id, 'requete' : 'bulletins'})}} 
                             {% endif %}" method="get">
                         <select name="trimestre" id="" class="form-control" onchange="this.form.submit()">
                             <option value="">Imprimer bulletins</option>
@@ -37,7 +37,7 @@ block body %}
               <td class="value">
                     <form action="
                             {% if eleves | length > 0 %} 
-                              {{path('app_notes_retrait_bulletins', {'classe' : eleves[0].classe.id})}} 
+                              {{path('app_notes_bulletins', {'classe' : eleves[0].classe.id, 'requete' : 'retrait'})}} 
                             {% endif %}" method="get">
                         <select name="trimestre" id="" class="form-control" onchange="this.form.submit()">
                             <option value="">Fiche de retrait</option>
@@ -50,10 +50,23 @@ block body %}
               <td class="value">
                     <form action="
                             {% if eleves | length > 0 %} 
-                              {{path('app_notes_verif_bulletins', {'classe' : eleves[0].classe.id})}} 
+                              {{path('app_notes_bulletins', {'classe' : eleves[0].classe.id, 'requete' : 'verif'})}}  
                             {% endif %}" method="get">
                         <select name="trimestre" id="" class="form-control" onchange="this.form.submit()">
                             <option value="">Fiche de vérification</option>
+                            <option value="1">1er trimestre</option>
+                            <option value="2">2e trimestre</option>
+                            <option value="3">3e trimestre</option>
+                        </select>
+                    </form>
+              </td>
+              <td class="value">
+                    <form action="
+                            {% if eleves | length > 0 %} 
+                              {{path('app_notes_bulletins', {'classe' : eleves[0].classe.id, 'requete' : 'central'})}}  
+                            {% endif %}" method="get">
+                        <select name="trimestre" id="" class="form-control" onchange="this.form.submit()">
+                            <option value="">Fiche Excel</option>
                             <option value="1">1er trimestre</option>
                             <option value="2">2e trimestre</option>
                             <option value="3">3e trimestre</option>

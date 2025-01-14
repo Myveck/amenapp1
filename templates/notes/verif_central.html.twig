@@ -1,0 +1,84 @@
+{% extends 'base.html.twig' %} 
+
+{% block title %}Liste des notes{% endblock %} 
+
+
+{% block body %}
+  <div class="wrapper">
+    <div class="sidebar">
+      <div class="sidebar-menu">
+        <a href="{{ path("app_main") }}" data-section="section1">Acceuil</a>
+        <a href="{{ path("app_notes_index") }}" data-section="section1" >Liste des notes</a>
+        <a href="{{ path("app_eleves_choice") }}" data-section="section2">Saisir une note</a>
+        <a href="{{ path("app_notes_moyennes") }}" data-section="section2" class="active">Voir les moyennes</a>
+      </div>
+    </div>
+    <div class="center">
+        <div class="top">
+          <p><small>République du Bénin</small></p>
+          <h1 class="my-1">{{ ecole.schoolName }}</h1>
+          <p>
+            {{ ecole.boitePostale}} Tel: {{ ecole.telephone }} /
+            {{ ecole.cellulaire }}
+          </p>
+          <p><strong>Abomey-Calavi</strong></p>
+          <p>Discipline-Travail-Succès</p>
+      </div>
+      <div class="suite">
+        <p>Classe : {{classe.nom}}</p>
+        <h1>
+            {% if trimestre == 1 %}
+                Premier
+            {% elseif trimestre == 2 %}
+                Deuxième
+            {% else %}
+                Troisième
+            {% endif %}
+            Trimestre
+            <br> vérification des moyennes
+        </h1>
+      </div>
+    <div class="fiche">
+        <table>
+          {% if not rangGeneral %}
+            <p>Aucune moyenne disponible</p>
+          {% else %}
+        
+            <thead>
+                <tr>
+                    <th class="nom">Nom et Prénom</th>
+                    <th>MI</th>
+                    <th>D1</th>
+                    <th>D2</th>
+                    <th class="rang">Coef</th>
+                    <th class="date">Moy Gen</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for key, one in rangGeneral %}
+                    <tr>
+                        <td class="nom">{{eleves[key].nom }} {{eleves[key].prenom }} </td>
+                        <td>{{(notesEvaluations[key]["mi"] / nb)|round(1, 'floor') }}</td>
+                        <td>{{(notesEvaluations[key]["d1"] / nb)|round(1, 'floor') }}</td>
+                        <td>{{(notesEvaluations[key]["d2"] / nb)|round(1, 'floor') }}</td>
+                        <td>{{sommeCoefficients}}</td>
+                        <td>
+                            {{results[key]["moyenneGenerale"]}}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+          {% endif %}
+        
+        </table>
+    </div>
+
+    </div>
+  </div>
+  
+    <script>
+      window.onload = function () {
+        window.print();
+      };
+    </script>
+{% endblock %}

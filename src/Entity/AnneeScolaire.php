@@ -19,12 +19,6 @@ class AnneeScolaire
     private ?string $annee = null;
 
     /**
-     * @var Collection<int, Classes>
-     */
-    #[ORM\OneToMany(targetEntity: Classes::class, mappedBy: 'anne_scolaire')]
-    private Collection $classes;
-
-    /**
      * @var Collection<int, Paiements>
      */
     #[ORM\OneToMany(targetEntity: Paiements::class, mappedBy: 'annee_scolaire')]
@@ -67,12 +61,6 @@ class AnneeScolaire
     private Collection $classesBackups;
 
     /**
-     * @var Collection<int, Tarif>
-     */
-    #[ORM\OneToMany(targetEntity: Tarif::class, mappedBy: 'anneeScolaire')]
-    private Collection $tarif;
-
-    /**
      * @var Collection<int, TarifBackup>
      */
     #[ORM\OneToMany(targetEntity: TarifBackup::class, mappedBy: 'AnneeScolaire')]
@@ -86,7 +74,6 @@ class AnneeScolaire
 
     public function __construct()
     {
-        $this->classes = new ArrayCollection();
         $this->paiements = new ArrayCollection();
         $this->classesMatieres = new ArrayCollection();
         $this->tarifs = new ArrayCollection();
@@ -94,7 +81,6 @@ class AnneeScolaire
         $this->paiementsBackups = new ArrayCollection();
         $this->ecoles = new ArrayCollection();
         $this->classesBackups = new ArrayCollection();
-        $this->tarif = new ArrayCollection();
         $this->tarifBackups = new ArrayCollection();
         $this->matieres = new ArrayCollection();
     }
@@ -116,35 +102,7 @@ class AnneeScolaire
         return $this;
     }
 
-    /**
-     * @return Collection<int, Classes>
-     */
-    public function getClasses(): Collection
-    {
-        return $this->classes;
-    }
 
-    public function addClass(Classes $class): static
-    {
-        if (!$this->classes->contains($class)) {
-            $this->classes->add($class);
-            $class->setAnneScolaire($this);
-        }
-
-        return $this;
-    }
-
-    public function removeClass(Classes $class): static
-    {
-        if ($this->classes->removeElement($class)) {
-            // set the owning side to null (unless already changed)
-            if ($class->getAnneScolaire() === $this) {
-                $class->setAnneScolaire(null);
-            }
-        }
-
-        return $this;
-    }
 
     /**
      * @return Collection<int, Paiements>
@@ -356,13 +314,6 @@ class AnneeScolaire
         return $this;
     }
 
-    /**
-     * @return Collection<int, Tarif>
-     */
-    public function getTarif(): Collection
-    {
-        return $this->tarif;
-    }
 
     /**
      * @return Collection<int, TarifBackup>
@@ -400,27 +351,5 @@ class AnneeScolaire
     public function getMatieres(): Collection
     {
         return $this->matieres;
-    }
-
-    public function addMatiere(Matieres $matiere): static
-    {
-        if (!$this->matieres->contains($matiere)) {
-            $this->matieres->add($matiere);
-            $matiere->setAnneeScolaire($this);
-        }
-
-        return $this;
-    }
-
-    public function removeMatiere(Matieres $matiere): static
-    {
-        if ($this->matieres->removeElement($matiere)) {
-            // set the owning side to null (unless already changed)
-            if ($matiere->getAnneeScolaire() === $this) {
-                $matiere->setAnneeScolaire(null);
-            }
-        }
-
-        return $this;
     }
 }

@@ -14,16 +14,19 @@
       </div>
     </div>
     <div class="center">
+    <div class="schoolTop">
+      <div class="topImg"><img src="{{ asset('assets/images/logo.png')}}" alt=""></div>
         <div class="top">
           <p><small>République du Bénin</small></p>
-          <h1 class="my-1">{{ ecole.schoolName }}</h1>
+          <h1>{{ ecole.schoolName }}</h1>
           <p>
-            {{ ecole.boitePostale}} Tel: {{ ecole.telephone }} /
+            {{ ecole.boitePostale }} Tel: {{ ecole.telephone }} /
             {{ ecole.cellulaire }}
           </p>
           <p><strong>Abomey-Calavi</strong></p>
           <p>Discipline-Travail-Succès</p>
-      </div>
+        </div>
+    </div>    
       <div class="suite">
         <p>Classe : {{classe.nom}}</p>
         <h1>
@@ -47,23 +50,43 @@
             <thead>
                 <tr>
                     <th class="nom">Nom et Prénom</th>
-                    <th>MI</th>
-                    <th>D1</th>
-                    <th>D2</th>
-                    <th class="rang">Coef</th>
-                    <th class="date">Moy Gen</th>
+                    {% for matiere in matieres %}
+                      {% if matiere.nom | lower == 'mathématiques'%}
+                      <th class="mat">Maths</th>
+                      {% elseif matiere.nom | lower == 'allemand/espagnol'%}
+                      <th class="mat">All. / Esp.</th>
+                      {% else %}
+                      <th class="mat">{{ matiere.nom | slice(0,3)}}</th>
+                      {% endif %}
+                    {% endfor %}
+                    <th>Total</th>
+                    <th>Moy. Gen</th>
+                    <th class="rang">Rang</th>
                 </tr>
             </thead>
             <tbody>
-                {% for key, one in rangGeneral %}
+                {% for key, result in results %}
+
+                {% set i = 0 %}
                     <tr>
                         <td class="nom">{{eleves[key].nom }} {{eleves[key].prenom }} </td>
-                        <td>{{(notesEvaluations[key]["mi"] / nb)|round(1, 'floor') }}</td>
-                        <td>{{(notesEvaluations[key]["d1"] / nb)|round(1, 'floor') }}</td>
-                        <td>{{(notesEvaluations[key]["d2"] / nb)|round(1, 'floor') }}</td>
-                        <td>{{sommeCoefficients}}</td>
-                        <td>
-                            {{results[key]["moyenneGenerale"]}}
+
+                        {% for cle, matiere in matieres %}
+                          {% if result['moyenneParMatiere'][cle] is defined %}
+                            <td class="mat"> {{result['moyenneParMatiere'][cle] in [null, 0] ? '' : result['moyenneParMatiere'][cle]}} </td>
+                            {% set i = i + result['moyenneParMatiere'][cle] %}
+                          {% else %}
+                          <td></td>
+                          {% endif %}
+                        {% endfor %}
+                        <td>{{ i }}</td>
+                        <td> {{ result['moyenneGenerale']}} </td>
+                        <td class="rang">
+                            {{ rangGeneral[key]}} 
+                            {% if rangGeneral[key] == 1 and eleves[key].sexe|lower
+                            == "f" %}ère {% endif %} {% if rangGeneral[key] ==
+                            1 and eleves[key].sexe|lower == "m" %}er {% endif %} {% if
+                            rangGeneral[key] != 1 %}ème{% endif %}
                         </td>
                     </tr>
                 {% endfor %}
@@ -72,6 +95,47 @@
         
         </table>
     </div>
+
+    <div class="details mt-4">
+      <div class="left mr-4">
+          <table>
+              <tr>
+                <td>Effectif :</td>
+                <td>{{effectif}}</td>
+              </tr>
+              <tr>
+                <td>Ayant la moyenne :</td>
+                <td>{{success}}</td>
+              </tr>
+              <tr>
+                <td>N'ayyant pas la moyenne :</td>
+                <td>{{fail}}</td>
+              </tr>
+              <tr>
+                <td>Pourcentage de succès :</td>
+                <td>{{tauxReussite}} %</td>
+              </tr>
+          </table>
+      </div>
+      <div class="right ml-4">
+          <table>
+              <tr>
+                <td>Moyenne Forte :</td>
+                <td>{{moyenneGForte}}</td>
+              </tr>
+              <tr>
+                <td>Moyenne Faible:</td>
+                <td>{{moyenneGFaible}}</td>
+              </tr>
+              <tr>
+                <td>Moyenne classe :</td>
+                <td>{{moyenneGClasse}}</td>
+              </tr>
+          </table>
+      </div>
+    </div>
+
+      <p class="mt-4"><strong>NB : </strong> Toute réclamation doit être justifiée dans un délais 24h après l'affichage. Passé ce délai, les résultats seront considérés comme définitifs.</p>
 
     </div>
   </div>

@@ -3,8 +3,6 @@
 namespace App\Controller;
 
 use App\Entity\Eleves;
-use App\Entity\Evaluations;
-use App\Entity\Matieres;
 use App\Entity\Notes;
 use App\Form\NotesType;
 use App\Repository\ClassesMatieresRepository;
@@ -18,6 +16,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\Routing\Attribute\Route;
 
 #[Route('/notes')]
@@ -433,7 +432,7 @@ final class NotesController extends AbstractController
         return [$results, $moyennesParMatiere];
     }
 
-    #[Route('/{classe}/bulletins', name: 'app_notes_bulletins')]
+    #[Route('/{classe}/{requete}/bulletins', name: 'app_notes_bulletins')]
     public function bulletin(
         Request $request,
         ClassesRepository $classesRepository,
@@ -447,19 +446,21 @@ final class NotesController extends AbstractController
         $classeId = $request->get('classe');
         $trimestre = $request->get('trimestre');
         $classe = $classesRepository->findOneBy(["id" => $classeId]);
-        $eleves = $elevesRepository->findBy(["classe" => $classe]);
+        $eleves = $elevesRepository->findBy(["classe" => $classe], ['nom' => 'asc']);
         $effectif = count($eleves);
         $ecole = $ecolesRepository->findOneBy(['id' => 1]);
         $matieres = [];
         $matiereCoef = [];
         $results1 = [];
         $results2 = [];
+        $sommeCoefficients = 0;
 
         $cMatieres = $classesMatieresRepository->findMatiereByClasse($classe);
 
         foreach ($cMatieres as $cMatiere) {
             $matieres[$cMatiere->getMatiere()->getId()] = $cMatiere->getMatiere();
             $matiereCoef[$cMatiere->getMatiere()->getId()] = $cMatiere->getCoefficient();
+            $sommeCoefficients += $cMatiere->getCoefficient();
         }
 
         // Utiliser la méthode commune pour calculer les résultats
@@ -573,25 +574,141 @@ final class NotesController extends AbstractController
             }
         }
 
-        return $this->render('/notes/bulletins.html.twig', [
-            'classe' => $classe,
-            'effectif' => $effectif,
-            'matieres' => $matieres,
-            'students' => $students,
-            'rangParMatiere' => $rangParMatiere,
-            'plusForteMoyenne' => $PlusForteMoyenne,
-            'plusFaibleMoyenne' => $PlusFaibleMoyenne,
-            'moyenneGForte' => $moyenneGForte,
-            'moyenneGFaible' => $moyenneGFaible,
-            'rangGeneral' => $rangGeneral,
-            'moyenneGClasse' => $moyenneGClasse,
-            'trimestre' => $trimestre,
-            'ecole' => $ecole,
-            'matiereCoef' => $matiereCoef,
-            'results1' => $results1,
-            'results2' => $results2,
-            'results' => $results,  // Contient les moyennes et résultats de chaque élève
-        ]);
+        if ($request->get('requete') == 'bulletins') {
+
+            return $this->render('/notes/bulletins.html.twig', [
+                'classe' => $classe,
+                'effectif' => $effectif,
+                'matieres' => $matieres,
+                'students' => $students,
+                'rangParMatiere' => $rangParMatiere,
+                'plusForteMoyenne' => $PlusForteMoyenne,
+                'plusFaibleMoyenne' => $PlusFaibleMoyenne,
+                'moyenneGForte' => $moyenneGForte,
+                'moyenneGFaible' => $moyenneGFaible,
+                'rangGeneral' => $rangGeneral,
+                'moyenneGClasse' => $moyenneGClasse,
+                'trimestre' => $trimestre,
+                'ecole' => $ecole,
+                'matiereCoef' => $matiereCoef,
+                'results1' => $results1,
+                'results2' => $results2,
+                'results' => $results,  // Contient les moyennes et résultats de chaque élève
+            ]);
+        } else if ($request->get('requete') == 'verif') {
+            foreach ($eleves as $oneEleve) {
+                $elevesId[$oneEleve->getId()] = $oneEleve;
+            }
+
+            $success = 0;
+            $fail = 0;
+
+            foreach ($results[0] as $moy) {
+                if ($moy['moyenneGenerale'] < 10) {
+                    $fail += 1;
+                } else {
+                    $success += 1;
+                }
+            }
+
+            $successRate = round((($success * 100) / $effectif), 2);
+
+            return $this->render('notes/verif_bulletins.html.twig', [
+                'classe' => $classe,
+                'effectif' => $effectif,
+                'matieres' => $matieres,
+                'eleves' => $elevesId,
+                'moyenneGForte' => $moyenneGForte,
+                'moyenneGFaible' => $moyenneGFaible,
+                'rangGeneral' => $rangGeneral,
+                'moyenneGClasse' => $moyenneGClasse,
+                'trimestre' => $trimestre,
+                'ecole' => $ecole,
+                'success' => $success,
+                'fail' => $fail,
+                'tauxReussite' => $successRate,
+                'results' => $results[0],
+            ]);
+        } else if ($request->get('requete') == 'retrait') {
+
+            return $this->render('/notes/retrait_bulletins.html.twig', [
+                'classe' => $classe,
+                'rangGeneral' => $rangGeneral,
+                'trimestre' => $trimestre,
+                'ecole' => $ecole,
+                'eleves' => $students,
+                'sommeCoefficients' => $sommeCoefficients,
+                'matiereCoef' => $matiereCoef,
+                'results' => $results[0],
+
+            ]);
+        } else if ($request->get('requete') == 'central') {
+
+            foreach ($results[0] as $unEleve => $result) {
+                $notesEvaluations[$unEleve]['d1'] = 0;
+                $notesEvaluations[$unEleve]['d2'] = 0;
+                $notesEvaluations[$unEleve]['mi'] = 0;
+                $notesEvaluations[$unEleve]['dh'] = 0;
+                foreach ($result["notesParEvaluation"] as $evals) {
+                    foreach ($evals as $keyV => $eval) {
+                        $notesEvaluations[$unEleve][$keyV] += $eval;
+                    }
+                }
+            }
+            $matiereCount = count($matieres);
+
+            $filename = 'C:/Users/Zixe/Documents/workspace/programming/symfony/amenapp1/public/assets/csv/' . $classe->getNom() . '' . $trimestre . 'csv';
+
+
+
+            $response = new StreamedResponse(function () use ($rangGeneral, $notesEvaluations, $matiereCount, $students, $sommeCoefficients, $results) {
+                $handle = fopen('php://output', 'w');
+
+                fwrite($handle, "\xEF\xBB\xBF");
+
+                // Write the header row
+                fputcsv($handle, ['Noms et Prénoms', 'MI', 'D1', 'D2', 'Coef', 'Moy Gen']);
+
+                // Write data rows
+                foreach ($rangGeneral as $key => $one) {
+                    $mi = $notesEvaluations[$key]["mi"] / $matiereCount;
+                    $d1 = $notesEvaluations[$key]["d1"] / $matiereCount;
+                    $d2 = $notesEvaluations[$key]["d2"] / $matiereCount;
+
+                    fputcsv($handle, [
+                        $students[$key]->getNom() . ' ' . $students[$key]->getPrenom(),
+                        $mi,
+                        $d1,
+                        $d2,
+                        $sommeCoefficients,
+                        $results[0][$key]["moyenneGenerale"]
+                    ]);
+                }
+
+                fclose($handle);
+            });
+
+            $filename = 'export_' . date('Y-m-d') . '.csv';
+
+            // Set headers for the response
+            $response->headers->set('Content-Type', 'text/csv');
+            $response->headers->set('Content-Disposition', 'attachment; filename="' . $filename . '"');
+
+            return $response;
+
+
+            // return $this->render('notes/verif_central.html.twig', [
+            //     'results' => $results[0],
+            //     'ecole' => $ecole,
+            //     'rangGeneral' => $rangGeneral,
+            //     'sommeCoefficients' => $sommeCoefficients,
+            //     'eleves' => $students,
+            //     'classe' => $classe,
+            //     'trimestre' => $trimestre,
+            //     'notesEvaluations' => $notesEvaluations,
+            //     'nb' => $matiereCount
+            // ]);
+        }
     }
 
     #[Route('/{classe}/retrait/bulletins', name: 'app_notes_retrait_bulletins', methods: ['GET', 'POST'])]
@@ -609,7 +726,7 @@ final class NotesController extends AbstractController
         $classeId = $request->get('classe');
         $trimestre = $request->get('trimestre');
         $classe = $classesRepository->findOneBy(["id" => $classeId]);
-        $eleves = $elevesRepository->findBy(["classe" => $classe]);
+        $eleves = $elevesRepository->findBy(["classe" => $classe], ['nom' => 'asc']);
         $ecole = $ecolesRepository->findOneBy(['id' => 1]);
         $elevesId = [];
         $matieres = [];
@@ -674,95 +791,6 @@ final class NotesController extends AbstractController
             'eleves' => $elevesId,
             'classe' => $classe,
             'trimestre' => $trimestre,
-        ]);
-    }
-
-    #[Route('/{classe}/verif/bulletins', name: 'app_notes_verif_bulletins', methods: ['GET', 'POST'])]
-    public function verifBulletin(
-        Request $request,
-        ClassesRepository $classesRepository,
-        ExaminationsRepository $examinationsRepository,
-        ElevesRepository $elevesRepository,
-        NotesRepository $notesRepository,
-        ClassesMatieresRepository $classesMatieresRepository,
-        EvaluationsRepository $evaluationsRepository,
-        EcolesRepository $ecolesRepository,
-    ): Response {
-
-        $classeId = $request->get('classe');
-        $trimestre = $request->get('trimestre');
-        $classe = $classesRepository->findOneBy(["id" => $classeId]);
-        $eleves = $elevesRepository->findBy(["classe" => $classe]);
-        $ecole = $ecolesRepository->findOneBy(['id' => 1]);
-        $elevesId = [];
-        $matieres = [];
-        $coefficients = 0;
-
-        $cMatieres = $classesMatieresRepository->findMatiereByClasse($classe);
-
-        if (!$cMatieres) {
-            $this->addFlash('warning', 'Il n\existe pas de matière pour cette classe ');
-            return $this->redirectToRoute("app_classes_bulletins");
-        } else {
-            foreach ($cMatieres as $cMatiere) {
-                $matieres[$cMatiere->getMatiere()->getId()] = $cMatiere->getMatiere();
-                $coefficients += $cMatiere->getCoefficient();
-            }
-
-            foreach ($eleves as $oneEleve) {
-                $elevesId[$oneEleve->getId()] = $oneEleve;
-            }
-
-            // Calcul des résultats
-            $results = $this->calculateBulletins(
-                $classe,
-                $eleves,  // Passer un tableau avec un seul élève
-                $trimestre,
-                $classesMatieresRepository,
-                $examinationsRepository,
-                $notesRepository,
-                $evaluationsRepository
-            );
-
-            $general = [];
-            $rangGeneral = [];
-            foreach ($results[0] as $resKey => $resultat) {
-                $general[$resKey] = $resultat["moyenneGenerale"];
-            }
-
-            arsort($general);
-
-            $rangG = 1;
-            foreach ($general as $elKey => $elMoy) {
-                $rangGeneral[$elKey] = $rangG++;
-            }
-
-            $notesEvaluations = [];
-
-            foreach ($results[0] as $unEleve => $result) {
-                $notesEvaluations[$unEleve]['d1'] = 0;
-                $notesEvaluations[$unEleve]['d2'] = 0;
-                $notesEvaluations[$unEleve]['mi'] = 0;
-                $notesEvaluations[$unEleve]['dh'] = 0;
-                foreach ($result["notesParEvaluation"] as $evals) {
-                    foreach ($evals as $keyV => $eval) {
-                        $notesEvaluations[$unEleve][$keyV] += $eval;
-                    }
-                }
-            }
-        }
-
-        $matiereCount = count($matieres);
-        return $this->render('notes/verif_bulletins.html.twig', [
-            'results' => $results[0],
-            'ecole' => $ecole,
-            'rangGeneral' => $rangGeneral,
-            'sommeCoefficients' => $coefficients,
-            'eleves' => $elevesId,
-            'classe' => $classe,
-            'trimestre' => $trimestre,
-            'notesEvaluations' => $notesEvaluations,
-            'nb' => $matiereCount
         ]);
     }
 
@@ -917,282 +945,6 @@ final class NotesController extends AbstractController
             'results1' => $results1,
             'results2' => $results2,
             // 't3' => $moyenneTrimestre3,
-        ]);
-    }
-
-    #[Route('/{trimestre}/{todo}/moyennes', name: 'app_notes_moyennes_trimestre', methods: ['GET'])]
-    public function calculerMoyennesTrimestre(
-        Request $request,
-        ElevesRepository $eleveRepository,
-        NotesRepository $noteRepository,
-        ClassesMatieresRepository $classeMatiereRepository,
-        EvaluationsRepository $evaluationsRepository,
-        ClassesRepository $classesRepository,
-    ): Response {
-
-        // Si un élève n'a pas composé une matière, on doit lui donner une note afin que les résultats soient conformes
-
-        // Une fonction pour calculer la moyenne d'une matière donnée
-        function calculMoyenneMatiere(
-            NotesRepository $noteRepository,
-            Eleves $eleve,
-            Matieres $matiere
-        ) {
-            $moyenneNote = 0;
-            $notes = $noteRepository->findBy([
-                "eleve" => $eleve,
-                "matiere" => $matiere,
-            ]);
-            if (count($notes) === 0) {
-                return 0;
-            }
-            foreach ($notes as $note) {
-                $moyenneNote += $note->getNote();
-            }
-
-            return round($moyenneNote / count($notes), 2);
-        }
-
-        // Une fonction pour calculer les moyennes par devoir
-        function calculMoyenneParDevoir(
-            NotesRepository $noteRepository,
-            Eleves $eleve,
-            Evaluations $evaluations
-        ) {
-            $moyenneParDevoir = 0;
-            $notes = $noteRepository->findBy([
-                "eleve" => $eleve,
-                "evaluation" => $evaluations,
-            ]);
-
-            if (!$notes) {
-                return 0;
-            }
-
-            foreach ($notes as $note) {
-                $moyenneParDevoir += $note->getNote();
-            }
-            return round($moyenneParDevoir / count($notes), 2);
-        }
-
-        // Une fonction pour récupérer toutes les notes d'une composition donnée
-        function takeNoteDevoir(NotesRepository $noteRepository, Eleves $eleve, Evaluations $evaluations)
-        {
-            $noteDevoir = [];
-            $all = [];
-            $notes = $noteRepository->findBy([
-                "eleve" => $eleve,
-                "evaluation" => $evaluations,
-            ]);
-
-            if (!$notes) {
-                return 0;
-            }
-
-            foreach ($notes as $note) {
-                $noteDevoir[$note->getMatiereId()->getNom()] = $note->getNote();
-            }
-
-            $all[$evaluations->getNom()] = $noteDevoir;
-
-            return $all;
-        }
-
-        // Je récupère tous les élèves ainsi que le trimestre pour retirer les évaluations d'un certain trimestre
-        $eleves = $eleveRepository->findAll();
-        $trimestre = intval($request->get("trimestre"));
-        $todo = $request->get("todo"); //  Me permet de savoir si je doit renvoyer vers la liste de vérifications des résultats ou de retirement.
-        $trie = $request->get("trie");
-        $resultats = [];
-
-        $active = $classesRepository->findOneBy(["id" => $trie]);
-
-        // Ici je calcul les moyennes de chaque élève pour chacun des élèves
-        foreach ($eleves as $eleve) {
-            // J'initialise évaluations 
-            $evaluations  = [];
-            $toutesEvaluations = [];
-            // Je commence par prendre la classe ainsi que les notes de cet élève particulier
-            $classe = $eleve->getClasse();
-            $notes = $noteRepository->findByEleveTrimestre($eleve, $trimestre);
-
-            // S'il existe des notes je procède à la suite, qui consite à calculer les moyennes
-            if ($notes) {
-                // Je récupère chaque type d'évaluation.
-                // Je compte les utiliser plus tard, pour récupérer les notes de chacune d'elles attachés à une matière particulière
-                $devoir1 = $evaluationsRepository->findOneBy(["nom" => "Devoir 1"]);
-                $devoir2 = $evaluationsRepository->findOneBy(["nom" => "Devoir 2"]);
-                $mi = $evaluationsRepository->findOneBy(["nom" => "MI"]);
-
-                // Je calcule la moyenne général de l'élève
-                foreach ($notes as $note) {
-
-                    // Je commence par trouver la matière par rapport à la classe
-                    $matiere = $classeMatiereRepository->findBy(["classe" => $classe]);
-                    $moyenneParMatiere = [];
-                    $sommeCoefficients = 0;
-                    $moyenneMatieres = 0;
-
-                    foreach ($matiere as $one) {
-                        // Je calcule la moyenne général de chaque matière et les place dans un tableau
-                        $moyenneParMatiere[$one->getMatiere()->getNom()] = calculMoyenneMatiere($noteRepository, $eleve, $one->getMatiere());
-                        $sommeCoefficients += $one->getCoefficient();
-
-                        // Je renvois chaque matière ainsi que ses trois notes et son coefficient
-                        $evaluations[$one->getMatiere()->getNom()] = [
-                            $noteRepository->findByEleveEvaluationMatiere(
-                                $eleve,
-                                $mi->getId(),
-                                $one->getMatiere(),
-                            ),
-                            $noteRepository->findByEleveEvaluationMatiere(
-                                $eleve,
-                                $devoir1->getId(),
-                                $one->getMatiere(),
-                            ),
-                            $noteRepository->findByEleveEvaluationMatiere(
-                                $eleve,
-                                $devoir2->getId(),
-                                $one->getMatiere(),
-                            ),
-                            $one->getCoefficient(),
-                            $moyenneParMatiere[$one->getMatiere()->getNom()],
-                        ];
-                    }
-                }
-
-                // Je calcule la moyenne général de toutes les matières puis je la divise par la somme des coefficients pour avoir la moyenne de l'élève
-                foreach ($moyenneParMatiere as $oneMPM) {
-                    $moyenneMatieres += $oneMPM;
-                }
-                $moyenneGenerale = round($moyenneMatieres / $sommeCoefficients, 2);
-
-
-                $first = calculMoyenneParDevoir($noteRepository, $eleve, $devoir1);
-                $second = calculMoyenneParDevoir($noteRepository, $eleve, $devoir2);
-                $third = calculMoyenneParDevoir($noteRepository, $eleve, $mi);
-
-                // J'ajoute le résultat de l'élève dans le tableau des résultats
-                $resultats[$eleve->getId()] = [
-                    'eleve' => $eleve,
-                    'moyenneGenerale' => $moyenneGenerale,
-                    'moyenneParMatiere' => $moyenneParMatiere,
-                    'moyenneDesMatieres' => $moyenneMatieres,
-                    'sommeCoefficients' => $sommeCoefficients,
-                    'moyenneDevoir1' => $first,
-                    'moyenneDevoir2' => $second,
-                    'moyenneMi' => $third,
-                    'notesEvaluations' => $toutesEvaluations,
-                    'notes' => $evaluations,
-                ];
-            }
-        }
-
-        $moyennesGerales = [];
-        $rangMatiere = [];
-        $forte = [];
-        $faible = [];
-
-        foreach ($resultats as $key => $resultat) {
-            $moyennesGerales[$key] = $resultat["moyenneGenerale"];
-
-            // Je place chaque matière ainsi que toutes les moyennes selon la classe
-            foreach ($resultat["notes"] as $uneCle => $oneNote) {
-                $rangMatiere[$resultat["eleve"]->getClasse()->getNom()][$uneCle][$resultat["eleve"]->getId()] = $oneNote[4];
-            }
-        }
-
-        foreach ($rangMatiere as $kr => $rm) {
-            foreach ($rm as $r => $m) {
-                arsort($m);
-
-                // Je met toutes les moyennes d'une matière d'une classe dans un tableau avec comme clé les id des élèves
-                $rangMatiere[$kr][$r] = $m;
-
-                // Je prend la plus forte et faible moyenne de chaque matière de chaque classe
-                $forte[$kr][$r] = reset($m);
-                $faible[$kr][$r] = end($m);
-            }
-        }
-
-        // Je trie les moyennes générales par ordre croissant
-        arsort($moyennesGerales);
-
-        // Je classe les rangs de la classe
-        $i = 1;
-        $rangs = [];
-        foreach ($moyennesGerales as $une => $moyenne) {
-            // Je place le rang à la cle "une" qui est ici l'identifiant de l'élève
-            $rangs[$une] = $i;
-            $i += 1;
-        }
-
-        // Je prend le rend des élèves par matière
-        $matiereRang = [];
-        foreach ($rangMatiere as $mr => $rangM) {
-            foreach ($rangM as $rangMCle => $rangMOne) {
-                $i = 1;
-                foreach ($rangMOne as $oneRmC => $rmc) {
-                    $matiereRang[$mr][$rangMCle][$oneRmC] = $i;
-                    $i += 1;
-                }
-            }
-        }
-
-        // foreach ($resultats as $resultat) {
-        //     foreach ($rangs as $cle => $rang) {
-        //         if ($cle == $resultat["eleve"]->getId()) {
-        //             $resultat["notes"][] = $rang;
-        //             dd($resultats);
-        //         }
-        //     }
-        // }
-
-        // Je prend les moyennes de toutes les classes
-        $moyennesClasse = [];
-        foreach ($resultats as $resultat) {
-            $moyennesClasse[$resultat["eleve"]->getClasse()->getNom()][] = $resultat["moyenneGenerale"];
-            arsort($moyennesClasse[$resultat["eleve"]->getClasse()->getNom()]);
-        }
-
-        // Trouver la moyenne forte, faible et générale d'une classe
-        $mcFo = [];
-        $mcFa = [];
-        $mcG = [];
-        foreach ($moyennesClasse as $mycC => $mycOne) {
-            foreach ($mycOne as $oneMyc) {
-                if (isset($mcG[$mycC])) {
-                    $mcG[$mycC] = $mcG[$mycC] + $oneMyc;
-                } else {
-                    $mcG[$mycC] = $oneMyc;
-                }
-            }
-            $mcFo[$mycC] = reset($mycOne);
-            $mcFa[$mycC] = end($mycOne);
-
-            $mcG[$mycC] = $mcG[$mycC] / count($mycOne);
-        }
-
-
-        if ($todo != "bulletin") {
-            return $this->render('notes/show_moyennes.html.twig', [
-                'moyennes' => $resultats,
-                'todo' => $todo,
-            ]);
-        }
-
-        return $this->render('notes/show_bulletin_trimestre.html.twig', [
-            'moyennes' => $resultats,
-            'todo' => $todo,
-            'classes' => $classesRepository->findBy([], ["classeOrder" => "asc"]),
-            'active' => $trie,
-            'rangs' => $rangs,
-            'forteMoyenne' => $forte,
-            'faibleMoyenne' => $faible,
-            'rangMatiere' => $matiereRang,
-            'ForteMClasse' => $mcFo,
-            'FaibleMClasse' => $mcFa,
-            'moyenneClasse' => $mcG,
         ]);
     }
 }

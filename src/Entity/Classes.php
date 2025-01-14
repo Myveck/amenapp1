@@ -28,12 +28,6 @@ class Classes
     private ?Series $serie = null;
 
     /**
-     * @var Collection<int, EmploisDuTemps>
-     */
-    #[ORM\OneToMany(targetEntity: EmploisDuTemps::class, mappedBy: 'classe_id', orphanRemoval: true)]
-    private Collection $emploisDuTemps;
-
-    /**
      * @var Collection<int, ClassesMatieres>
      */
     #[ORM\OneToMany(targetEntity: ClassesMatieres::class, mappedBy: 'classe', orphanRemoval: true)]
@@ -57,7 +51,6 @@ class Classes
 
     public function __construct()
     {
-        $this->emploisDuTemps = new ArrayCollection();
         $this->classesMatieres = new ArrayCollection();
         $this->eleves = new ArrayCollection();
         $this->examinations = new ArrayCollection();
@@ -113,35 +106,6 @@ class Classes
     {
         $this->serie = $serie;
 
-        return $this;
-    }
-
-    /**
-     * @return Collection<int, EmploisDuTemps>
-     */
-    public function getEmploisDuTemps(): Collection
-    {
-        return $this->emploisDuTemps;
-    }
-
-    public function addEmploisDuTemp(EmploisDuTemps $emploisDuTemp): static
-    {
-        if (!$this->emploisDuTemps->contains($emploisDuTemp)) {
-            $this->emploisDuTemps->add($emploisDuTemp);
-            $emploisDuTemp->setClasseId($this);
-        }
-
-        return $this;
-    }
-
-    public function removeEmploisDuTemp(EmploisDuTemps $emploisDuTemp): static
-    {
-        if ($this->emploisDuTemps->removeElement($emploisDuTemp)) {
-            // set the owning side to null (unless already changed)
-            if ($emploisDuTemp->getClasseId() === $this) {
-                $emploisDuTemp->setClasseId(null);
-            }
-        }
         return $this;
     }
 

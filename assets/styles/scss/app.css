@@ -616,7 +616,7 @@ td.value {
 
 .fiche th,
 .fiche td {
-  border: 1px solid #ccc;
+  border: 1px solid #000;
   padding: 6px;
   /* Réduction du padding pour compacter le tableau */
 }
@@ -719,4 +719,18 @@ td.value {
   text-align: center;
   color: white;
   line-height: 30px;
+}
+
+.schoolTop {
+  display: flex;
+  margin-bottom: 20px;
+}
+
+.schoolTop .top {
+  margin-left: 100px;
+}
+
+td.mat,
+th.mat {
+  width: 15%;
 }/*# sourceMappingURL=app.css.map */
