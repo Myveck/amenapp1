@@ -5,8 +5,8 @@
   <div class="sidebar">
         <div class="top"><a href="{{ path("app_main") }}" data-section="section1">Acceuil</a></div>
     <div class="sidebar-menu">
-      <a href="{{ path("app_eleves_new") }}" data-section="section2">Inscrire un élève</a>
-      <a href="{{ path("app_eleves_renew") }} " class="active" data-section="section2">Réinscrire un élève</a>
+      <a href="{{ path("app_eleves_new", {'annee': annee_actuelle}) }}" data-section="section2">Inscrire un élève</a>
+      <a href="{{ path("app_eleves_renew", {'annee': annee_actuelle}) }} " class="active" data-section="section2">Réinscrire un élève</a>
     </div>
   </div>
   <div class="center">
@@ -15,7 +15,7 @@
       <p>
         Trier par classe
       </p>
-      <form  method="get" action="{{ path("app_eleves_renew") }}">
+      <form  method="get" action="{{ path("app_eleves_renew", {'annee': annee_actuelle}) }}">
         <div class="mb-2 col-3">
           <select name="trie" id="trie" onchange="this.form.submit()" class="form-control">
             <option value="all">Tout</option>
@@ -28,28 +28,18 @@
       <table class="table">
         <thead>
           <tr>
-            <th>Id</th>
             <th>Nom</th>
             <th>Prenom</th>
             <th>Classe</th>
-            <th>Date_naissance</th>
-            <th>Date de création</th>
             <th>actions</th>
           </tr>
         </thead>
         <tbody>
           {% for elefe in eleves %}
           <tr>
-            <td>{{ elefe.id }}</td>
             <td>{{ elefe.nom }}</td>
             <td>{{ elefe.prenom }}</td>
             <td>{{ elefe.classe.nom }}</td>
-            <td>
-              {{ elefe.dateNaissance ? elefe.dateNaissance|date('Y-m-d') : '' }}
-            </td>
-            <td>
-              {{ elefe.createdAt ? elefe.createdAt|date('Y-m-d H:i:s') : '' }}
-            </td>
             <td>
               <a href="{{ path('app_eleves_promotion', { id: elefe.id }) }}"class="btn btn-primaire">réinscrire</a>
             </td>
@@ -61,8 +51,8 @@
           {% endfor %}
         </tbody>
       </table>
-      <p>Vous ne trouvez pas d'élève à réinscrire ?</p>
-      <a href="{{ path('app_eleves_new')}}" class="btn btn-primaire">Inscrire un élève</a>
+      <p>Vous ne trouvez pas d'élève à réinscrire ? Choisir la classe en haut ou</p>
+      <a href="{{ path('app_eleves_new', {'annee': annee_actuelle})}}" class="btn btn-primaire">Inscrire un élève</a>
     </section>
   </div>
 </div>

@@ -220,12 +220,13 @@ final class ElevesController extends AbstractController
     //     return $this->redirectToRoute('app_eleves_index');
     // }
 
-    #[Route('/renew', name: 'app_eleves_renew', methods: ['GET', 'POST'])]
+    #[Route('/{annee}/renew', name: 'app_eleves_renew', methods: ['GET', 'POST'])]
     public function renew(Request $request, ElevesRepository $elevesRepository, ClassesRepository $classesRepository): Response
     {
+        $anneeScolaire = $request->get('annee');
         $trie = $request->get('trie');
         if (!$trie or $trie == "all") {
-            $eleves = $elevesRepository->findBy([], ['nom' => 'asc']);
+            $eleves = $elevesRepository->findBy([], ['nom' => 'asc'], 30);
         } else {
             $eleves = $elevesRepository->findBy(['classe' => $trie], ['nom' => 'asc']);
         }
@@ -233,6 +234,7 @@ final class ElevesController extends AbstractController
             'eleves' => $eleves,
             'classes' => $classesRepository->findBy([], ['classeOrder' => 'asc']),
             'active' => $trie,
+            'annee_actuelle' => $anneeScolaire,
         ]);
     }
 
@@ -289,12 +291,13 @@ final class ElevesController extends AbstractController
             $entityManager->flush();
 
             $this->addFlash("success", "Nouvel élève ajouté avec succès");
-            return $this->redirectToRoute('app_eleves_new', [], Response::HTTP_SEE_OTHER);
+            return $this->redirectToRoute('app_eleves_new', ['annee_actuelle' => $anneeScolaire,], Response::HTTP_SEE_OTHER);
         }
 
         return $this->render('eleves/new.html.twig', [
             'elefe' => $elefe,
             'form' => $form,
+            'annee_actuelle' => $anneeScolaire,
         ]);
     }
     #[Route('/{id}', name: 'app_eleves_show', methods: ['GET'])]
@@ -373,6 +376,7 @@ final class ElevesController extends AbstractController
             'edit' => 'edit',
             'classes' => $classesRepository->findAll(),
             'active' => $elefe->getClasse()->getId(),
+            'annee_actuelle' => $anneeScolaire,
         ]);
     }
 

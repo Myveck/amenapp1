@@ -8,13 +8,13 @@
       <div class="sidebar">
         <div class="top"><a href="{{ path("app_main") }}" data-section="section1">Acceuil</a></div>
         <div class="sidebar-menu">
-          <a href="{{ path("app_eleves_new") }}"  class="active" data-section="section2">Inscrire un élève</a>
-          <a href="{{ path("app_eleves_renew", { id: elefe.id }) }}" data-section="section2">Réinscrire un élève</a>
+          <a href="{{ path("app_eleves_new", {'annee': annee_actuelle }) }}"  class="active" data-section="section2">Inscrire un élève</a>
+          <a href="{{ path("app_eleves_renew", { id: elefe.id, 'annee': annee_actuelle   }) }}" data-section="section2">Réinscrire un élève</a>
         </div>
       </div>
         <div class="center">
           <h1>Inscrire un nouvel élève</h1>
-      <p>Ps: Si l'élève avait déjà été inscrit, dirigez vous vers le menu <a href="{{ path("app_eleves_renew") }}"><span>réinscription</span></a></p>
+      <p>Ps: Si l'élève avait déjà été inscrit, dirigez vous vers le menu <a href="{{ path("app_eleves_renew",{'annee': annee_actuelle}) }}"><span>réinscription</span></a></p>
           {{ include('eleves/_form.html.twig') }}
           <a href="{{ path('app_main') }}" class="btn btn-secondaire">Acceuil</a>
         </div>
