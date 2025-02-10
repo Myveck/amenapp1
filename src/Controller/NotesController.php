@@ -642,57 +642,128 @@ final class NotesController extends AbstractController
                 'results' => $results[0],
 
             ]);
-        } else if ($request->get('requete') == 'central') {
+        } 
+        else if ($request->get('requete') == 'central') {
 
-            foreach ($results[0] as $unEleve => $result) {
-                $notesEvaluations[$unEleve]['d1'] = 0;
-                $notesEvaluations[$unEleve]['d2'] = 0;
-                $notesEvaluations[$unEleve]['mi'] = 0;
-                $notesEvaluations[$unEleve]['dh'] = 0;
-                foreach ($result["notesParEvaluation"] as $evals) {
-                    foreach ($evals as $keyV => $eval) {
-                        $notesEvaluations[$unEleve][$keyV] += $eval;
-                    }
-                }
-            }
             $matiereCount = count($matieres);
 
             $filename = 'C:/Users/Zixe/Documents/workspace/programming/symfony/amenapp1/public/assets/csv/' . $classe->getNom() . '' . $trimestre . 'csv';
 
-
-
-            $response = new StreamedResponse(function () use ($rangGeneral, $notesEvaluations, $matiereCount, $students, $sommeCoefficients, $results) {
-                $handle = fopen('php://output', 'w');
-
-                fwrite($handle, "\xEF\xBB\xBF");
-
-                // Write the header row
-                fputcsv($handle, ['Noms et Prénoms', 'MI', 'D1', 'D2', 'Coef', 'Moy Gen']);
-
-                // Write data rows
-                foreach ($rangGeneral as $key => $one) {
-                    $mi = $notesEvaluations[$key]["mi"] / $matiereCount;
-                    $d1 = $notesEvaluations[$key]["d1"] / $matiereCount;
-                    $d2 = $notesEvaluations[$key]["d2"] / $matiereCount;
-
-                    fputcsv($handle, [
-                        $students[$key]->getNom() . ' ' . $students[$key]->getPrenom(),
-                        $mi,
-                        $d1,
-                        $d2,
-                        $sommeCoefficients,
-                        $results[0][$key]["moyenneGenerale"]
-                    ]);
+            $zip = new \ZipArchive();
+            $zipFilename = $classe->getNom(). '----trimestre'.$trimestre.'.zip';
+            
+            // Créez le fichier ZIP
+            if ($zip->open($zipFilename, \ZipArchive::CREATE) === TRUE) {
+                foreach ($matieres as $key => $value) {
+                    ob_start(); // Démarre la mise en mémoire tampon de sortie
+            
+                    $handle = fopen('php://output', 'w');
+                
+                    fwrite($handle, "\xEF\xBB\xBF");
+                    // Write the header row
+                    fputcsv($handle, ['Noms', 'Prénoms', 'Moy.interro', 'Devoir 1', 'Devoir 2']);
+            
+                    foreach ($results[0] as $resKey => $resValue) {
+                        foreach ($resValue["notesParEvaluation"] as $noteKey => $noteValue) {
+                            if ($key == $noteKey) {
+                                fputcsv($handle, [
+                                    $students[$resKey]->getNom(),
+                                    $students[$resKey]->getPrenom(),
+                                    $noteValue['mi'],
+                                    $noteValue['d1'],
+                                    $noteValue['d2'],
+                                ]);
+                            }
+                        }
+                    }
+                    fclose($handle);
+            
+                    // Récupérez le contenu de la mise en mémoire tampon et ajoutez-le à l'archive ZIP
+                    $csvContent = ob_get_clean();
+                    $zip->addFromString($value->getNom() . '.csv', $csvContent); // Utilisez le nom de la matière comme nom de fichier dans le ZIP
                 }
+            
+                // Fermez l'archive ZIP
+                $zip->close();
+            
+                // Envoi du fichier ZIP
+                $response = new Response(file_get_contents($zipFilename), 200, [
+                    'Content-Type' => 'application/zip',
+                    'Content-Disposition' => 'attachment; filename='.$zipFilename,
+                ]);
+            
+                // Vous pouvez supprimer le fichier ZIP temporaire après avoir envoyé la réponse
+                unlink($zipFilename);
+            
+                return $response;
+            } else {
+                throw new \Exception("Impossible de créer l'archive ZIP.");
+            }
+              
+            // foreach ($matieres as $key => $value) {
+            //     $response = new StreamedResponse(function () use ($results, $key, $students, $trimestre)
+            //     {
+            //         $handle = fopen('php://output', 'w');
+    
+            //         fwrite($handle, "\xEF\xBB\xBF");
+            //         // Write the header row
+            //         fputcsv($handle, ['Noms', 'Prénoms', 'Moy.interro', 'Devoir 1', 'Devoir 2']);
 
-                fclose($handle);
-            });
 
-            $filename = 'export_' . date('Y-m-d') . '.csv';
+            //         foreach ($results[0] as $resKey => $resValue) {
+            //             foreach ($resValue["notesParEvaluation"] as $noteKey => $noteValue) {
+            //                 if($key == $noteKey){
+            //                     fputcsv($handle, [
+            //                         $students[$resKey]->getNom(),
+            //                         $students[$resKey]->getPrenom(),
+            //                         $noteValue['mi'],
+            //                         $noteValue['d1'],
+            //                         $noteValue['d2'],
+            //                     ]);
+            //                 }
+            //             }
+            //         }
+            //         fclose($handle);
+            //     });
+            //     $filename = $classe->getNom().'-'. $value->getNom() .'-'.$trimestre.'e_trimestre.csv';
 
-            // Set headers for the response
-            $response->headers->set('Content-Type', 'text/csv');
-            $response->headers->set('Content-Disposition', 'attachment; filename="' . $filename . '"');
+            //     $response->headers->set('Content-Type', 'text/csv');
+            //     $response->headers->set('Content-Disposition', 'attachment; filename="' . $filename . '"');
+               
+            // }
+
+            // $response = new StreamedResponse(function () use ($rangGeneral, $notesEvaluations, $matiereCount, $students, $sommeCoefficients, $results) {
+            //     $handle = fopen('php://output', 'w');
+
+            //     fwrite($handle, "\xEF\xBB\xBF");
+
+            //     // Write the header row
+            //     fputcsv($handle, ['Noms et Prénoms', 'MI', 'D1', 'D2', 'Coef', 'Moy Gen']);
+
+            //     // Write data rows
+            //     foreach ($rangGeneral as $key => $one) {
+            //         $mi = $notesEvaluations[$key]["mi"] / $matiereCount;
+            //         $d1 = $notesEvaluations[$key]["d1"] / $matiereCount;
+            //         $d2 = $notesEvaluations[$key]["d2"] / $matiereCount;
+
+            //         fputcsv($handle, [
+            //             $students[$key]->getNom() . ' ' . $students[$key]->getPrenom(),
+            //             $mi,
+            //             $d1,
+            //             $d2,
+            //             $sommeCoefficients,
+            //             $results[0][$key]["moyenneGenerale"]
+            //         ]);
+            //     }
+
+            //     fclose($handle);
+            // });
+
+            // $filename = $classe->getNom().'-' . date('Y-m-d') .''.$classe->getNom() . '.csv';
+
+            // // Set headers for the response
+            // $response->headers->set('Content-Type', 'text/csv');
+            // $response->headers->set('Content-Disposition', 'attachment; filename="' . $filename . '"');
 
             return $response;
 
