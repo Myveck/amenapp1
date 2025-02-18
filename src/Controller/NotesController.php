@@ -18,6 +18,10 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\Routing\Attribute\Route;
+use Zip;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 #[Route('/notes')]
 final class NotesController extends AbstractController
@@ -644,141 +648,48 @@ final class NotesController extends AbstractController
             ]);
         } 
         else if ($request->get('requete') == 'central') {
+            $spreadsheet = new Spreadsheet();
+            $spreadsheet->removeSheetByIndex(0); // Remove default empty sheet
 
-            $matiereCount = count($matieres);
+            foreach ($matieres as $key => $value) {
+                // Create new sheet for each subject
+                $sheet = $spreadsheet->createSheet();
+                $sheet->setTitle($value->getNom());
 
-            $filename = 'C:/Users/Zixe/Documents/workspace/programming/symfony/amenapp1/public/assets/csv/' . $classe->getNom() . '' . $trimestre . 'csv';
+                // Write header row
+                $sheet->fromArray(['Noms', 'Prénoms', 'Moy.interro', 'Devoir 1', 'Devoir 2'], null, 'A1');
 
-            $zip = new \ZipArchive();
-            $zipFilename = $classe->getNom(). '----trimestre'.$trimestre.'.zip';
-            
-            // Créez le fichier ZIP
-            if ($zip->open($zipFilename, \ZipArchive::CREATE) === TRUE) {
-                foreach ($matieres as $key => $value) {
-                    ob_start(); // Démarre la mise en mémoire tampon de sortie
-            
-                    $handle = fopen('php://output', 'w');
-                
-                    fwrite($handle, "\xEF\xBB\xBF");
-                    // Write the header row
-                    fputcsv($handle, ['Noms', 'Prénoms', 'Moy.interro', 'Devoir 1', 'Devoir 2']);
-            
-                    foreach ($results[0] as $resKey => $resValue) {
-                        foreach ($resValue["notesParEvaluation"] as $noteKey => $noteValue) {
-                            if ($key == $noteKey) {
-                                fputcsv($handle, [
-                                    $students[$resKey]->getNom(),
-                                    $students[$resKey]->getPrenom(),
-                                    $noteValue['mi'],
-                                    $noteValue['d1'],
-                                    $noteValue['d2'],
-                                ]);
-                            }
+                // Write data rows
+                $row = 2;
+                foreach ($results[0] as $resKey => $resValue) {
+                    foreach ($resValue["notesParEvaluation"] as $noteKey => $noteValue) {
+                        if ($key == $noteKey) {
+                            $sheet->fromArray([
+                                $students[$resKey]->getNom(),
+                                $students[$resKey]->getPrenom(),
+                                $noteValue['mi'],
+                                $noteValue['d1'],
+                                $noteValue['d2'],
+                            ], null, "A$row");
+                            $row++;
                         }
                     }
-                    fclose($handle);
-            
-                    // Récupérez le contenu de la mise en mémoire tampon et ajoutez-le à l'archive ZIP
-                    $csvContent = ob_get_clean();
-                    $zip->addFromString($value->getNom() . '.csv', $csvContent); // Utilisez le nom de la matière comme nom de fichier dans le ZIP
                 }
-            
-                // Fermez l'archive ZIP
-                $zip->close();
-            
-                // Envoi du fichier ZIP
-                $response = new Response(file_get_contents($zipFilename), 200, [
-                    'Content-Type' => 'application/zip',
-                    'Content-Disposition' => 'attachment; filename='.$zipFilename,
-                ]);
-            
-                // Vous pouvez supprimer le fichier ZIP temporaire après avoir envoyé la réponse
-                unlink($zipFilename);
-            
-                return $response;
-            } else {
-                throw new \Exception("Impossible de créer l'archive ZIP.");
             }
-              
-            // foreach ($matieres as $key => $value) {
-            //     $response = new StreamedResponse(function () use ($results, $key, $students, $trimestre)
-            //     {
-            //         $handle = fopen('php://output', 'w');
-    
-            //         fwrite($handle, "\xEF\xBB\xBF");
-            //         // Write the header row
-            //         fputcsv($handle, ['Noms', 'Prénoms', 'Moy.interro', 'Devoir 1', 'Devoir 2']);
 
+            // Save the Excel file
+            $excelFilename = sys_get_temp_dir() . '/' . $classe->getNom() . '_Trimestre' . $trimestre . '.xlsx';
+            $writer = new Xlsx($spreadsheet);
+            $writer->save($excelFilename);
 
-            //         foreach ($results[0] as $resKey => $resValue) {
-            //             foreach ($resValue["notesParEvaluation"] as $noteKey => $noteValue) {
-            //                 if($key == $noteKey){
-            //                     fputcsv($handle, [
-            //                         $students[$resKey]->getNom(),
-            //                         $students[$resKey]->getPrenom(),
-            //                         $noteValue['mi'],
-            //                         $noteValue['d1'],
-            //                         $noteValue['d2'],
-            //                     ]);
-            //                 }
-            //             }
-            //         }
-            //         fclose($handle);
-            //     });
-            //     $filename = $classe->getNom().'-'. $value->getNom() .'-'.$trimestre.'e_trimestre.csv';
+            // Send file as response
+            $response = new BinaryFileResponse($excelFilename);
+            $response->setContentDisposition('attachment', basename($excelFilename));
 
-            //     $response->headers->set('Content-Type', 'text/csv');
-            //     $response->headers->set('Content-Disposition', 'attachment; filename="' . $filename . '"');
-               
-            // }
-
-            // $response = new StreamedResponse(function () use ($rangGeneral, $notesEvaluations, $matiereCount, $students, $sommeCoefficients, $results) {
-            //     $handle = fopen('php://output', 'w');
-
-            //     fwrite($handle, "\xEF\xBB\xBF");
-
-            //     // Write the header row
-            //     fputcsv($handle, ['Noms et Prénoms', 'MI', 'D1', 'D2', 'Coef', 'Moy Gen']);
-
-            //     // Write data rows
-            //     foreach ($rangGeneral as $key => $one) {
-            //         $mi = $notesEvaluations[$key]["mi"] / $matiereCount;
-            //         $d1 = $notesEvaluations[$key]["d1"] / $matiereCount;
-            //         $d2 = $notesEvaluations[$key]["d2"] / $matiereCount;
-
-            //         fputcsv($handle, [
-            //             $students[$key]->getNom() . ' ' . $students[$key]->getPrenom(),
-            //             $mi,
-            //             $d1,
-            //             $d2,
-            //             $sommeCoefficients,
-            //             $results[0][$key]["moyenneGenerale"]
-            //         ]);
-            //     }
-
-            //     fclose($handle);
-            // });
-
-            // $filename = $classe->getNom().'-' . date('Y-m-d') .''.$classe->getNom() . '.csv';
-
-            // // Set headers for the response
-            // $response->headers->set('Content-Type', 'text/csv');
-            // $response->headers->set('Content-Disposition', 'attachment; filename="' . $filename . '"');
+            // Delete file after sending
+            $response->deleteFileAfterSend(true);
 
             return $response;
-
-
-            // return $this->render('notes/verif_central.html.twig', [
-            //     'results' => $results[0],
-            //     'ecole' => $ecole,
-            //     'rangGeneral' => $rangGeneral,
-            //     'sommeCoefficients' => $sommeCoefficients,
-            //     'eleves' => $students,
-            //     'classe' => $classe,
-            //     'trimestre' => $trimestre,
-            //     'notesEvaluations' => $notesEvaluations,
-            //     'nb' => $matiereCount
-            // ]);
         }
     }
 
