@@ -654,7 +654,12 @@ final class NotesController extends AbstractController
             foreach ($matieres as $key => $value) {
                 // Create new sheet for each subject
                 $sheet = $spreadsheet->createSheet();
-                $sheet->setTitle($value->getNom());
+                if($value->getNom() == "Allemand/Espagnol"){
+                    $sheet->setTitle("Allemand ou Esagnol");
+                }
+                else{
+                    $sheet->setTitle($value->getNom());
+                }
 
                 // Write header row
                 $sheet->fromArray(['Noms', 'Prénoms', 'Moy.interro', 'Devoir 1', 'Devoir 2'], null, 'A1');
