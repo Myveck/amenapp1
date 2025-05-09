@@ -24,6 +24,7 @@ final class ElevesController extends AbstractController
     public function index(Request $request, ElevesRepository $elevesRepository, ClassesRepository $classesRepository): Response
     {
         $trie = $request->get('trie');
+        $annee_actuelle = '2024-2025';
         if ($trie == "all" or !$trie) {
             $eleves = $elevesRepository->findBy([], ['nom' => 'asc']);
             $trie = "all";
@@ -35,6 +36,7 @@ final class ElevesController extends AbstractController
             'classes' => $classesRepository->findBy([], ['classeOrder' => 'asc']),
             'active' => $trie,
             'nombre' => count($eleves),
+            'annee_actuelle' => $annee_actuelle
         ]);
     }
 
@@ -99,127 +101,6 @@ final class ElevesController extends AbstractController
         ]);
     }
 
-    // #[Route('/backup')]
-    // public function backup(EntityManagerInterface $entityManager, ClassesRepository $classesRepository, ElevesRepository $elevesRepository)
-    // {
-
-    //     // $classe = $classesRepository->findOneBy(['nom' => '2nde CD']);
-    //     // $new = $classesRepository->findOneBy(['nom' => '1ere A1']);
-    //     // $find = $elevesRepository->findBy([
-    //     //     'classe' => $classe->getId()
-    //     // ]);
-
-    //     // foreach ($find as $student) {
-
-    //     //     $student->setClasse($new);
-
-    //     //     $entityManager->persist($student);
-    //     // }
-    //     // $entityManager->flush();
-
-    //     // return $this->redirectToRoute('app_eleves_index');
-    //     $fichier = file_get_contents('C:\Users\DE\Documents\amenapp1\students_with_classrooms.json', 'students_with_classrooms.json');
-
-    //     $students = json_decode($fichier, true);
-    //     $i = 1;
-
-    //     $j = 1;
-
-    //     foreach ($students as $student) {
-
-
-    //         $elefe = new Eleves();
-    //         $pere = new Parents();
-    //         $mere = new Parents();
-    //         $parentsM = new ParentsEleves();
-    //         $parentsP = new ParentsEleves();
-
-    //         $find = $elevesRepository->findOneBy([
-    //             'nom' => $student['lastname'],
-    //             'prenom' => $student['firstname'],
-    //         ]);
-
-    //         if (!$find) {
-
-    //             $elefe->setNom($student['lastname']);
-    //             $elefe->setPrenom($student['firstname']);
-    //             $elefe->setSexe($student['gender']);
-
-    //             if ($student["classroom"] == '6Ã¨') {
-    //                 $classe = $classesRepository->findOneBy(['nom' => '5e']);
-    //                 $elefe->setClasse($classe);
-    //             } elseif ($student["classroom"] == '5Ã¨') {
-    //                 $classe = $classesRepository->findOneBy(['nom' => '4e']);
-    //                 $elefe->setClasse($classe);
-    //             } elseif ($student["classroom"] == '4Ã¨') {
-    //                 $classe = $classesRepository->findOneBy(['nom' => '3e']);
-    //                 $elefe->setClasse($classe);
-    //             } elseif ($student["classroom"] == '3Ã¨') {
-    //                 $classe = $classesRepository->findOneBy(['nom' => '2nde AB']);
-    //                 $elefe->setClasse($classe);
-    //             } elseif ($student["classroom"] == '1Ã¨re B') {
-    //                 $classe = $classesRepository->findOneBy(['nom' => 'Tle B']);
-    //                 $elefe->setClasse($classe);
-    //             } elseif ($student["classroom"] == '1ere D') {
-    //                 $classe = $classesRepository->findOneBy(['nom' => 'Tle D']);
-    //                 $elefe->setClasse($classe);
-    //             } elseif ($student["classroom"] == '1ere A2') {
-    //                 $classe = $classesRepository->findOneBy(['nom' => 'Tle A2']);
-    //                 $elefe->setClasse($classe);
-    //             } else {
-    //                 $classe = $classesRepository->findOneBy(['nom' => $student["classroom"]]);
-    //                 $elefe->setClasse($classe);
-    //             }
-
-    //             $entityManager->persist($elefe);
-
-    //             $pere->setNom("");
-    //             $pere->setTelephone("");
-    //             $pere->setProfession("");
-    //             $pere->setType("pere");
-    //             $entityManager->persist($pere);
-
-    //             $mere->setNom("");
-    //             $mere->setTelephone("");
-    //             $mere->setProfession("");
-    //             $mere->setType("mere");
-    //             $entityManager->persist($mere);
-
-    //             $parentsM->setEleve($elefe);
-    //             $parentsM->setParent($pere);
-    //             $entityManager->persist($parentsP);
-
-    //             $parentsP->setEleve($elefe);
-    //             $parentsP->setParent($mere);
-    //             $entityManager->persist($parentsM);
-
-    //             $i++;
-
-    //             if ($i >= 20) {
-    //                 $entityManager->flush();
-    //                 $entityManager->clear();
-    //                 $i = 0;
-    //             }
-    //         } else {
-    //             if ($j >= 131 and $j <= 141 and $find->getClasse()->getNom() == '2nde AB') {
-    //                 $classe = $classesRepository->findOneBy(['nom' => '1ere A1']);
-    //                 $find->setClasse($classe);
-    //                 $entityManager->persist($find);
-    //             }
-    //             if ($j > 141 and $j <= 151 and $find->getClasse()->getNom() == '2nde AB') {
-    //                 $classe = $classesRepository->findOneBy(['nom' => '1ere D']);
-    //                 $find->setClasse($classe);
-    //                 $entityManager->persist($find);
-    //             }
-    //         }
-    //         dump($j);
-    //         $j += 1;
-    //     }
-    //     $entityManager->flush();
-
-    //     return $this->redirectToRoute('app_eleves_index');
-    // }
-
     #[Route('/{annee}/renew', name: 'app_eleves_renew', methods: ['GET', 'POST'])]
     public function renew(Request $request, ElevesRepository $elevesRepository, ClassesRepository $classesRepository): Response
     {
@@ -238,10 +119,11 @@ final class ElevesController extends AbstractController
         ]);
     }
 
-    #[Route('/{annee}/new', name: 'app_eleves_new', methods: ['GET', 'POST'])]
+    #[Route('/new', name: 'app_eleves_new', methods: ['GET', 'POST'])]
     public function new(Request $request, EntityManagerInterface $entityManager, ElevesBackupRepository $elevesBackupRepository, EcolesRepository $ecolesRepository): Response
     {
-        $anneeScolaire = $request->get('annee');
+        $ecole = $ecolesRepository->findOneBy(['id' => 1]);
+        $anneeScolaire = $ecole->getAnneeScolaire()->getAnnee();
         $elefe = new Eleves();
         $pere = new Parents();
         $mere = new Parents();

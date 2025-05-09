@@ -7,7 +7,7 @@
         <div class="top"><a href="{{ path("app_main") }}" data-section="section1">Acceuil</a></div>
 
         <div class="sidebar-menu">
-            <a href="{{ path("app_main_ecole") }}" data-section="section1" class="active">Dashboard</a>
+            <a href="{{ path("app_main_ecole",{'annee' : annee_scolaire}) }}" data-section="section1" class="active">Dashboard</a>
             <a href="{{ path("app_eleves_index") }}" data-section="section1">Elèves</a>
             <a href="{{ path("app_classes_index") }}" data-section="section2">Classes</a>
             <a href="{{ path("app_matieres_index") }}" data-section="section2">Cours</a>
@@ -17,7 +17,7 @@
   <div class="center">
     <h1>Dashboard</h1>
     <div class="stats">
-        <a href="{{path('app_eleves_index')}}">
+        <a href="{{path('app_eleves_index', {'annee' : annee_scolaire})}}">
             <div class="item item1">
                 <p>Eleves</p>
                 <h4>{{ eleves }}</h4>

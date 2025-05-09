@@ -29,13 +29,15 @@ class MainController extends AbstractController
         ]);
     }
 
-    #[Route('/ecole', name: 'app_main_ecole')]
+    #[Route('/{annee}/ecole', name: 'app_main_ecole')]
     public function ecole(
+        Request $request,
         ElevesRepository $elevesRepository,
         ClassesRepository $classesRepository,
         MatieresRepository $matieresRepository,
         EnseignantsRepository $enseignantsRepository,
     ): Response {
+        $anneeScolaire = $request->get('annee');
         $eleves = $elevesRepository->findAll();
         $classes = $classesRepository->findBy([], ["classeOrder" => 'asc']);
         $matieres = $matieresRepository->findAll();
@@ -60,6 +62,7 @@ class MainController extends AbstractController
             'masculins' => $m,
             'feminins' => $f,
             'nombreParClasse' => $nombre,
+            'annee_scolaire' => $anneeScolaire
         ]);
     }
 

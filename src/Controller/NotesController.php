@@ -42,25 +42,6 @@ final class NotesController extends AbstractController
         ]);
     }
 
-    // #[Route('/new', name: 'app_notes_new', methods: ['GET', 'POST'])]
-    // public function new(Request $request, EntityManagerInterface $entityManager): Response
-    // {
-    //     $note = new Notes();
-    //     $form = $this->createForm(NotesType::class, $note);
-    //     $form->handleRequest($request);
-
-    //     if ($form->isSubmitted() && $form->isValid()) {
-    //         $entityManager->persist($note);
-    //         $entityManager->flush();
-
-    //         return $this->redirectToRoute('app_notes_index', [], Response::HTTP_SEE_OTHER);
-    //     }
-
-    //     return $this->render('notes/new.html.twig', [
-    //         'note' => $note,
-    //         'form' => $form,
-    //     ]);
-    // }
 
     #[Route('/moyennes', name: 'app_notes_moyennes', methods: ['GET'])]
     public function showMoyennes(Notes $note): Response
@@ -84,12 +65,6 @@ final class NotesController extends AbstractController
             'trie' => $trie,
         ]);
     }
-
-    // #[Route('/moyennes', name: 'app_notes_moyennes', methods: ['GET'])]
-    // public function moyenne(): Response
-    // {
-    //     return $this->render('notes/moyenne_choix.html.twig');
-    // }
 
     #[Route('/create/exam/{examination}', name: 'app_notes_create_exam', methods: ['GET'])]
     public function createExam(Request $request, ElevesRepository $eleveRepository, ExaminationsRepository $examinationsRepository, EntityManagerInterface $entityManager, NotesRepository $notesRepository)
@@ -208,104 +183,6 @@ final class NotesController extends AbstractController
 
         return $this->redirectToRoute('app_notes_index', [], Response::HTTP_SEE_OTHER);
     }
-
-    // #[Route('/{classe}/bulletins', name: 'app_notes_bulletins')]
-    // public function bulletin(Request $request, ClassesRepository $classesRepository, ExaminationsRepository $examinationsRepository, ElevesRepository $elevesRepository, ClassesMatieresRepository $classesMatieresRepository, MatieresRepository $matieresRepository, EvaluationsRepository $evaluationsRepository): Response
-    // {
-    //     $d1 = $evaluationsRepository->findOneBy(["id" => 1]);
-    //     $d2 = $evaluationsRepository->findOneBy(["id" => 2]);
-    //     $mi = $evaluationsRepository->findOneBy(["id" => 3]);
-    //     $dh = $evaluationsRepository->findOneBy(["id" => 4]);
-    //     // Je commence par prendre la classe ainsi que le trimestre
-    //     $classeId = $request->get('classe');
-    //     $trimestre = $request->get('trimestre');
-
-    //     $classe = $classesRepository->findOneBy(["id" => $classeId]);
-
-    //     // Je prend les élèves appartennants à cette classe
-    //     $eleves = $elevesRepository->findBy(["classe" => $classe]);
-
-    //     // J'initialise le tableau qui contiendra les examinations
-    //     $examinations = [];
-    //     $moyenneParMatiere = [];
-    //     $notesParMatiere = [];
-
-    //     // Je prend toutes les matières de cette classe
-    //     $cMatieres = $classesMatieresRepository->findMatiereByClasse($classe);
-
-    //     $matieres = [];
-    //     foreach ($cMatieres as $cMatiere) {
-    //         $matieres[] = $cMatiere->getMatiere();
-    //     }
-
-    //     // Pour chaque matière, je prend les différentes examinations puis calcul la moyenne
-    //     foreach ($matieres as $matiere) {
-    //         // Ce tableau fera le compte, servant à determiner si telle matière à telle ou telle examination ce qui servirait à calculer la moyenne totale de la matière
-    //         $moyenne = [];
-
-    //         $noteD1 = $examinationsRepository->findOneBy([
-    //             "matiere" => $matiere,
-    //             "evaluation" => $d1,
-    //             "trimestre" => 3,
-    //         ]);
-    //         if ($noteD1) {
-    //             $moyenne[] = $noteD1;
-    //         }
-
-    //         $noteD2 = $examinationsRepository->findOneBy([
-    //             "matiere" => $matiere,
-    //             "evaluation" => $d2,
-    //             "trimestre" => 3,
-    //         ]);
-    //         if ($noteD2) {
-    //             $moyenne[] = $noteD2;
-    //         }
-
-    //         $noteMi = $examinationsRepository->findOneBy([
-    //             "matiere" => $matiere,
-    //             "evaluation" => $mi,
-    //             "trimestre" => 3,
-    //         ]);
-    //         if ($noteMi) {
-    //             $moyenne[] = $noteMi;
-    //         }
-
-    //         $noteDh = $examinationsRepository->findOneBy([
-    //             "matiere" => $matiere,
-    //             "evaluation" => $dh,
-    //             "trimestre" => 3,
-    //         ]);
-    //         if ($noteD1) {
-    //             $moyenne[] = $noteDh;
-    //         }
-
-    //         // Je vais calculer pour chaque élève la note globale par matière
-
-    //         foreach ($eleves as $eleve) {
-    //             // Je commence par initialiser le tableau des matière des élèves à 0
-    //             $notesParMatiere[$matiere->getId()][$eleve->getId()] = 0;
-    //         }
-    //         foreach ($moyenne as $oneNote) {
-    //             // Si la note existe, on l'ajoute
-    //             if ($oneNote) {
-    //                 foreach ($eleves as $eleve) {
-    //                     $notesParMatiere[$matiere->getId()][$eleve->getId()] += $oneNote[$eleve->getId()];
-    //                 }
-    //             }
-    //         }
-    //         // Je calcule maintenant la moyenne par matière puis j'ajoute le coefficient de chaque matière
-    //         foreach ($eleves as $eleve) {
-    //             $moyenneParMatiere[$matiere->getId()][$eleve->getId()] = ($notesParMatiere[$matiere->getId()][$eleve->getId()] / count($moyenne)) * $classesMatieresRepository->findCoefficientByMatiere($matiere);
-    //         }
-
-    //         // Enfin j'ajoute la matière au tableau contennant les examinations de cette classe
-    //         $examinations[$matiere->getId()] = $moyenneParMatiere;
-    //     }
-
-    //     // Ici je vais calculer la moyenne générale
-
-    //     return $this->render('/notes/bulletins.html.twig');
-    // }
 
     // Fonction utilitaire pour récupérer les notes à partir de la relation avec note
     private function getNoteForEvaluation($notesRepository, $examinationsRepository, $matiere, $evaluation, $trimestre, $eleve)
@@ -539,46 +416,46 @@ final class NotesController extends AbstractController
             }
         }
 
-        // Si c'est le troisième trimestre, on aurait besoin des résultats des trimestres passé
-        if ($trimestre == 3) {
-            $results1 = $this->calculateBulletins(
-                $classe,
-                $eleves,
-                1,
-                $classesMatieresRepository,
-                $examinationsRepository,
-                $notesRepository,
-                $evaluationsRepository
-            );
-            $results2 = $this->calculateBulletins(
-                $classe,
-                $eleves,
-                2,
-                $classesMatieresRepository,
-                $examinationsRepository,
-                $notesRepository,
-                $evaluationsRepository
-            );
-
-            if (isset($results1[2])) {
-
-                $this->addFlash($results[2][0], $results[2][1]);
-                return $this->redirectToRoute("app_classes_bulletins");
-            } else {
-                // On ne prend que les moyennes générales de ce trimestre
-                $results1 = $results1[0];
-            }
-
-            if (isset($results2[2])) {
-
-                $this->addFlash($results[2][0], $results[2][1]);
-                return $this->redirectToRoute("app_classes_bulletins");
-            } else {
-                $results2 = $results2[0];
-            }
-        }
-
         if ($request->get('requete') == 'bulletins') {
+
+            // Si c'est le troisième trimestre, on aurait besoin des résultats des trimestres passé
+            if ($trimestre == 3) {
+                $results1 = $this->calculateBulletins(
+                    $classe,
+                    $eleves,
+                    1,
+                    $classesMatieresRepository,
+                    $examinationsRepository,
+                    $notesRepository,
+                    $evaluationsRepository
+                );
+                $results2 = $this->calculateBulletins(
+                    $classe,
+                    $eleves,
+                    2,
+                    $classesMatieresRepository,
+                    $examinationsRepository,
+                    $notesRepository,
+                    $evaluationsRepository
+                );
+
+                if (isset($results1[2])) {
+
+                    $this->addFlash($results[2][0], $results[2][1]);
+                    return $this->redirectToRoute("app_classes_bulletins");
+                } else {
+                    // On ne prend que les moyennes générales de ce trimestre
+                    $results1 = $results1[0];
+                }
+
+                if (isset($results2[2])) {
+
+                    $this->addFlash($results[2][0], $results[2][1]);
+                    return $this->redirectToRoute("app_classes_bulletins");
+                } else {
+                    $results2 = $results2[0];
+                }
+            }
 
             return $this->render('/notes/bulletins.html.twig', [
                 'classe' => $classe,
