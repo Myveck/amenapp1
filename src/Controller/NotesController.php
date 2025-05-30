@@ -814,19 +814,47 @@ final class NotesController extends AbstractController
 }
 
 // @echo off
-// REM Format de date : YYYY-MM-DD
-// for /f "tokens=2 delims==" %%i in ('"wmic os get localdatetime /value | findstr =="') do set datetime=%%i
-// set datestamp=%datetime:~0,4%-%datetime:~4,2%-%datetime:~6,2%
+// REM === Obtenir la date du jour ===
+// for /f "tokens=1-3 delims=/- " %%a in ("%date%") do (
+//     set day=%%a
+//     set month=%%b
+//     set year=%%c
+// )
 
-// REM Dossier de sauvegarde
-// set backupfolder=C:\sauvegardes
+// REM === Détection auto du format FR ou EN (si nécessaire, inverse mois/jour) ===
+// if %day% gtr 31 (
+//     REM Probablement format EN (MM/DD/YYYY)
+//     set temp=%day%
+//     set day=%month%
+//     set month=%temp%
+// )
+
+// REM === Ajouter un zéro devant si nécessaire ===
+// if 1%day% LSS 110 set day=0%day%
+// if 1%month% LSS 110 set month=0%month%
+
+// REM === Construire la date au format YYYY-MM-DD ===
+// set datestamp=%year%-%month%-%day%
+
+// REM === Paramètres à adapter ===
+// set wampPath=C:\wamp64
+// set mysqlBin=%wampPath%\bin\mysql\mysql8.0.30\bin
+// set backupFolder=%wampPath%\sauvegardes
 // set dbuser=root
-// set dbpassword=ton_mot_de_passe
+// set dbpassword=
 // set dbname=ta_base_de_donnees
-// set backupfile=%backupfolder%\%dbname%_%datestamp%.sql
 
-// REM Commande mysqldump
-// mysqldump -u %dbuser% -p%dbpassword% %dbname% > "%backupfile%"
+// REM === Créer le dossier de sauvegarde s'il n'existe pas ===
+// if not exist "%backupFolder%" mkdir "%backupFolder%"
 
-// echo Sauvegarde terminée : %backupfile%
+// REM === Créer le nom du fichier de sauvegarde ===
+// set backupFile=%backupFolder%\%dbname%_%datestamp%.sql
+
+// REM === Afficher pour vérification ===
+// echo Sauvegarde en cours dans : %backupFile%
+
+// REM === Lancer la sauvegarde ===
+// "%mysqlBin%\mysqldump.exe" -u %dbuser% -p%dbpassword% %dbname% > "%backupFile%"
+
+// echo Sauvegarde terminée !
 // pause
