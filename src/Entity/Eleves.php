@@ -28,7 +28,7 @@ class Eleves
     /**
      * @var Collection<int, Notes>
      */
-    #[ORM\OneToMany(targetEntity: Notes::class, mappedBy: 'eleve')]
+    #[ORM\OneToMany(targetEntity: Notes::class, mappedBy: 'eleve', orphanRemoval: true)]
     private Collection $notes;
 
     /**
