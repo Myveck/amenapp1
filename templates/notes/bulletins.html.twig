@@ -372,7 +372,7 @@
                 {% if rangGeneral[students[key].id] == 1 and students[key].sexe|lower
                 == "f" %}ère {% endif %} {% if rangGeneral[students[key].id] ==
                 1 and students[key].sexe|lower == "m" %}er {% endif %} {% if
-                rangGeneral[students[key].id] != 1 %}ème{% endif %}
+                rangGeneral[students[key].id] !=  1 %}ème{% endif %}
               </td>
             </tr>
           </table>
@@ -399,7 +399,7 @@
               <tr>
                 <td>Général</td>
                 <td>
-                  {{ (results1[key]["moyenneGenerale"] + results2[key]["moyenneGenerale"] + result["moyenneGenerale"]) / 3 }}
+                  {{ ((results1[key]["moyenneGenerale"] + results2[key]["moyenneGenerale"] + result["moyenneGenerale"]) / 3) | round(2, 'floor') }}
                 </td>
               </tr>
             </tbody>
@@ -465,10 +465,6 @@
             </tr>
             <tr>
               <td>Tableau d'honneur</td>
-              <td></td>
-            </tr>
-            <tr>
-              <td>Avertissement</td>
               <td></td>
             </tr>
             <tr>
