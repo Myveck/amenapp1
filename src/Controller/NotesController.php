@@ -812,3 +812,21 @@ final class NotesController extends AbstractController
         ]);
     }
 }
+
+// @echo off
+// REM Format de date : YYYY-MM-DD
+// for /f "tokens=2 delims==" %%i in ('"wmic os get localdatetime /value | findstr =="') do set datetime=%%i
+// set datestamp=%datetime:~0,4%-%datetime:~4,2%-%datetime:~6,2%
+
+// REM Dossier de sauvegarde
+// set backupfolder=C:\sauvegardes
+// set dbuser=root
+// set dbpassword=ton_mot_de_passe
+// set dbname=ta_base_de_donnees
+// set backupfile=%backupfolder%\%dbname%_%datestamp%.sql
+
+// REM Commande mysqldump
+// mysqldump -u %dbuser% -p%dbpassword% %dbname% > "%backupfile%"
+
+// echo Sauvegarde terminée : %backupfile%
+// pause
