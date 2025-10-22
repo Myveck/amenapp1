@@ -135,7 +135,7 @@ final class NotesController extends AbstractController
         $note->setEleveId($eleve);
 
         $form = $this->createForm(NotesType::class, $note, [
-            'allow_extra_fields' => $note->getEleveId()->getClasse()
+            'allow_extra_fields' => $note->getEleveId()->getClasseActuelle()
         ]);
         $form->handleRequest($request);
 
@@ -158,7 +158,7 @@ final class NotesController extends AbstractController
     public function edit(Request $request, Notes $note, EntityManagerInterface $entityManager): Response
     {
         $form = $this->createForm(NotesType::class, $note, [
-            'allow_extra_fields' => $note->getEleveId()->getClasse()
+            'allow_extra_fields' => $note->getEleveId()->getClasseActuelle()
         ]);
         $form->handleRequest($request);
 

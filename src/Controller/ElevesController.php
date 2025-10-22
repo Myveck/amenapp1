@@ -3,13 +3,11 @@
 namespace App\Controller;
 
 use App\Entity\Eleves;
-use App\Entity\ElevesBackup;
 use App\Entity\Parents;
 use App\Entity\ParentsEleves;
 use App\Form\Eleves1Type;
 use App\Repository\AnneeScolaireRepository;
 use App\Repository\ClassesRepository;
-use App\Repository\EcolesRepository;
 use App\Repository\ElevesBackupRepository;
 use App\Repository\ElevesRepository;
 use App\Repository\InscriptionRepository;
@@ -184,7 +182,7 @@ final class ElevesController extends AbstractController
         $mere = new Parents();
         $parentsM = new ParentsEleves();
         $parentsP = new ParentsEleves();
-        $trie = $elefe->getClasse()->getId();
+        $trie = $elefe->getClasseActuelle()->getId();
 
         $form = $this->createForm(Eleves1Type::class, $elefe);
         $form->handleRequest($request);
@@ -224,7 +222,7 @@ final class ElevesController extends AbstractController
             'form' => $form,
             'edit' => 'edit',
             'classes' => $classesRepository->findAll(),
-            'active' => $elefe->getClasse()->getId(),
+            'active' => $elefe->getClasseActuelle()->getId(),
             'annee_actuelle' => $anneeScolaire,
         ]);
     }
@@ -256,6 +254,6 @@ final class ElevesController extends AbstractController
         }
 
         $this->addFlash("success", "L'élève a été supprimé avec succès");
-        return $this->redirectToRoute('app_eleves_index', ["trie" => $elefe->getClasse()->getId()], Response::HTTP_SEE_OTHER);
+        return $this->redirectToRoute('app_eleves_index', ["trie" => $elefe->getClasseActuelle()->getId()], Response::HTTP_SEE_OTHER);
     }
 }

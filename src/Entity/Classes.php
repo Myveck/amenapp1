@@ -33,12 +33,6 @@ class Classes
     #[ORM\OneToMany(targetEntity: ClassesMatieres::class, mappedBy: 'classe', orphanRemoval: true)]
     private Collection $classesMatieres;
 
-    /**
-     * @var Collection<int, Eleves>
-     */
-    #[ORM\OneToMany(targetEntity: Eleves::class, mappedBy: 'classe')]
-    private Collection $eleves;
-
     #[ORM\ManyToOne(inversedBy: 'classes')]
     #[ORM\JoinColumn(nullable: false)]
     private ?AnneeScolaire $annee_scolaire = null;
@@ -58,7 +52,6 @@ class Classes
     public function __construct()
     {
         $this->classesMatieres = new ArrayCollection();
-        $this->eleves = new ArrayCollection();
         $this->examinations = new ArrayCollection();
         $this->inscriptions = new ArrayCollection();
     }
@@ -140,36 +133,6 @@ class Classes
             // set the owning side to null (unless already changed)
             if ($classesMatiere->getClasse() === $this) {
                 $classesMatiere->setClasse(null);
-            }
-        }
-
-        return $this;
-    }
-
-    /**
-     * @return Collection<int, Eleves>
-     */
-    public function getEleves(): Collection
-    {
-        return $this->eleves;
-    }
-
-    public function addElefe(Eleves $elefe): static
-    {
-        if (!$this->eleves->contains($elefe)) {
-            $this->eleves->add($elefe);
-            $elefe->setClasse($this);
-        }
-
-        return $this;
-    }
-
-    public function removeElefe(Eleves $elefe): static
-    {
-        if ($this->eleves->removeElement($elefe)) {
-            // set the owning side to null (unless already changed)
-            if ($elefe->getClasse() === $this) {
-                $elefe->setClasse(null);
             }
         }
 

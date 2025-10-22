@@ -40,9 +40,6 @@ class Eleves
     #[ORM\Column]
     private ?\DateTimeImmutable $created_at = null;
 
-    #[ORM\ManyToOne(inversedBy: 'eleves')]
-    #[ORM\JoinColumn(nullable: false)]
-    private ?Classes $classe = null;
 
     #[ORM\Column(length: 3)]
     private ?string $sexe = null;
@@ -184,18 +181,6 @@ class Eleves
     public function setCreatedAt(\DateTimeImmutable $created_at): static
     {
         $this->created_at = $created_at;
-
-        return $this;
-    }
-
-    public function getClasse(): ?Classes
-    {
-        return $this->classe;
-    }
-
-    public function setClasse(?Classes $classe): static
-    {
-        $this->classe = $classe;
 
         return $this;
     }

@@ -57,7 +57,7 @@ class AnneeScolaire
     /**
      * @var Collection<int, Ecoles>
      */
-    #[ORM\OneToMany(targetEntity: Ecoles::class, mappedBy: 'anneeScolaire')]
+    #[ORM\OneToMany(targetEntity: Ecoles::class, mappedBy: 'anneeScolaire', orphanRemoval: true)]
     private Collection $ecoles;
 
     /**
