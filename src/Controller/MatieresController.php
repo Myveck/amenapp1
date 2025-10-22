@@ -47,11 +47,12 @@ final class MatieresController extends AbstractController
         Request $request,
         EntityManagerInterface $entityManager,
         ClassesRepository $classesRepository,
-        EcolesRepository $ecolesRepository
+        EcolesRepository $ecolesRepository,
+        AnneeScolaireRepository $anneeSR
     ): Response {
         $matiere = new Matieres();
         $classeMatiere = new ClassesMatieres();
-        $anneeScolaire = $ecolesRepository->findOneBy(['id' => 1])->getAnneeScolaire();
+        $anneeScolaire = $anneeSR->findOneBy(['actif' => 1]);
 
         $form = $this->createForm(MatieresType::class, $matiere);
         $form->handleRequest($request);
@@ -59,7 +60,6 @@ final class MatieresController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $entityManager->persist($matiere);
 
-            $anneeScolaire = $ecolesRepository->findOneBy(['id' => 1])->getAnneeScolaire();
 
             // Working on classeMatiere
             $classeMatiere->setMatiere($matiere);

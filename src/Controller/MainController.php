@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Repository\AnneeScolaireRepository;
 use App\Repository\ClassesBackupRepository;
+use App\Repository\ClassesMatieresRepository;
 use App\Repository\ClassesRepository;
 use App\Repository\EcolesRepository;
 use App\Repository\ElevesBackupRepository;
@@ -19,9 +20,9 @@ use Symfony\Component\Routing\Attribute\Route;
 class MainController extends AbstractController
 {
     #[Route('/', name: 'app_main')]
-    public function index(EcolesRepository $ecolesRepository): Response
+    public function index(ClassesMatieresRepository $classeMR, AnneeScolaireRepository $anneeSR): Response
     {
-        $schoolYear = $ecolesRepository->findOneBy(['id' => 1])->getAnneeScolaire()->getAnnee();
+        $schoolYear = $anneeSR->findOneBy(['actif' => 1])->getAnnee();
 
         return $this->render('main/index.html.twig', [
             'controller_name' => 'MainController',
@@ -33,13 +34,15 @@ class MainController extends AbstractController
     public function ecole(
         ElevesRepository $elevesRepository,
         ClassesRepository $classesRepository,
-        MatieresRepository $matieresRepository,
+        ClassesMatieresRepository $cmRepository,
         EnseignantsRepository $enseignantsRepository,
+        AnneeScolaireRepository $anneeSR
     ): Response {
-        $anneeScolaire = '2024-2025';
-        $eleves = $elevesRepository->findAll();
-        $classes = $classesRepository->findBy([], ["classeOrder" => 'asc']);
-        $matieres = $matieresRepository->findAll();
+        $annee = $anneeSR->findOneBy(['actif' => 1]);
+        $anneeScolaire = $anneeSR->findOneBy(['actif' => 1])->getAnnee();
+        $eleves = $annee->getEleves();
+        $classes = $classesRepository->findByAnneeActuelleOrdered();
+        $matieres = $cmRepository->findMatieresByAnneeActuelle();
         $ensignants = $enseignantsRepository->findAll();
 
         $m = count($elevesRepository->findBy(["sexe" => "m"]));

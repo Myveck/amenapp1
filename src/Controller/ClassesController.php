@@ -13,6 +13,7 @@ use App\Repository\EcolesRepository;
 use App\Repository\ElevesRepository;
 use App\Repository\TarifBackupRepository;
 use App\Repository\TarifRepository;
+use App\Repository\AnneeScolaireRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -23,9 +24,10 @@ use Symfony\Component\Routing\Attribute\Route;
 final class ClassesController extends AbstractController
 {
     #[Route(name: 'app_classes_index', methods: ['GET'])]
-    public function index(Request $request, ClassesRepository $classesRepository, TarifRepository $tarifRepository, EcolesRepository $ecolesRepository): Response
+    public function index(Request $request, ClassesRepository $classesRepository, TarifRepository $tarifRepository, EcolesRepository $ecolesRepository, AnneeScolaireRepository $anneeSRepositroy): Response
     {
-        $anneeScolaire = $ecolesRepository->findOneBy(['id' => 1])->getAnneeScolaire();
+        $anneeScolaire = $anneeSRepositroy->findOneBy(['actif' => 1]);
+
         $trie = $request->get('trie');
         if (!$trie or $trie == "all") {
             $trie = "all";
@@ -58,10 +60,10 @@ final class ClassesController extends AbstractController
     }
 
     #[Route('/bulletins', name: 'app_classes_bulletins')]
-    public function bulletin(ClassesRepository $classesRepository, ElevesRepository $elevesRepository, EcolesRepository $ecolesRepository): Response
+    public function bulletin(ElevesRepository $elevesRepository, AnneeScolaireRepository $anneeSR): Response
     {
-        $anneeScolaire = $ecolesRepository->findOneBy(['id' => 1])->getAnneeScolaire();
-        $classes = $classesRepository->findBy(['annee_scolaire' => $anneeScolaire]);
+        $anneeScolaire = $anneeSR->findOneBy(['actif' => 1]);
+        $classes = $anneeScolaire->getClasses();
 
         $classeEleves = [];
 
@@ -77,9 +79,9 @@ final class ClassesController extends AbstractController
     }
 
     #[Route('/new', name: 'app_classes_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, EntityManagerInterface $entityManager, EcolesRepository $ecolesRepository, TarifBackupRepository $tarifBackupRepository, ClassesBackupRepository $classesBackupRepository): Response
+    public function new(Request $request, EntityManagerInterface $entityManager, AnneeScolaireRepository $anneeSR): Response
     {
-        $anneeScolaire = $ecolesRepository->findOneBy(["id" => 1])->getAnneeScolaire();
+        $anneeScolaire = $anneeSR->findOneBy(['actif' => 1]);
         $classe = new Classes();
         $tarif = new Tarif($anneeScolaire);
 
@@ -96,39 +98,6 @@ final class ClassesController extends AbstractController
             $tarif->setPrixReinscription($request->get("prix_reinscription"));
             $tarif->setClasse($classe);
             $entityManager->persist($tarif);
-
-            // Working on backup
-            // Class backup
-            $classB = $classesBackupRepository->findOneBy([
-                'nom' => $classe->getNom(),
-                'anneeScolaire' => $anneeScolaire,
-            ]);
-            if (!$classB) {
-                $classB = new ClassesBackup();
-                $classB->setNom($classe->getNom());
-                $classB->setAnneeScolaire($classe->getAnneeScolaire());
-                $entityManager->persist($classB);
-            } else {
-                $classB->setNom($classe->getNom());
-                $classB->setAnneeScolaire($classe->getAnneeScolaire());
-                $entityManager->persist($classB);
-            }
-
-            // Tarif backup
-            $verif = $tarifBackupRepository->findOneBy([
-                'classe' => $classe->getNom(),
-                'AnneeScolaire' => $anneeScolaire
-            ]);
-
-            if (!$verif) {
-                $tarifB = new TarifBackup();
-                $tarifB->setPrixAnnuel($request->get("prix_annuel"));
-                $tarifB->setPrixInscription($request->get("prix_inscription"));
-                $tarifB->setPrixReinscription($request->get("prix_reinscription"));
-                $tarifB->setClasse($classe->getNom());
-                $tarifB->setAnneeScolaire($anneeScolaire);
-                $entityManager->persist($tarifB);
-            }
 
             $entityManager->flush();
 
@@ -178,7 +147,7 @@ final class ClassesController extends AbstractController
     }
 
     #[Route('/{id}/edit', name: 'app_classes_edit', methods: ['GET', 'POST'])]
-    public function edit(Request $request, Classes $class, EntityManagerInterface $entityManager, TarifRepository $tarifRepository, ClassesBackupRepository $classesBackupRepository): Response
+    public function edit(Request $request, Classes $class, EntityManagerInterface $entityManager, TarifRepository $tarifRepository): Response
     {
         $form = $this->createForm(ClassesType::class, $class);
         $tarif = $tarifRepository->findOneBy(['classe' => $class]);
@@ -194,27 +163,7 @@ final class ClassesController extends AbstractController
             $tarif->setAnneeScolaire($class->getAnneeScolaire());
             $entityManager->persist($tarif);
 
-            // Working on Backup
-
-            // Class backup, Création de la classe modifiée
-            $classB = $classesBackupRepository->findOneBy([
-                'nom' => $class->getNom(),
-                'anneeScolaire' => $class->getAnneeScolaire(),
-            ]);
-            if (!$classB) {
-                $classB = new ClassesBackup();
-                $classB->setNom($class->getNom());
-                $classB->setAnneeScolaire($class->getAnneeScolaire());
-                $entityManager->persist($classB);
-            }
-            // Création du nouveau tarifBackup, à chaque modif on ajoute le tarif comme nouveau dans les backups
-            $tarifB = new TarifBackup();
-            $tarifB->setPrixAnnuel($request->get("prix_annuel"));
-            $tarifB->setPrixInscription($request->get("prix_inscription"));
-            $tarifB->setPrixReinscription($request->get("prix_reinscription"));
-            $tarifB->setClasse($class->getNom());
-            $tarifB->setAnneeScolaire($class->getAnneeScolaire());
-            $entityManager->persist($tarifB);
+            
             $entityManager->flush();
 
             $this->addFlash("success", "La classe a été modifiée avec succès");

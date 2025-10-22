@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Examinations;
 use App\Form\ExaminationsType;
+use App\Repository\AnneeScolaireRepository;
 use App\Repository\ClassesMatieresRepository;
 use App\Repository\ClassesRepository;
 use App\Repository\ElevesRepository;
@@ -22,16 +23,16 @@ use Symfony\Component\Routing\Attribute\Route;
 final class ExaminationsController extends AbstractController
 {
     #[Route(name: 'app_examinations_index', methods: ['GET'])]
-    public function index(Request $request, ExaminationsRepository $examinationsRepository, ClassesRepository $classesRepository, MatieresRepository $matieresRepository, EvaluationsRepository $evaluationsRepository, ClassesMatieresRepository $classesMatieresRepository): Response
+    public function index(Request $request, ExaminationsRepository $examinationsRepository, ClassesRepository $classesRepository, MatieresRepository $matieresRepository, EvaluationsRepository $evaluationsRepository, ClassesMatieresRepository $classesMatieresRepository, AnneeScolaireRepository $anneeSR): Response
     {
         $maxLimit = null;
         $matieres = "";
         $trimestre = "";
         $examinations = $examinationsRepository->findAll();
-
-        $classes = $classesRepository->findAll();
-        $allClasses = $classesRepository->findAll();
-        $evaluations = $evaluationsRepository->findAll();
+        $anneScolaire =  $anneeSR->findOneBy(["actif" => 1]);
+        $classes = $anneScolaire->getClasses();
+        $allClasses = $anneScolaire->getClasses();
+        $evaluations = $anneScolaire->getEvaluations();
 
         $classeId =  $request->get('classe');
         $matiereId =  $request->get('matiere');
@@ -126,7 +127,7 @@ final class ExaminationsController extends AbstractController
     }
 
     #[Route('/nouveau', name: 'app_examinations_nouveau', methods: ['GET', 'POST'])]
-    public function examinationNew(Request $request, EvaluationsRepository $evaluationsRepository, ClassesRepository $classesRepository, ClassesMatieresRepository $classesMatieresRepository)
+    public function examinationNew(Request $request, ClassesRepository $classesRepository, ClassesMatieresRepository $classesMatieresRepository, AnneeScolaireRepository $anneeSR)
     {
         $classe = $classesRepository->findOneBy(["id" => $request->get("oneClasse")]);
         $cMatieres = $classesMatieresRepository->findMatiereByClasse($classe);
@@ -136,7 +137,7 @@ final class ExaminationsController extends AbstractController
             $matieres[$cMatiere->getMatiere()->getId()] = $cMatiere->getMatiere();
         }
 
-        $evaluations = $evaluationsRepository->findAll();
+        $evaluations = $anneeSR->findOneBy(["actif" => 1])->getEvaluations();
         return $this->render('examinations/nouveau.html.twig', [
             'classe' => $classe,
             'evaluations' => $evaluations,
@@ -150,7 +151,6 @@ final class ExaminationsController extends AbstractController
         $date_examen = new DateTime($request->get("date_examen"));
         $examination = new Examinations();
         $classe = $classesRepository->findOneBy(["id" => $request->get('classe')]);
-        $matiere = $matieresRepository->findOneBy(["id" => $request->get('matiere')]);
         $evaluation = $evaluationsRepository->findOneBy(["id" => $request->get("evaluation")]);
         $matieres = $request->get("matieres");
 

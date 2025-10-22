@@ -2,6 +2,7 @@
 
 namespace App\Repository;
 
+use App\Entity\Classes;
 use App\Entity\Eleves;
 use App\Entity\Matieres;
 use App\Entity\Notes;
@@ -66,5 +67,30 @@ class NotesRepository extends ServiceEntityRepository
             ->setMaxResults(1)
             ->getQuery()
             ->getOneOrNullResult();
+    }
+    
+    public function findByAnneeActuel()
+    {
+        return $this->createQueryBuilder('n')
+            ->join('n.evaluation', 'e')
+            ->join('e.annee_scolaire', 'a')
+            ->where('a.actif = true')
+            ->getQuery()
+            ->getResult();
+    }
+
+    public function findByEleveAnneActuel($eleve, $evaluation)
+    {
+
+        return $this->createQueryBuilder('n')
+            ->join('n.evaluation', 'e')
+            ->join('e.annee_scolaire', 'a')
+            ->where('n.eleve = :eleve')
+            ->andWhere('n.evaluation = :evaluation')
+            ->andWhere('a.actif = true')
+            ->setParameter('eleve', $eleve)
+            ->setParameter('evaluation', $evaluation)
+            ->getQuery()
+            ->getResult();
     }
 }

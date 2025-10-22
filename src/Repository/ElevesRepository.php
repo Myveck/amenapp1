@@ -2,6 +2,7 @@
 
 namespace App\Repository;
 
+use App\Entity\Classes;
 use App\Entity\Eleves;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
@@ -40,4 +41,16 @@ class ElevesRepository extends ServiceEntityRepository
     //            ->getOneOrNullResult()
     //        ;
     //    }
+
+    public function findByAnneeActuelleOrdered(): array
+    {
+        return $this->createQueryBuilder('e')
+            ->join('e.annee_scolaire', 'a')
+            ->where('a.actif = true')
+            ->orderBy('e.nom', 'ASC') // ou DESC selon ton besoin
+            ->getQuery()
+            ->getResult();
+    }
+
+
 }

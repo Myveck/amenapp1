@@ -72,6 +72,21 @@ class AnneeScolaire
     #[ORM\OneToMany(targetEntity: TarifBackup::class, mappedBy: 'AnneeScolaire')]
     private Collection $tarifBackups;
 
+    /**
+     * @var Collection<int, Eleves>
+     */
+    #[ORM\OneToMany(targetEntity: Eleves::class, mappedBy: 'annee_scolaire')]
+    private Collection $eleves;
+
+    /**
+     * @var Collection<int, Inscription>
+     */
+    #[ORM\OneToMany(targetEntity: Inscription::class, mappedBy: 'AnneeScolaire')]
+    private Collection $inscriptions;
+
+    #[ORM\Column(nullable: true)]
+    private ?bool $actif = null;
+
     public function __construct()
     {
         $this->classes = new ArrayCollection();
@@ -83,6 +98,8 @@ class AnneeScolaire
         $this->ecoles = new ArrayCollection();
         $this->classesBackups = new ArrayCollection();
         $this->tarifBackups = new ArrayCollection();
+        $this->eleves = new ArrayCollection();
+        $this->inscriptions = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -372,6 +389,78 @@ class AnneeScolaire
                 $classe->setAnneeScolaire(null);
             }
         }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Eleves>
+     */
+    public function getEleves(): Collection
+    {
+        return $this->eleves;
+    }
+
+    public function addElefe(Eleves $elefe): static
+    {
+        if (!$this->eleves->contains($elefe)) {
+            $this->eleves->add($elefe);
+            $elefe->setAnneeScolaire($this);
+        }
+
+        return $this;
+    }
+
+    public function removeElefe(Eleves $elefe): static
+    {
+        if ($this->eleves->removeElement($elefe)) {
+            // set the owning side to null (unless already changed)
+            if ($elefe->getAnneeScolaire() === $this) {
+                $elefe->setAnneeScolaire(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Inscription>
+     */
+    public function getInscriptions(): Collection
+    {
+        return $this->inscriptions;
+    }
+
+    public function addInscription(Inscription $inscription): static
+    {
+        if (!$this->inscriptions->contains($inscription)) {
+            $this->inscriptions->add($inscription);
+            $inscription->setAnneeScolaire($this);
+        }
+
+        return $this;
+    }
+
+    public function removeInscription(Inscription $inscription): static
+    {
+        if ($this->inscriptions->removeElement($inscription)) {
+            // set the owning side to null (unless already changed)
+            if ($inscription->getAnneeScolaire() === $this) {
+                $inscription->setAnneeScolaire(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function isActif(): ?bool
+    {
+        return $this->actif;
+    }
+
+    public function setActif(?bool $actif): static
+    {
+        $this->actif = $actif;
 
         return $this;
     }

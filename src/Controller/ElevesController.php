@@ -7,10 +7,12 @@ use App\Entity\ElevesBackup;
 use App\Entity\Parents;
 use App\Entity\ParentsEleves;
 use App\Form\Eleves1Type;
+use App\Repository\AnneeScolaireRepository;
 use App\Repository\ClassesRepository;
 use App\Repository\EcolesRepository;
 use App\Repository\ElevesBackupRepository;
 use App\Repository\ElevesRepository;
+use App\Repository\InscriptionRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -21,19 +23,19 @@ use Symfony\Component\Routing\Attribute\Route;
 final class ElevesController extends AbstractController
 {
     #[Route(name: 'app_eleves_index', methods: ['GET'])]
-    public function index(Request $request, ElevesRepository $elevesRepository, ClassesRepository $classesRepository): Response
+    public function index(Request $request, ElevesRepository $elevesRepository, ClassesRepository $classesRepository, AnneeScolaireRepository $anneeSR): Response
     {
         $trie = $request->get('trie');
-        $annee_actuelle = '2024-2025';
+        $annee_actuelle = $anneeSR->findOneBy(["actif" => 1]);
         if ($trie == "all" or !$trie) {
-            $eleves = $elevesRepository->findBy([], ['nom' => 'asc']);
+            $eleves = $annee_actuelle->getEleves();
             $trie = "all";
         } else {
             $eleves = $elevesRepository->findBy(['classe' => $trie], ['nom' => 'asc']);
         }
         return $this->render('eleves/index.html.twig', [
             'eleves' => $eleves,
-            'classes' => $classesRepository->findBy([], ['classeOrder' => 'asc']),
+            'classes' => $classesRepository->findBy(["annee_scolaire" => $annee_actuelle], ['classeOrder' => 'asc']),
             'active' => $trie,
             'nombre' => count($eleves),
             'annee_actuelle' => $annee_actuelle
@@ -101,15 +103,15 @@ final class ElevesController extends AbstractController
         ]);
     }
 
-    #[Route('/{annee}/renew', name: 'app_eleves_renew', methods: ['GET', 'POST'])]
-    public function renew(Request $request, ElevesRepository $elevesRepository, ClassesRepository $classesRepository): Response
+    #[Route('/renew', name: 'app_eleves_renew', methods: ['GET', 'POST'])]
+    public function renew(Request $request, ElevesRepository $elevesRepository, ClassesRepository $classesRepository, AnneeScolaireRepository $anneeSR, InscriptionRepository $inscriptionRep): Response
     {
-        $anneeScolaire = $request->get('annee');
+        $anneeScolaire = $anneeSR->findOneBy(["actif" => 1]);
         $trie = $request->get('trie');
         if (!$trie or $trie == "all") {
-            $eleves = $elevesRepository->findBy([], ['nom' => 'asc'], 30);
+            $eleves = $inscriptionRep->findElevesByAnneeActuelle();
         } else {
-            $eleves = $elevesRepository->findBy(['classe' => $trie], ['nom' => 'asc']);
+            $eleves = $inscriptionRep->findElevesActuelsByClasse($trie);
         }
         return $this->render('eleves/renew.html.twig', [
             'eleves' => $eleves,
@@ -120,10 +122,9 @@ final class ElevesController extends AbstractController
     }
 
     #[Route('/new', name: 'app_eleves_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, EntityManagerInterface $entityManager, ElevesBackupRepository $elevesBackupRepository, EcolesRepository $ecolesRepository): Response
+    public function new(Request $request, EntityManagerInterface $entityManager, AnneeScolaireRepository $anneeSR): Response
     {
-        $ecole = $ecolesRepository->findOneBy(['id' => 1]);
-        $anneeScolaire = $ecole->getAnneeScolaire()->getAnnee();
+        $anneeScolaire = $anneeSR->findOneBy(["actif" => 1]);
         $elefe = new Eleves();
         $pere = new Parents();
         $mere = new Parents();
@@ -155,21 +156,6 @@ final class ElevesController extends AbstractController
             $parentsP->setParent($mere);
             $entityManager->persist($parentsM);
 
-            // Gestion du backup
-            $eleveBackup = new ElevesBackup();
-            $verif = $elevesBackupRepository->findOneBy([
-                "name" => $elefe->getNom() . ' ' . $elefe->getPrenom(),
-                "classe" => $elefe->getClasse()->getNom()
-            ]);
-
-            if (!$verif) {
-                $eleveBackup->setName($elefe->getNom() . ' ' . $elefe->getPrenom());
-                $eleveBackup->setClasse($elefe->getClasse()->getNom());
-                $eleveBackup->setAnneeScolaire($anneeScolaire);
-                $entityManager->persist($eleveBackup);
-            }
-
-
             $entityManager->flush();
 
             $this->addFlash("success", "Nouvel élève ajouté avec succès");
@@ -191,9 +177,9 @@ final class ElevesController extends AbstractController
     }
 
     #[Route('/{id}/edit', name: 'app_eleves_edit', methods: ['GET', 'POST'])]
-    public function edit(Request $request, Eleves $elefe, EntityManagerInterface $entityManager, ClassesRepository $classesRepository, ElevesBackupRepository $elevesBackupRepository, EcolesRepository $ecolesRepository): Response
+    public function edit(Request $request, Eleves $elefe, EntityManagerInterface $entityManager, ClassesRepository $classesRepository, ElevesBackupRepository $elevesBackupRepository, AnneeScolaireRepository $anneeSR): Response
     {
-        $anneeScolaire = $ecolesRepository->findOneBy(['id' => 1])->getAnneeScolaire()->getAnnee();
+        $anneeScolaire = $anneeSR->findOneBy(["actif" => 1]);
         $pere = new Parents();
         $mere = new Parents();
         $parentsM = new ParentsEleves();
@@ -226,25 +212,6 @@ final class ElevesController extends AbstractController
             $parentsP->setEleve($elefe);
             $parentsP->setParent($mere);
             $entityManager->persist($mere);
-
-            // Gestion du backup
-            $eleveBackup = $elevesBackupRepository->findOneBy([
-                "name" => $elefe->getNom() . ' ' . $elefe->getPrenom(),
-                "classe" => $elefe->getClasse()->getNom()
-            ]);
-            if ($eleveBackup) {
-                $eleveBackup->setName($elefe->getNom() . ' ' . $elefe->getPrenom());
-                $eleveBackup->setClasse($elefe->getClasse()->getNom());
-                $eleveBackup->setAnneeScolaire($anneeScolaire);
-                $entityManager->persist($eleveBackup);
-            } else {
-                // Si l'élève n'a pas été backed up, on le backup
-                $eleveBackup = new ElevesBackup();
-                $eleveBackup->setName($elefe->getNom() . ' ' . $elefe->getPrenom());
-                $eleveBackup->setClasse($elefe->getClasse()->getNom());
-                $eleveBackup->setAnneeScolaire($anneeScolaire);
-                $entityManager->persist($eleveBackup);
-            }
 
             $entityManager->flush();
 

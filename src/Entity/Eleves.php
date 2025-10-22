@@ -57,12 +57,22 @@ class Eleves
     #[ORM\OneToMany(targetEntity: ParentsEleves::class, mappedBy: 'eleve')]
     private Collection $parentsEleves;
 
+    #[ORM\ManyToOne(inversedBy: 'eleves')]
+    private ?AnneeScolaire $annee_scolaire = null;
+
+    /**
+     * @var Collection<int, Inscription>
+     */
+    #[ORM\OneToMany(targetEntity: Inscription::class, mappedBy: 'eleve')]
+    private Collection $inscriptions;
+
     public function __construct()
     {
         $this->notes = new ArrayCollection();
         $this->paiements = new ArrayCollection();
         $this->created_at = new \DateTimeImmutable("now");
         $this->parentsEleves = new ArrayCollection();
+        $this->inscriptions = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -243,4 +253,67 @@ class Eleves
 
         return $this;
     }
+
+    public function getAnneeScolaire(): ?AnneeScolaire
+    {
+        return $this->annee_scolaire;
+    }
+
+    public function setAnneeScolaire(?AnneeScolaire $annee_scolaire): static
+    {
+        $this->annee_scolaire = $annee_scolaire;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Inscription>
+     */
+    public function getInscriptions(): Collection
+    {
+        return $this->inscriptions;
+    }
+
+    public function addInscription(Inscription $inscription): static
+    {
+        if (!$this->inscriptions->contains($inscription)) {
+            $this->inscriptions->add($inscription);
+            $inscription->setEleve($this);
+        }
+
+        return $this;
+    }
+
+    public function removeInscription(Inscription $inscription): static
+    {
+        if ($this->inscriptions->removeElement($inscription)) {
+            // set the owning side to null (unless already changed)
+            if ($inscription->getEleve() === $this) {
+                $inscription->setEleve(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function getClasseActuelle(): ?Classes
+    {
+        foreach ($this->inscriptions as $inscription) {
+            if ($inscription->isActif()) {
+                return $inscription->getClasse();
+            }
+        }
+        return null;
+    }
+
+    public function getAnneeScolaireActuelle(): ?AnneeScolaire
+    {
+        foreach ($this->inscriptions as $inscription) {
+            if ($inscription->isActif()) {
+                return $inscription->getAnneeScolaire();
+            }
+        }
+        return null;
+    }
+ 
 }

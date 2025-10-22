@@ -40,4 +40,13 @@ class ClassesRepository extends ServiceEntityRepository
     //            ->getOneOrNullResult()
     //        ;
     //    }
+    public function findByAnneeActuelleOrdered(): array
+    {
+        return $this->createQueryBuilder('c')
+            ->join('c.annee_scolaire', 'a')
+            ->where('a.actif = true')
+            ->orderBy('c.classeOrder', 'ASC') // ou DESC selon ton besoin
+            ->getQuery()
+            ->getResult();
+    }
 }

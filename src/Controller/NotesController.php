@@ -11,6 +11,7 @@ use App\Repository\EcolesRepository;
 use App\Repository\ElevesRepository;
 use App\Repository\EvaluationsRepository;
 use App\Repository\ExaminationsRepository;
+use App\Repository\InscriptionRepository;
 use App\Repository\NotesRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -36,8 +37,8 @@ final class NotesController extends AbstractController
         }
 
         return $this->render('notes/index.html.twig', [
-            'notes' => $notesRepository->findAll(),
-            'classes' => $classesRepository->findAll(),
+            'notes' => $notesRepository->findByAnneeActuel(),
+            'classes' => $classesRepository->findByAnneeActuelleOrdered(),
             'trie' => $trie,
         ]);
     }
@@ -60,8 +61,8 @@ final class NotesController extends AbstractController
             $trie = "all";
         }
         return $this->render('notes/choice.html.twig', [
-            'notes' => $note->findAll(),
-            'classes' => $classesRepository->findAll(),
+            'notes' => $note->findByAnneeActuel(),
+            'classes' => $classesRepository->findByAnneeActuelleOrdered(),
             'trie' => $trie,
         ]);
     }
@@ -75,10 +76,10 @@ final class NotesController extends AbstractController
             $eleve = $eleveRepository->findOneBy(["id" => $id]);
 
             // Je cherche une note corespondant à l'élève actuel
-            $note = $notesRepository->findOneBy([
-                "eleve" => $eleve,
-                'examinations' => $examination,
-            ]);
+            $note = $notesRepository->findByEleveAnneActuel(
+                $eleve,
+                $examination,
+            );
 
             if ($note) {
                 // Si c'est le cas on update la note actuelle
@@ -223,8 +224,7 @@ final class NotesController extends AbstractController
         ];
 
         // Récupérer les matières de la classe
-        $cMatieres = $classesMatieresRepository->findMatiereByClasse($classe);
-        $matieres = array_map(fn($cMatiere) => $cMatiere->getMatiere(), $cMatieres);
+        $matieres = $classesMatieresRepository->findMatiereByClasse($classe);
 
         // Initialiser les tableaux pour les résultats
         $results = [];
@@ -323,11 +323,12 @@ final class NotesController extends AbstractController
         EvaluationsRepository $evaluationsRepository,
         NotesRepository $notesRepository,
         EcolesRepository $ecolesRepository,
+        InscriptionRepository $inscriptionRepository
     ): Response {
         $classeId = $request->get('classe');
         $trimestre = $request->get('trimestre');
         $classe = $classesRepository->findOneBy(["id" => $classeId]);
-        $eleves = $elevesRepository->findBy(["classe" => $classe], ['nom' => 'asc']);
+        $eleves = $inscriptionRepository->findElevesActuelsByClasse($classe);
         $effectif = count($eleves);
         $ecole = $ecolesRepository->findOneBy(['id' => 1]);
         $matieres = [];
@@ -336,13 +337,15 @@ final class NotesController extends AbstractController
         $results2 = [];
         $sommeCoefficients = 0;
 
-        $cMatieres = $classesMatieresRepository->findMatiereByClasse($classe);
+        $cMatieres = $classesMatieresRepository->findByClasse($classe);
+
 
         foreach ($cMatieres as $cMatiere) {
             $matieres[$cMatiere->getMatiere()->getId()] = $cMatiere->getMatiere();
             $matiereCoef[$cMatiere->getMatiere()->getId()] = $cMatiere->getCoefficient();
             $sommeCoefficients += $cMatiere->getCoefficient();
         }
+        
 
         // Utiliser la méthode commune pour calculer les résultats
         $results = $this->calculateBulletins(
@@ -355,13 +358,13 @@ final class NotesController extends AbstractController
             $evaluationsRepository
         );
 
-        // Classification des élèves avec Id comme clé dans un tableau afin de mieux les utiliser dans le twig
+        // // Classification des élèves avec Id comme clé dans un tableau afin de mieux les utiliser dans le twig
         $students = [];
         foreach ($eleves as $un) {
             $students[$un->getId()] = $un;
         }
 
-        // Classification des moyennes par matière
+        // // Classification des moyennes par matière
         $rangParMatiere = [];
 
         if (isset($results[2])) {
@@ -573,6 +576,7 @@ final class NotesController extends AbstractController
 
             return $response;
         }
+        
     }
 
     #[Route('/{classe}/retrait/bulletins', name: 'app_notes_retrait_bulletins', methods: ['GET', 'POST'])]

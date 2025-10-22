@@ -3,6 +3,7 @@ endblock %} {% block body %}
 <div class="tout">
   <header class="head">
     <nav>
+      <a href="{{ path('app_ecoles_edit', {"id": 1, "ed": 2}) }}" id="next-year" class="btn btn-primary">Passer à l'année suivante</a>
       <ul>
         <li><a href="{{ path('app_ecoles_edit', {"id": 1, "ed": 2}) }}">{{annee_actuelle}}</a></li>
         <li>GTS</li>

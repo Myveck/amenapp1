@@ -60,9 +60,29 @@ class ClassesMatieresRepository extends ServiceEntityRepository
     public function findMatiereByClasse($classe)
     {
         return $this->createQueryBuilder('cm')
+            ->join(Matieres::class, 'ma')
             ->join('cm.matiere', 'm')
             ->join('cm.classe', 'c')
-            ->where('cm.classe = :classe')
+            ->join('cm.annee_scolaire', 'a')
+            ->where('a.actif = true')
+            ->andWhere('cm.classe = :classe')
+            ->andWhere('m = ma')
+            ->setParameter('classe', $classe)
+            ->select('DISTINCT ma')
+            ->orderBy('ma.nom', 'ASC')
+            ->getQuery()
+            ->getResult()
+        ;
+    }
+
+    public function findByClasse($classe)
+    {
+        return $this->createQueryBuilder('cm')
+            ->join('cm.matiere', 'm')
+            ->join('cm.classe', 'c')
+            ->join('cm.annee_scolaire', 'a')
+            ->where('a.actif = true')
+            ->andWhere('cm.classe = :classe')
             ->setParameter('classe', $classe)
             ->getQuery()
             ->getResult()
@@ -89,12 +109,27 @@ class ClassesMatieresRepository extends ServiceEntityRepository
         return $this->createQueryBuilder('cm')
             ->join('cm.classe', 'c')
             ->join('cm.matiere', 'm')
-            ->where('cm.matiere = :matiere')
+            ->join('cm.annee_scolaire', 'a')
+            ->where('a.actif = true')
+            ->andWhere('cm.matiere = :matiere')
             ->setParameter('matiere', $matiere)
             ->select("cm.coefficient")
             ->setMaxResults(1)
             ->getQuery()
             ->getResult()
         ;
+    }
+
+    public function findMatieresByAnneeActuelle(): array
+    {
+        return $this->createQueryBuilder('cm')
+            ->join('cm.classe', 'c')
+            ->join('c.annee_scolaire', 'a')
+            ->join('cm.matiere', 'm')
+            ->where('a.actif = true')
+            ->select('DISTINCT m') // pour ne pas avoir de doublons
+            ->orderBy('m.nom', 'ASC')
+            ->getQuery()
+            ->getResult();
     }
 }
