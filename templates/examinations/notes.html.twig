@@ -31,23 +31,72 @@
                     </p>
                 </div>
             </div>
-            <hr>
+                 <hr>
+
+            <div class="mb-3 row">
+                <div class="col-sm-2">
+                    <p> Nom</p>
+                </div>
+                <div class="col-sm-2">
+                    <p> D1 </p>
+                </div>
+                <div class="col-sm-2">
+                    <p> D2 </p>
+                </div>
+                <div class="col-sm-2">
+                    <p> Mi </p>
+                </div>
+                <div class="col-sm-2">
+                    <p> DH </p>
+                </div>
+                
+            </div>
+
+       
 
             <form action="{{path('app_notes_create_exam', {'examination': examination.id})}}" method="get">
                 {% for eleve in eleves %}                              
                     <div class="mb-3 row">
-                        <label for="{{eleve.id}}" class="col-sm-4 col-form-label">{{eleve.nom}} {{eleve.prenom}} </label>
-                        <div class="col-sm-3"></div>
-                        <div class="col-sm-3">
-                        <input type="number" class="form-control" id="{{eleve.id}}" placeholder="note" step="any" name="notes[{{eleve.id}}]" 
-                        {% if notes is not null %}
-                            {% for note in notes %}
-                                {% if note.eleveId.id == eleve.id %}
-                                    value="{{note.note}}"
-                                {% endif %}
-                            {% endfor %}> 
-                        {% endif %}
-                        
+                        <label for="{{eleve.id}}" class="col-sm-2 col-form-label">{{eleve.nom}} {{eleve.prenom}} </label>
+                        <div class="col-sm-2">
+                            <input type="number" class="form-control" id="{{eleve.id}}" placeholder="note" step="any" name="notes[{{eleve.id}}]" 
+                            {% if notesD1 is not null %}
+                                {% for noteD1 in notesD1 %}
+                                    {% if noteD1.eleveId.id == eleve.id %}
+                                        value="{{noteD1.note}}"
+                                    {% endif %}
+                                {% endfor %}> 
+                            {% endif %}
+                        </div>
+                        <div class="col-sm-2">
+                            <input type="number" class="form-control" id="{{eleve.id}}" placeholder="note" step="any" name="notes[{{eleve.id}}]" 
+                            {% if notesD2 is not null %}
+                                {% for noteD2 in notesD2 %}
+                                    {% if noteD2.eleveId.id == eleve.id %}
+                                        value="{{noteD2.note}}"
+                                    {% endif %}
+                                {% endfor %}> 
+                            {% endif %}
+                        </div>
+                        <div class="col-sm-2">
+                            <input type="number" class="form-control" id="{{eleve.id}}" placeholder="note" step="any" name="notes[{{eleve.id}}]" 
+                            {% if notesMi is not null %}
+                                {% for noteMi in notesMi %}
+                                    {% if noteMi.eleveId.id == eleve.id %}
+                                        value="{{noteMi.note}}"
+                                    {% endif %}
+                                {% endfor %}> 
+                            {% endif %}
+                        </div>
+                        <div class="col-sm-2">
+                            <input type="number" class="form-control" id="{{eleve.id}}" placeholder="note" step="any" name="notes[{{eleve.id}}]" 
+                            {% if notesDh is not null %}
+                                {% for noteDh in notesDh %}
+                                    {% if noteDh.eleveId.id == eleve.id %}
+                                        value="{{noteDh.note}}"
+                                    {% endif %}
+                                {% endfor %}> 
+                            {% endif %}
                         </div>
                         <div class="col-sm-2 mt-2"><p>/20</p></div>
                     </div>

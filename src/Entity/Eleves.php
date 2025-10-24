@@ -37,12 +37,6 @@ class Eleves
     #[ORM\OneToMany(targetEntity: Paiements::class, mappedBy: 'eleve')]
     private Collection $paiements;
 
-    /**
-     * @var Collection<int, Notes>
-     */
-    #[ORM\OneToMany(targetEntity: Classes::class, mappedBy: 'eleve', orphanRemoval: true)]
-    private Collection $classe;
-
     #[ORM\Column]
     private ?\DateTimeImmutable $created_at = null;
 
@@ -130,24 +124,6 @@ class Eleves
         return $this;
     }
 
-    
-    /**
-     * @return Collection<int, Classes>
-     */
-    public function getClasse(): Collection
-    {
-        return $this->classe;
-    }
-
-    public function addClasse(Classes $classe): static
-    {
-        if (!$this->classe->contains($classe)) {
-            $this->classe->add($classe);
-            $classe->setEleve($this);
-        }
-
-        return $this;
-    }
 
     public function removeNote(Notes $note): static
     {

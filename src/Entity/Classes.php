@@ -34,9 +34,6 @@ class Classes
     #[ORM\JoinColumn(nullable: false)]
     private ?AnneeScolaire $annee_scolaire = null;
     
-    #[ORM\ManyToOne(inversedBy: 'classes')]
-    #[ORM\JoinColumn(nullable: false)]
-    private ?Eleves $eleve = null;
 
     /**
      * @var Collection<int, Examinations>
@@ -153,18 +150,6 @@ class Classes
         return $this;
     }
 
-
-    public function getEleve(): ?Eleves
-    {
-        return $this->eleve;
-    }
-
-    public function setEleve(?Eleves $eleve): static
-    {
-        $this->eleve = $eleve;
-
-        return $this;
-    }
 
     /**
      * @return Collection<int, Examinations>

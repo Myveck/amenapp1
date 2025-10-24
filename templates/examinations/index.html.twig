@@ -86,10 +86,9 @@
                             <th>Date d'examen</th>
                             <th>Matière</th>
                             <th>Classe</th>
-                            <th>Type d'examen</th>
                             <th>Trimestre</th>
                             <th>Note</th>
-                            <th>Options</th>
+                            <th>Action</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -98,9 +97,8 @@
                             <td>{{ examination.dateExamination ? examination.dateExamination|date('d-m-Y') : '' }}</td>
                             <td>{{examination.matiere.nom}}</td>
                             <td>{{ examination.classe.nom }}</td>
-                            <td>{{ examination.evaluation.nom }}</td>
                             <td>{{examination.trimestre}}</td>
-                            <td><a href="{{path('app_examinations_create_notes', {'examination': examination.id})}}" class="btn btn-tertiaire">Notes</a></td>
+                            <td><a href="{{path('app_examinations_create_notes', {'id': examination.classe.id})}}" class="btn btn-tertiaire">Notes</a></td>
                             <td>
                                 {{ include('examinations/_delete_form.html.twig') }}
                             </td>

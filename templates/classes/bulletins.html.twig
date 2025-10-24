@@ -18,13 +18,13 @@ block body %}
             <tr>
               <td class="label"><a href="#" data-classe="
                 {% if eleves | length > 0 %} 
-                    {{ eleves[0].classe.id }} 
+                    {{ classe }} 
                 {% endif %}
                 ">{{ classe }}</a></td>
               <td class="value">
                     <form action="
                             {% if eleves | length > 0 %} 
-                              {{path('app_notes_bulletins', {'classe' : eleves[0].classe.id, 'requete' : 'bulletins'})}} 
+                              {{path('app_notes_bulletins', {'classe' : eleves[0], 'requete' : 'bulletins'})}} 
                             {% endif %}" method="get">
                         <select name="trimestre" id="" class="form-control" onchange="this.form.submit()">
                             <option value="">Imprimer bulletins</option>
@@ -37,7 +37,7 @@ block body %}
               <td class="value">
                     <form action="
                             {% if eleves | length > 0 %} 
-                              {{path('app_notes_bulletins', {'classe' : eleves[0].classe.id, 'requete' : 'retrait'})}} 
+                              {{path('app_notes_bulletins', {'classe' : eleves[0], 'requete' : 'retrait'})}} 
                             {% endif %}" method="get">
                         <select name="trimestre" id="" class="form-control" onchange="this.form.submit()">
                             <option value="">Fiche de retrait</option>
@@ -50,7 +50,7 @@ block body %}
               <td class="value">
                     <form action="
                             {% if eleves | length > 0 %} 
-                              {{path('app_notes_bulletins', {'classe' : eleves[0].classe.id, 'requete' : 'verif'})}}  
+                              {{path('app_notes_bulletins', {'classe' : eleves[0], 'requete' : 'verif'})}}  
                             {% endif %}" method="get">
                         <select name="trimestre" id="" class="form-control" onchange="this.form.submit()">
                             <option value="">Fiche de vérification</option>
@@ -63,7 +63,7 @@ block body %}
               <td class="value">
                     <form action="
                             {% if eleves | length > 0 %} 
-                              {{path('app_notes_bulletins', {'classe' : eleves[0].classe.id, 'requete' : 'central'})}}  
+                              {{path('app_notes_bulletins', {'classe' : eleves[0], 'requete' : 'central'})}}  
                             {% endif %}" method="get">
                         <select name="trimestre" id="" class="form-control" onchange="this.form.submit()">
                             <option value="">Fiche Excel</option>

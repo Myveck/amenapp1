@@ -14,6 +14,7 @@ use App\Repository\ElevesRepository;
 use App\Repository\TarifBackupRepository;
 use App\Repository\TarifRepository;
 use App\Repository\AnneeScolaireRepository;
+use App\Repository\InscriptionRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -60,7 +61,7 @@ final class ClassesController extends AbstractController
     }
 
     #[Route('/bulletins', name: 'app_classes_bulletins')]
-    public function bulletin(ElevesRepository $elevesRepository, AnneeScolaireRepository $anneeSR): Response
+    public function bulletin(AnneeScolaireRepository $anneeSR, InscriptionRepository $inscriptionRepo): Response
     {
         $anneeScolaire = $anneeSR->findOneBy(['actif' => 1]);
         $classes = $anneeScolaire->getClasses();
@@ -68,10 +69,10 @@ final class ClassesController extends AbstractController
         $classeEleves = [];
 
         foreach ($classes as $classe) {
-            $classeEleves[$classe->getNom()] = $elevesRepository->findBy([
-                "classe" => $classe,
-            ]);
+            $classeEleves[$classe->getNom()] = [$classe->getId(), $inscriptionRepo->findElevesActuelsByClasse($classe)];
         }
+
+        // dd($classeEleves);
 
         return $this->render('classes/bulletins.html.twig', [
             'classeEleves' => $classeEleves,
@@ -112,7 +113,7 @@ final class ClassesController extends AbstractController
     }
     // Contrôleur Symfony
     #[Route('/eleves/{classeId}', name: 'app_classes_eleves')]
-    public function eleves(Request $request, ElevesRepository $elevesRepository, ClassesRepository $classesRepository)
+    public function eleves(Request $request, ElevesRepository $elevesRepository, ClassesRepository $classesRepository, InscriptionRepository $inscriptionRepo)
     {
         $classeId = $request->attributes->get('classeId');
         $classe = $classesRepository->find($classeId);
@@ -121,7 +122,7 @@ final class ClassesController extends AbstractController
             return $this->json(['eleves' => []]);
         }
 
-        $eleves = $elevesRepository->findBy(["classe" => $classe]);
+        $eleves = $inscriptionRepo->findElevesActuelsByClasse($classe);
 
         $eleveData = [];
         foreach ($eleves as $eleve) {

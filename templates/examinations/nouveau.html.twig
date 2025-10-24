@@ -15,6 +15,7 @@
       </div>
     <div class="center">
       <h1 class="my-4">Créer une examination pour la classe de <strong>{{classe.nom}}</strong></h1>
+      <p class="text-center">Vous créerez une examination pour tous les types(d1, d2, mi...)</p>
       <form action="{{ path('app_examinations_create') }}" method="get" id="matiere-classe-form">
         <div class="hidden mb-2">
           <label for="classe">Classe</label>
@@ -38,19 +39,6 @@
               </div>
             {% endfor %}
           
-        </div>
-
-        <div class="mb-2">
-          <label for="evaluation" class="mb-2"><strong>Type de l'examination</strong></label>
-          <select name="evaluation" id="evaluation" class="form-select for-control">
-            {% for evaluation in evaluations %}
-                <option value="{{evaluation.id}}">{{evaluation.nom}}</option>
-            {% endfor %}
-          </select>
-        </div>
-        <div class="mb-2">
-          <label for="date_exament" class="mb-2"><strong>Date de l'examination</strong></label>
-          <input type="date" name="date_examen" id="date_examen" class="form-control form-lable">
         </div>
         
         <div class="mb-2">

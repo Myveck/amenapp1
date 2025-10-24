@@ -131,12 +131,7 @@ final class ExaminationsController extends AbstractController
     public function examinationNew(Request $request, ClassesRepository $classesRepository, ClassesMatieresRepository $classesMatieresRepository, AnneeScolaireRepository $anneeSR)
     {
         $classe = $classesRepository->findOneBy(["id" => $request->get("oneClasse")]);
-        $cMatieres = $classesMatieresRepository->findMatiereByClasse($classe);
-        $matieres = [];
-
-        foreach ($cMatieres as $cMatiere) {
-            $matieres[$cMatiere->getMatiere()->getId()] = $cMatiere->getMatiere();
-        }
+        $matieres = $classesMatieresRepository->findMatiereByClasse($classe);
 
         $evaluations = $anneeSR->findOneBy(["actif" => 1])->getEvaluations();
         return $this->render('examinations/nouveau.html.twig', [
@@ -150,33 +145,35 @@ final class ExaminationsController extends AbstractController
     public function create(Request $request, ExaminationsRepository $examinationsRepository, ClassesRepository $classesRepository, EvaluationsRepository $evaluationsRepository, MatieresRepository $matieresRepository, EntityManagerInterface $entityManager)
     {
         $date_examen = new DateTime($request->get("date_examen"));
-        $examination = new Examinations();
         $classe = $classesRepository->findOneBy(["id" => $request->get('classe')]);
-        $evaluation = $evaluationsRepository->findOneBy(["id" => $request->get("evaluation")]);
+        $evaluations = $evaluationsRepository->findAll();
         $matieres = $request->get("matieres");
 
         foreach ($matieres as $oneMatiere) {
-            $examination = new Examinations();
-            $one = $matieresRepository->findOneBy(['id' => $oneMatiere]);
-            $verif = $examinationsRepository->findOneBy([
-                'classe' => $classe,
-                'evaluation' => $evaluation,
-                'matiere' => $one,
-                'trimestre' => intval($request->get('trimestre')),
-            ]);
-            if (!$verif) {
-                $examination->setClasse($classe);
-                $examination->setMatiere($one);
-                $examination->setEvaluation($evaluation);
-                $examination->setDateExamination($date_examen);
-                $examination->setTrimestre(intval($request->get('trimestre')));
-            } else {
-                $this->addFlash('warning', 'Cette examin existe déjà');
-                return $this->redirectToRoute('app_examinations_create_notes', [
-                    'examination' => $verif->getId(),
+            
+            foreach ($evaluations as $evaluation) {
+                $examination = new Examinations();
+                $one = $matieresRepository->findOneBy(['id' => $oneMatiere]);
+                $verif = $examinationsRepository->findOneBy([
+                    'classe' => $classe,
+                    'evaluation' => $evaluation,
+                    'matiere' => $one,
+                    'trimestre' => intval($request->get('trimestre')),
                 ]);
+                if (!$verif) {
+                    $examination->setClasse($classe);
+                    $examination->setMatiere($one);
+                    $examination->setEvaluation($evaluation);
+                    $examination->setDateExamination($date_examen);
+                    $examination->setTrimestre(intval($request->get('trimestre')));
+                } else {
+                    $this->addFlash('warning', 'Cette examin existe déjà');
+                    return $this->redirectToRoute('app_examinations_create_notes', [
+                        'examination' => $verif->getId(),
+                    ]);
+                }
+                $entityManager->persist($examination);
             }
-            $entityManager->persist($examination);
         }
 
         $entityManager->flush();
@@ -188,6 +185,8 @@ final class ExaminationsController extends AbstractController
         $this->addFlash('success', 'L\'examin a bien été créé');
         return $this->redirectToRoute('app_examinations_create_notes', [
             'examination' => $exam->getId(),
+            'matiere' => $matieres[0],
+            'trimestre' => intval($request->get('trimestre')),
         ]);
     }
 
@@ -210,18 +209,48 @@ final class ExaminationsController extends AbstractController
         return new JsonResponse($matiereArray);
     }
 
-    #[Route('/{examination}/create', name: 'app_examinations_create_notes', methods: ['POST', 'GET'])]
-    public function createNote(request $request, ExaminationsRepository $examinationsRepository, ElevesRepository $elevesRepository): Response
+    #[Route('/{id}/create', name: 'app_examinations_create_notes', methods: ['POST', 'GET'])]
+    public function createNote(request $request, ExaminationsRepository $examinationsRepository, ElevesRepository $elevesRepository, InscriptionRepository $inscriptionRepo, ClassesRepository $classeRepo): Response
     {
-        $examination = $examinationsRepository->findOneBy(["id" => intval($request->get("examination"))]);
-        $eleves = $elevesRepository->findBy(["classe" => $examination->getClasse()], ['nom' => 'asc']);
+        $classe = $classeRepo->findOneBy(["id" => intval($request->get("id"))]);
+        $examinations = $examinationsRepository->findBy(["classe" => $classe]);
+        $eleves = $inscriptionRepo->findElevesActuelsByClasse($classe);
 
-        $notes = $examination->getNote();
+        $notesD1 = [];
+        $notesD2 = [];
+        $notesMi = [];
+        $notesDh = [];
+        foreach ($examinations as $examination ) {
+            switch ($examination->getEvaluation()->getId()) {
+                case 1:
+                    $notesD1 = $examination->getNote();
+                    $notes = $examination->getNote();
+                    break;
+                case 2:
+                    $notesD2 = $examination->getNote();
+                    break;
+                case 3:
+                    $notesMi = $examination->getNote();
+                    break;
+                case 4:
+                    $notesDh = $examination->getNote();
+                    break;
+                
+                default:
+                    # code...
+                    break;
+            }
+        }
+
 
         return $this->render('examinations/notes.html.twig', [
             "eleves" => $eleves,
             "examination" => $examination,
             "notes" => $notes,
+            "notesD1" => $notesD1,
+            "notesD2" => $notesD2,
+            "notesMi" => $notesMi,
+            "notesDh" => $notesDh,
         ]);
     }
 
