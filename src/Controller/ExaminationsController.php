@@ -10,6 +10,7 @@ use App\Repository\ClassesRepository;
 use App\Repository\ElevesRepository;
 use App\Repository\EvaluationsRepository;
 use App\Repository\ExaminationsRepository;
+use App\Repository\InscriptionRepository;
 use App\Repository\MatieresRepository;
 use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
@@ -23,16 +24,16 @@ use Symfony\Component\Routing\Attribute\Route;
 final class ExaminationsController extends AbstractController
 {
     #[Route(name: 'app_examinations_index', methods: ['GET'])]
-    public function index(Request $request, ExaminationsRepository $examinationsRepository, ClassesRepository $classesRepository, MatieresRepository $matieresRepository, EvaluationsRepository $evaluationsRepository, ClassesMatieresRepository $classesMatieresRepository, AnneeScolaireRepository $anneeSR): Response
+    public function index(Request $request, ExaminationsRepository $examinationsRepository, ClassesRepository $classesRepository, MatieresRepository $matieresRepository, EvaluationsRepository $evaluationsRepository, ClassesMatieresRepository $classesMatieresRepository, AnneeScolaireRepository $anneeSR, InscriptionRepository $inscriptionRepo): Response
     {
         $maxLimit = null;
         $matieres = "";
         $trimestre = "";
         $examinations = $examinationsRepository->findAll();
-        $anneScolaire =  $anneeSR->findOneBy(["actif" => 1]);
-        $classes = $anneScolaire->getClasses();
-        $allClasses = $anneScolaire->getClasses();
-        $evaluations = $anneScolaire->getEvaluations();
+        $anneScolaire =  $anneeSR->findOneBy(["actif" => true]);
+        $classes = $classesRepository->findBy(["annee_scolaire" => $anneScolaire], ["classeOrder" => "ASC"]);
+        $allClasses = $classesRepository->findByAnneeActuelleOrdered();
+        $evaluations = $evaluationsRepository->findAll();
 
         $classeId =  $request->get('classe');
         $matiereId =  $request->get('matiere');
