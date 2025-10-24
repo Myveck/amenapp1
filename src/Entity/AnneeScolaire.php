@@ -87,6 +87,7 @@ class AnneeScolaire
     #[ORM\Column(nullable: true)]
     private ?bool $actif = null;
 
+
     public function __construct()
     {
         $this->classes = new ArrayCollection();

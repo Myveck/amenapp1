@@ -7,6 +7,7 @@ use App\Entity\Eleves;
 use App\Entity\Inscription;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use PhpParser\Node\Expr\Cast\Array_;
 
 /**
  * @extends ServiceEntityRepository<Inscription>
@@ -42,6 +43,18 @@ class InscriptionRepository extends ServiceEntityRepository
     //            ->getOneOrNullResult()
     //        ;
     //    }
+
+    public function findByAnneActuelle(Eleves $eleve): Array
+    {
+        return $this->createQueryBuilder('i')
+            ->join('i.AnneeScolaire', 'a')
+            ->where('i.eleve = :eleve')
+            ->andWhere('a.actif = true')
+            ->andWhere('i.actif = true')
+            ->setParameter('eleve', $eleve)
+            ->getQuery()
+            ->getResult();
+    }
 
     public function findElevesByAnneeActuelle(): array
     {

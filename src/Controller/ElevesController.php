@@ -3,9 +3,11 @@
 namespace App\Controller;
 
 use App\Entity\Eleves;
+use App\Entity\Inscription;
 use App\Entity\Parents;
 use App\Entity\ParentsEleves;
 use App\Form\Eleves1Type;
+use App\Form\InscriptionType;
 use App\Repository\AnneeScolaireRepository;
 use App\Repository\ClassesRepository;
 use App\Repository\ElevesBackupRepository;
@@ -21,15 +23,17 @@ use Symfony\Component\Routing\Attribute\Route;
 final class ElevesController extends AbstractController
 {
     #[Route(name: 'app_eleves_index', methods: ['GET'])]
-    public function index(Request $request, ElevesRepository $elevesRepository, ClassesRepository $classesRepository, AnneeScolaireRepository $anneeSR): Response
+    public function index(Request $request, ClassesRepository $classesRepository, AnneeScolaireRepository $anneeSR, InscriptionRepository $inscriptionRepo): Response
     {
         $trie = $request->get('trie');
         $annee_actuelle = $anneeSR->findOneBy(["actif" => 1]);
+        dd($annee_actuelle);
         if ($trie == "all" or !$trie) {
-            $eleves = $annee_actuelle->getEleves();
+            $eleves = $inscriptionRepo->findElevesByAnneeActuelle();
             $trie = "all";
         } else {
-            $eleves = $elevesRepository->findBy(['classe' => $trie], ['nom' => 'asc']);
+            $classe = $classesRepository->find($trie);
+            $eleves = $inscriptionRepo->findElevesActuelsByClasse($classe);
         }
         return $this->render('eleves/index.html.twig', [
             'eleves' => $eleves,
@@ -41,14 +45,15 @@ final class ElevesController extends AbstractController
     }
 
     #[Route('/paiments', name: 'app_eleves_paiements', methods: ['GET'])]
-    public function paiement(Request $request, ElevesRepository $elevesRepository, ClassesRepository $classesRepository): Response
+    public function paiement(Request $request, ElevesRepository $elevesRepository, ClassesRepository $classesRepository, InscriptionRepository $inscriptionRepo): Response
     {
         $trie = $request->get('trie');
         if ($trie == "all" or !$trie) {
             $eleves = $elevesRepository->findBy([], ['nom' => 'asc']);
             $trie = "all";
         } else {
-            $eleves = $elevesRepository->findBy(['classe' => $trie], ['nom' => 'asc']);
+            $classe = $classesRepository->find($trie);
+            $eleves = $inscriptionRepo->findElevesActuelsByClasse($trie);
         }
         return $this->render('paiements/eleves.html.twig', [
             'eleves' => $eleves,
@@ -59,44 +64,46 @@ final class ElevesController extends AbstractController
     }
 
     #[Route('/note', name: 'app_eleves_note', methods: ['GET'])]
-    public function note(Request $request, ElevesRepository $elevesRepository, ClassesRepository $classesRepository): Response
+    public function note(Request $request, ElevesRepository $elevesRepository, ClassesRepository $classesRepository, InscriptionRepository $inscriptionRepo): Response
     {
         $trie = $request->get('trie');
         return $this->render('eleves/index.html.twig', [
-            'eleves' => $elevesRepository->findBy(['classe' => $trie], ['nom' => 'asc']),
-            'classes' => $classesRepository->findBy([], ['classeOrder' => 'asc']),
+            'eleves' => $inscriptionRepo->findElevesActuelsByClasse($trie),
+            'classes' => $classesRepository->findByAnneeActuelleOrdered(),
             'active' => 'all',
         ]);
     }
 
     #[Route('/trier', name: 'app_eleves_trier', methods: ['GET'])]
-    public function trier(Request $request, ElevesRepository $elevesRepository, ClassesRepository $classesRepository): Response
+    public function trier(Request $request, ElevesRepository $elevesRepository, ClassesRepository $classesRepository, InscriptionRepository $inscriptionRepo): Response
     {
         $trie = $request->get('trie');
         if ($trie == "all") {
             $eleves = $elevesRepository->findBy([], ['nom' => 'asc']);
         } else {
-            $eleves = $elevesRepository->findBy(['classe' => $trie], ['nom' => 'asc']);
+            $classe = $classesRepository->find($trie);
+            $eleves = $inscriptionRepo->findElevesActuelsByClasse($classe);
         }
         return $this->render('eleves/index.html.twig', [
             'eleves' => $eleves,
-            'classes' => $classesRepository->findBy([], ['classeOrder' => 'asc']),
+            'classes' => $classesRepository->findByAnneeActuelleOrdered(),
             'active' => $trie,
         ]);
     }
 
     #[Route('/choice', name: 'app_eleves_choice', methods: ['GET'])]
-    public function choice(Request $request, ElevesRepository $elevesRepository, ClassesRepository $classesRepository): Response
+    public function choice(Request $request, ElevesRepository $elevesRepository, ClassesRepository $classesRepository, InscriptionRepository $inscriptionRepo): Response
     {
         $trie = $request->get('trie');
         if (!$trie or $trie == "all") {
             $eleves = $elevesRepository->findBy([], ['nom' => 'asc']);
         } else {
-            $eleves = $elevesRepository->findBy(['classe' => $trie], ['nom' => 'asc']);
+            $classe = $classesRepository->find($trie);
+            $eleves = $inscriptionRepo->findElevesActuelsByClasse($classe);
         }
         return $this->render('eleves/choice.html.twig', [
             'eleves' => $eleves,
-            'classes' => $classesRepository->findBy([], ['classeOrder' => 'asc']),
+            'classes' => $classesRepository->findByAnneeActuelleOrdered(),
             'active' => $trie,
         ]);
     }
@@ -109,11 +116,12 @@ final class ElevesController extends AbstractController
         if (!$trie or $trie == "all") {
             $eleves = $inscriptionRep->findElevesByAnneeActuelle();
         } else {
-            $eleves = $inscriptionRep->findElevesActuelsByClasse($trie);
+            $classe = $classesRepository->findOneBy(["id" => $trie]);
+            $eleves = $inscriptionRep->findElevesActuelsByClasse($classe);
         }
         return $this->render('eleves/renew.html.twig', [
             'eleves' => $eleves,
-            'classes' => $classesRepository->findBy([], ['classeOrder' => 'asc']),
+            'classes' => $classesRepository->findByAnneeActuelleOrdered(),
             'active' => $trie,
             'annee_actuelle' => $anneeScolaire,
         ]);
@@ -122,50 +130,43 @@ final class ElevesController extends AbstractController
     #[Route('/new', name: 'app_eleves_new', methods: ['GET', 'POST'])]
     public function new(Request $request, EntityManagerInterface $entityManager, AnneeScolaireRepository $anneeSR): Response
     {
-        $anneeScolaire = $anneeSR->findOneBy(["actif" => 1]);
-        $elefe = new Eleves();
-        $pere = new Parents();
-        $mere = new Parents();
-        $parentsM = new ParentsEleves();
-        $parentsP = new ParentsEleves();
-        $form = $this->createForm(Eleves1Type::class, $elefe);
+        $anneeScolaire = $anneeSR->findOneBy(["actif" => true]);
+
+        $eleve = new Eleves();
+        $eleve->setAnneeScolaire($anneeScolaire);
+
+        // Create the first inscription
+        $inscription = new Inscription();
+        $inscription->setAnneeScolaire($anneeScolaire);
+        $inscription->setRedouble(false);
+        $inscription->setActif(true);
+        
+        // Add inscription to the collection
+        $eleve->addInscription($inscription);
+
+        $form = $this->createForm(Eleves1Type::class, $eleve);
         $form->handleRequest($request);
 
+        $formInscription = $this->createForm(InscriptionType::class, $inscription);
+        $formInscription->handleRequest($request);
+
         if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager->persist($elefe);
-
-            $pere->setNom($request->get("pere_nom"));
-            $pere->setTelephone($request->get("pere_telephone"));
-            $pere->setProfession($request->get("pere_profession"));
-            $pere->setType("pere");
-            $entityManager->persist($pere);
-
-            $mere->setNom($request->get("mere_nom"));
-            $mere->setTelephone($request->get("mere_telephone"));
-            $mere->setProfession($request->get("mere_profession"));
-            $mere->setType("mere");
-            $entityManager->persist($mere);
-
-            $parentsM->setEleve($elefe);
-            $parentsM->setParent($pere);
-            $entityManager->persist($parentsP);
-
-            $parentsP->setEleve($elefe);
-            $parentsP->setParent($mere);
-            $entityManager->persist($parentsM);
-
+            // Thanks to cascade: ['persist'], only persist $eleve
+            $entityManager->persist($eleve);
             $entityManager->flush();
 
             $this->addFlash("success", "Nouvel élève ajouté avec succès");
-            return $this->redirectToRoute('app_eleves_new', ['annee_actuelle' => $anneeScolaire,], Response::HTTP_SEE_OTHER);
+            return $this->redirectToRoute('app_eleves_new', [], Response::HTTP_SEE_OTHER);
         }
 
         return $this->render('eleves/new.html.twig', [
-            'elefe' => $elefe,
-            'form' => $form,
-            'annee_actuelle' => $anneeScolaire,
+            'eleve' => $eleve,
+            'formEleve' => $form,
+            'formInscription' => $formInscription,
+            'annee_actuelle' => $anneeScolaire->getAnnee(),
         ]);
     }
+
     #[Route('/{id}', name: 'app_eleves_show', methods: ['GET'])]
     public function show(Eleves $elefe): Response
     {
@@ -175,13 +176,9 @@ final class ElevesController extends AbstractController
     }
 
     #[Route('/{id}/edit', name: 'app_eleves_edit', methods: ['GET', 'POST'])]
-    public function edit(Request $request, Eleves $elefe, EntityManagerInterface $entityManager, ClassesRepository $classesRepository, ElevesBackupRepository $elevesBackupRepository, AnneeScolaireRepository $anneeSR): Response
+    public function edit(Request $request, Eleves $elefe, EntityManagerInterface $entityManager, ClassesRepository $classesRepository,  AnneeScolaireRepository $anneeSR): Response
     {
         $anneeScolaire = $anneeSR->findOneBy(["actif" => 1]);
-        $pere = new Parents();
-        $mere = new Parents();
-        $parentsM = new ParentsEleves();
-        $parentsP = new ParentsEleves();
         $trie = $elefe->getClasseActuelle()->getId();
 
         $form = $this->createForm(Eleves1Type::class, $elefe);
@@ -190,26 +187,6 @@ final class ElevesController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
 
             $entityManager->persist($elefe);
-
-            $pere->setNom($request->get("pere_nom"));
-            $pere->setTelephone($request->get("pere_telephone"));
-            $pere->setProfession($request->get("pere_profession"));
-            $pere->setType("pere");
-            $entityManager->persist($pere);
-
-            $mere->setNom($request->get("mere_nom"));
-            $mere->setTelephone($request->get("mere_telephone"));
-            $mere->setProfession($request->get("mere_profession"));
-            $mere->setType("mere");
-            $entityManager->persist($mere);
-
-            $parentsM->setEleve($elefe);
-            $parentsM->setParent($pere);
-            $entityManager->persist($pere);
-
-            $parentsP->setEleve($elefe);
-            $parentsP->setParent($mere);
-            $entityManager->persist($mere);
 
             $entityManager->flush();
 
@@ -221,17 +198,31 @@ final class ElevesController extends AbstractController
             'elefe' => $elefe,
             'form' => $form,
             'edit' => 'edit',
-            'classes' => $classesRepository->findAll(),
+            'classes' => $classesRepository->findByAnneeActuelleOrdered(),
             'active' => $elefe->getClasseActuelle()->getId(),
             'annee_actuelle' => $anneeScolaire,
         ]);
     }
 
     #[Route('/{id}/promotion', name: 'app_eleves_promotion', methods: ['GET', 'POST'])]
-    public function promotion(Request $request, Eleves $elefe, EntityManagerInterface $entityManager): Response
+    public function promotion(Request $request, Eleves $elefe, EntityManagerInterface $entityManager, AnneeScolaireRepository $anneeScolaireRepo): Response
     {
+        $anneeScolaire = $anneeScolaireRepo->findOneBy(['actif' => true]);
+        // Create the first inscription
+        $inscription = new Inscription();
+        $inscription->setAnneeScolaire($anneeScolaire);
+        $inscription->setRedouble(false);
+        $inscription->setActif(true);
+        
+        // Add inscription to the collection
+        $elefe->addInscription($inscription);
+
         $form = $this->createForm(Eleves1Type::class, $elefe);
         $form->handleRequest($request);
+
+        
+        $formInscription = $this->createForm(InscriptionType::class, $inscription);
+        $formInscription->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
             $entityManager->flush();
@@ -241,7 +232,9 @@ final class ElevesController extends AbstractController
 
         return $this->render('eleves/promotion.html.twig', [
             'elefe' => $elefe,
-            'form' => $form,
+            'formEleve' => $form,
+            'formInscription' => $formInscription,
+            'annee_actuelle' => $anneeScolaire->getAnnee(),
         ]);
     }
 

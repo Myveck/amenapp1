@@ -24,9 +24,6 @@ class Classes
     #[ORM\Column]
     private ?int $classeOrder = null;
 
-    #[ORM\ManyToOne(inversedBy: 'classes')]
-    private ?Series $serie = null;
-
     /**
      * @var Collection<int, ClassesMatieres>
      */
@@ -36,6 +33,10 @@ class Classes
     #[ORM\ManyToOne(inversedBy: 'classes')]
     #[ORM\JoinColumn(nullable: false)]
     private ?AnneeScolaire $annee_scolaire = null;
+    
+    #[ORM\ManyToOne(inversedBy: 'classes')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Eleves $eleve = null;
 
     /**
      * @var Collection<int, Examinations>
@@ -49,11 +50,23 @@ class Classes
     #[ORM\OneToMany(targetEntity: Inscription::class, mappedBy: 'classe')]
     private Collection $inscriptions;
 
+    #[ORM\ManyToOne(targetEntity: self::class, inversedBy: 'classes')]
+    private ?self $next_classe = null;
+
+    
+
+    /**
+     * @var Collection<int, self>
+     */
+    #[ORM\OneToMany(targetEntity: self::class, mappedBy: 'next_classe')]
+    private Collection $classes;
+
     public function __construct()
     {
         $this->classesMatieres = new ArrayCollection();
         $this->examinations = new ArrayCollection();
         $this->inscriptions = new ArrayCollection();
+        $this->classes = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -97,17 +110,6 @@ class Classes
         return $this;
     }
 
-    public function getSerie(): ?Series
-    {
-        return $this->serie;
-    }
-
-    public function setSerie(?Series $serie): static
-    {
-        $this->serie = $serie;
-
-        return $this;
-    }
 
     /**
      * @return Collection<int, ClassesMatieres>
@@ -147,6 +149,19 @@ class Classes
     public function setAnneeScolaire(?AnneeScolaire $anne_scolaire): static
     {
         $this->annee_scolaire = $anne_scolaire;
+
+        return $this;
+    }
+
+
+    public function getEleve(): ?Eleves
+    {
+        return $this->eleve;
+    }
+
+    public function setEleve(?Eleves $eleve): static
+    {
+        $this->eleve = $eleve;
 
         return $this;
     }
@@ -205,6 +220,48 @@ class Classes
             // set the owning side to null (unless already changed)
             if ($inscription->getClasse() === $this) {
                 $inscription->setClasse(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function getNextClasse(): ?self
+    {
+        return $this->next_classe;
+    }
+
+    public function setNextClasse(?self $next_classe): static
+    {
+        $this->next_classe = $next_classe;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, self>
+     */
+    public function getClasses(): Collection
+    {
+        return $this->classes;
+    }
+
+    public function addClass(self $class): static
+    {
+        if (!$this->classes->contains($class)) {
+            $this->classes->add($class);
+            $class->setNextClasse($this);
+        }
+
+        return $this;
+    }
+
+    public function removeClass(self $class): static
+    {
+        if ($this->classes->removeElement($class)) {
+            // set the owning side to null (unless already changed)
+            if ($class->getNextClasse() === $this) {
+                $class->setNextClasse(null);
             }
         }
 

@@ -1,22 +1,297 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Inscription élève{% endblock %}
+{% block title %}Nouvel Élève{% endblock %}
 
 {% block body %}
-<div class="wrapper">
+<div class="container-fluid px-4 py-4">
+    <!-- Page Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="page-header">
+                <div class="header-content">
+                    <div class="header-left">
+                        <h1 class="page-title">
+                            <i class="fas fa-user-plus"></i>
+                            Ajouter un Nouvel Élève
+                        </h1>
+                        <nav aria-label="breadcrumb">
+                            <ol class="breadcrumb">
+                                <li class="breadcrumb-item"><a href="{{ path('app_main') }}">Accueil</a></li>
+                                <li class="breadcrumb-item"><a href="{{ path('app_eleves_index') }}">Élèves</a></li>
+                                <li class="breadcrumb-item active">Nouveau</li>
+                            </ol>
+                        </nav>
+                    </div>
+                    <div class="header-right">
+                        <span class="year-badge">
+                            <i class="fas fa-calendar-alt"></i>
+                            {{ annee_actuelle }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Flash Messages -->
+    {% for label, messages in app.flashes %}
+        {% for message in messages %}
+            <div class="alert alert-{{ label }} alert-dismissible fade show" role="alert">
+                <i class="fas fa-{% if label == 'success' %}check-circle{% elseif label == 'danger' %}exclamation-circle{% else %}info-circle{% endif %}"></i>
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+    {% endfor %}
+
+    {{ form_start(formEleve, {'attr': {'novalidate': 'novalidate', 'id': 'eleveForm'}}) }}
     
-      <div class="sidebar">
-        <div class="top"><a href="{{ path("app_main") }}" data-section="section1">Acceuil</a></div>
-        <div class="sidebar-menu">
-          <a href="{{ path("app_eleves_new", {'annee': annee_actuelle }) }}"  class="active" data-section="section2">Inscrire un élève</a>
-          <a href="{{ path("app_eleves_renew", { id: elefe.id, 'annee': annee_actuelle   }) }}" data-section="section2">Réinscrire un élève</a>
+    <div class="row justify-content-center">
+        <div class="col-xl-10">
+            <!-- Student Information Card -->
+            <div class="info-card">
+                <div class="card-header-custom">
+                    <div class="header-icon">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="header-text">
+                        <h5>Informations de l'Élève</h5>
+                        <p>Veuillez remplir tous les champs obligatoires <span class="text-danger">*</span></p>
+                    </div>
+                </div>
+                
+                <div class="card-body-custom">
+                    <div class="row g-4">
+                        <!-- Nom -->
+                        <div class="col-md-6">
+                            <div class="form-group-custom">
+                                <div class="label-with-required">
+                                    {{ form_label(formEleve.nom, null, {'label_attr': {'class': 'form-label-custom'}}) }}
+                                    <span class="required-mark">*</span>
+                                </div>
+                                {{ form_widget(formEleve.nom, {
+                                    'attr': {
+                                        'class': 'form-control-custom',
+                                        'placeholder': 'Entrez le nom de famille'
+                                    }
+                                }) }}
+                                {{ form_errors(formEleve.nom) }}
+                            </div>
+                        </div>
+
+                        <!-- Prénom -->
+                        <div class="col-md-6">
+                            <div class="form-group-custom">
+                                <div class="label-with-required">
+                                    {{ form_label(formEleve.prenom, null, {'label_attr': {'class': 'form-label-custom'}}) }}
+                                    <span class="required-mark">*</span>
+                                </div>
+                                {{ form_widget(formEleve.prenom, {
+                                    'attr': {
+                                        'class': 'form-control-custom',
+                                        'placeholder': 'Entrez le(s) prénom(s)'
+                                    }
+                                }) }}
+                                {{ form_errors(formEleve.prenom) }}
+                            </div>
+                        </div>
+
+                        <!-- Date de Naissance -->
+                        <div class="col-md-6">
+                            <div class="form-group-custom">
+                                <div class="label-with-required">
+                                    {{ form_label(formEleve.date_naissance, null, {'label_attr': {'class': 'form-label-custom'}}) }}
+                                    <span class="required-mark">*</span>
+                                </div>
+                                <div class="input-with-icon">
+                                    <i class="fas fa-calendar input-icon"></i>
+                                    {{ form_widget(formEleve.date_naissance, {
+                                        'attr': {
+                                            'class': 'form-control-custom',
+                                            'type': 'date'
+                                        }
+                                    }) }}
+                                </div>
+                                {{ form_errors(formEleve.date_naissance) }}
+                            </div>
+                        </div>
+                        
+                        <!-- Sexe -->
+                        <div class="col-md-6">
+                            <div class="form-group-custom">
+                                <div class="label-with-required">
+                                    {{ form_label(formEleve.sexe, null, {'label_attr': {'class': 'form-label-custom'}}) }}
+                                    <span class="required-mark">*</span>
+                                </div>
+                                <div class="input-with-icon">
+                                    <i class="fas fa-venus-mars input-icon"></i>
+                                    {{ form_widget(formEleve.sexe, {
+                                        'attr': {
+                                            'class': 'form-control-custom form-select-custom'
+                                        }
+                                    }) }}
+                                </div>
+                                {{ form_errors(formEleve.sexe) }}
+                            </div>
+                        </div>
+
+                        <!-- Dynamic Fields -->
+                        {% for child in formEleve %}
+                            {% if child.vars.name not in ['nom', 'prenom', 'date_naissance', 'lieuNaissance', 'sexe', '_token'] %}
+                                <div class="col-md-6">
+                                    <div class="form-group-custom">
+                                        {{ form_label(child, null, {'label_attr': {'class': 'form-label-custom'}}) }}
+                                        {% if child.vars.required %}
+                                            <span class="required-mark">*</span>
+                                        {% endif %}
+                                        {{ form_widget(child, {'attr': {'class': 'form-control-custom'}}) }}
+                                        {{ form_errors(child) }}
+                                    </div>
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+
+                    <!-- Info Banner -->
+                    <div class="info-banner">
+                        <div class="info-banner-content">
+                            <i class="fas fa-info-circle"></i>
+                            <div>
+                                <strong>Note importante :</strong> Assurez-vous que toutes les informations sont correctes avant de soumettre le formulaire. 
+                                Les données saisies seront utilisées pour l'année scolaire <strong>{{ annee_actuelle }}</strong>.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="action-footer">
+                <a href="{{ path('app_eleves_index') }}" class="btn-custom btn-secondary">
+                    <i class="fas fa-times"></i>
+                    Annuler
+                </a>
+                <div class="btn-group-custom">
+                    <button type="reset" class="btn-custom btn-outline">
+                        <i class="fas fa-redo"></i>
+                        Réinitialiser
+                    </button>
+                    <button type="submit" class="btn-custom btn-primary">
+                        <i class="fas fa-save"></i>
+                        {{ button_label|default('Enregistrer') }}
+                    </button>
+                </div>
+            </div>
         </div>
-      </div>
-        <div class="center">
-          <h1>Inscrire un nouvel élève</h1>
-      <p>Ps: Si l'élève avait déjà été inscrit, dirigez vous vers le menu <a href="{{ path("app_eleves_renew",{'annee': annee_actuelle}) }}"><span>réinscription</span></a></p>
-          {{ include('eleves/_form.html.twig') }}
-          <a href="{{ path('app_main') }}" class="btn btn-secondaire">Acceuil</a>
-        </div>
+    </div>
+
+    {{ form_end(formEleve) }}
 </div>
+
+<style>
+
+</style>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Auto-dismiss alerts
+            const alerts = document.querySelectorAll('.alert-dismissible');
+            alerts.forEach(alert => {
+                setTimeout(() => {
+                    const bsAlert = new bootstrap.Alert(alert);
+                    bsAlert.close();
+                }, 5000);
+            });
+
+            // Form validation
+            const form = document.getElementById('eleveForm');
+            if (form) {
+                form.addEventListener('submit', function(e) {
+                    const requiredFields = form.querySelectorAll('[required]');
+                    let isValid = true;
+
+                    requiredFields.forEach(field => {
+                        if (!field.value.trim()) {
+                            field.classList.add('is-invalid');
+                            isValid = false;
+                        } else {
+                            field.classList.remove('is-invalid');
+                        }
+                    });
+
+                    if (!isValid) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        
+                        const errorDiv = document.createElement('div');
+                        errorDiv.className = 'alert alert-danger alert-dismissible fade show';
+                        errorDiv.innerHTML = `
+                            <i class="fas fa-exclamation-circle"></i>
+                            <span>Veuillez remplir tous les champs obligatoires.</span>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        `;
+                        
+                        const container = document.querySelector('.container-fluid');
+                        container.insertBefore(errorDiv, container.children[1]);
+                        
+                        const firstError = form.querySelector('.is-invalid');
+                        if (firstError) {
+                            firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                            firstError.focus();
+                        }
+                    }
+                });
+
+                // Remove invalid class on input
+                form.querySelectorAll('input, select, textarea').forEach(field => {
+                    field.addEventListener('input', function() {
+                        this.classList.remove('is-invalid');
+                    });
+                });
+            }
+
+            // Confirmation on reset
+            const resetBtn = document.querySelector('button[type="reset"]');
+            if (resetBtn) {
+                resetBtn.addEventListener('click', function(e) {
+                    if (!confirm('Êtes-vous sûr de vouloir réinitialiser le formulaire ? Toutes les données seront perdues.')) {
+                        e.preventDefault();
+                    }
+                });
+            }
+
+            // Phone formatting (Benin)
+            const phoneInputs = document.querySelectorAll('input[type="tel"]');
+            phoneInputs.forEach(input => {
+                input.addEventListener('blur', function(e) {
+                    let value = e.target.value.replace(/\D/g, '');
+                    if (value.length > 0 && value.length <= 8 && !value.startsWith('229')) {
+                        e.target.value = '229' + value;
+                    }
+                });
+            });
+
+            // Smooth animations
+            const cards = document.querySelectorAll('.info-card, .action-footer');
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.opacity = '0';
+                        entry.target.style.transform = 'translateY(20px)';
+                        entry.target.style.transition = 'all 0.5s ease';
+                        setTimeout(() => {
+                            entry.target.style.opacity = '1';
+                            entry.target.style.transform = 'translateY(0)';
+                        }, 100);
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.1 });
+
+            cards.forEach(card => observer.observe(card));
+        });
+    </script>
 {% endblock %}

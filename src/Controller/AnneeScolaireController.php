@@ -6,6 +6,7 @@ use App\Entity\AnneeScolaire;
 use App\Form\AnneeScolaireType;
 use App\Repository\AnneeScolaireRepository;
 use App\Repository\EcolesRepository;
+use App\Service\AnneeManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -22,6 +23,36 @@ final class AnneeScolaireController extends AbstractController
             'annee_scolaires' => $anneeScolaireRepository->findAll(),
         ]);
     }
+
+    #[Route('/passage', name: 'app_annee_scolaire_passer', methods: ['POST'])]
+    public function passerAnneeSuivante(AnneeManager $anneeManager): Response
+    {
+        $anneeManager->passerAnneeSuivante();
+
+        $this->addFlash('success', 'Passage à la nouvelle année effectué avec succès.');
+
+        return $this->redirectToRoute('app_annee_scolaire_previsualiser');
+    }
+
+    #[Route('/previsualisation', name: 'app_annee_scolaire_previsualiser', methods: ['GET'])]
+    public function previsualiser(AnneeManager $anneeManager): Response
+    {
+        $resultats = $anneeManager->previsualiserPassage();
+
+        return $this->render('annee_scolaire/previsualisation.html.twig', [
+            'resultats' => $resultats,
+        ]);
+    }
+
+    #[Route('/passage/confirmer', name: 'app_annee_scolaire_confirmer', methods: ['POST'])]
+    public function confirmerPassage(AnneeManager $anneeManager): Response
+    {
+        $anneeManager->passerAnneeSuivante();
+        $this->addFlash('success', '✅ Passage à la nouvelle année effectué avec succès.');
+
+        return $this->redirectToRoute('app_annee_scolaire_index');
+    }
+
 
     #[Route('/new', name: 'app_annee_scolaire_new', methods: ['GET', 'POST'])]
     public function new(Request $request, EntityManagerInterface $entityManager, EcolesRepository $ecolesRepository, AnneeScolaireRepository $anneeScolaireRepository): Response

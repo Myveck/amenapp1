@@ -14,7 +14,7 @@ class Inscription
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\ManyToOne(inversedBy: 'inscriptions')]
+    #[ORM\ManyToOne(inversedBy: 'inscriptions', cascade: ['persist'])]
     private ?Eleves $eleve = null;
 
     #[ORM\ManyToOne(inversedBy: 'inscriptions')]
@@ -31,6 +31,9 @@ class Inscription
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
     private ?\DateTimeInterface $dateInscription = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?float $moyenne_annuelle = null;
 
       public function __construct()
     {
@@ -112,6 +115,18 @@ class Inscription
     public function setDateInscription(\DateTimeInterface $dateInscription): static
     {
         $this->dateInscription = $dateInscription;
+
+        return $this;
+    }
+
+    public function getMoyenneAnnuelle(): ?float
+    {
+        return $this->moyenne_annuelle;
+    }
+
+    public function setMoyenneAnnuelle(?float $moyenne_annuelle): static
+    {
+        $this->moyenne_annuelle = $moyenne_annuelle;
 
         return $this;
     }

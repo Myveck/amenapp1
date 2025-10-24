@@ -39,9 +39,9 @@
           <tr>
             <td>{{ elefe.nom }}</td>
             <td>{{ elefe.prenom }}</td>
-            <td>{{ elefe.classe.nom }}</td>
+            <td>{{ elefe.classeActuelle.nom }}</td>
             <td>
-              <a href="{{ path('app_eleves_promotion', { id: elefe.id }) }}"class="btn btn-primaire">réinscrire</a>
+              <a href="{{ path('app_inscription_reinscription', { id: elefe.id }) }}"class="btn btn-primaire">réinscrire</a>
             </td>
           </tr>
           {% else %}

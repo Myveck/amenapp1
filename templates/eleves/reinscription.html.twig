@@ -1,0 +1,97 @@
+{% extends 'base.html.twig' %}
+{% block title %}Réinscription{% endblock %}
+
+{% block body %}
+<div class="container-fluid px-4 py-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="page-header">
+                <div class="header-content">
+                    <div class="header-left">
+                        <h1 class="page-title">
+                            <i class="fas fa-sync-alt"></i>
+                            Réinscription de l'Élève
+                        </h1>
+                        <nav aria-label="breadcrumb">
+                            <ol class="breadcrumb">
+                                <li class="breadcrumb-item"><a href="{{ path('app_main') }}">Accueil</a></li>
+                                <li class="breadcrumb-item"><a href="{{ path('app_eleves_index') }}">Élèves</a></li>
+                                <li class="breadcrumb-item active">Réinscription</li>
+                            </ol>
+                        </nav>
+                    </div>
+                    <div class="header-right">
+                        <span class="year-badge">
+                            <i class="fas fa-calendar-alt"></i>
+                            {{ annee_actuelle }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Messages flash -->
+    {% for label, messages in app.flashes %}
+        {% for message in messages %}
+            <div class="alert alert-{{ label }} alert-dismissible fade show" role="alert">
+                <i class="fas fa-{% if label == 'success' %}check-circle{% elseif label == 'danger' %}exclamation-circle{% else %}info-circle{% endif %}"></i>
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+    {% endfor %}
+
+    <!-- Élève infos -->
+    <div class="info-card">
+        <div class="card-header-custom">
+            <div class="header-icon"><i class="fas fa-user"></i></div>
+            <div class="header-text">
+                <h5>Informations de l'Élève</h5>
+                <p>Les champs ci-dessous sont non modifiables</p>
+            </div>
+        </div>
+        <div class="card-body-custom">
+            <div class="row g-4">
+                <div class="col-md-6"><strong>Nom :</strong> {{ eleve.nom }}</div>
+                <div class="col-md-6"><strong>Prénom :</strong> {{ eleve.prenom }}</div>
+                <div class="col-md-6"><strong>Date de naissance :</strong> {{ eleve.dateNaissance|date('d/m/Y') }}</div>
+                <div class="col-md-6"><strong>Sexe :</strong> {{ eleve.sexe == 'm' ? 'Masculin' : 'Féminin' }}</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Réinscription -->
+    <div class="info-card">
+        <div class="card-header-custom">
+            <div class="header-icon"><i class="fas fa-school"></i></div>
+            <div class="header-text">
+                <h5>Nouvelle Inscription</h5>
+                <p>Attribuer une nouvelle classe pour l'année scolaire {{ annee_actuelle }}</p>
+            </div>
+        </div>
+        <div class="card-body-custom">
+            {{ form_start(form, {'attr': {'id': 'reinscriptionForm'}}) }}
+                <div class="row g-4">
+                    <div class="col-md-6">
+                        <div class="form-group-custom">
+                            {{ form_label(form.classe, null, {'label_attr': {'class': 'form-label-custom'}}) }}
+                            {{ form_widget(form.classe, {'attr': {'class': 'form-control-custom form-select-custom'}}) }}
+                            {{ form_errors(form.classe) }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="action-footer mt-4">
+                    <a href="{{ path('app_eleves_index') }}" class="btn-custom btn-secondary">
+                        <i class="fas fa-arrow-left"></i> Annuler
+                    </a>
+                    <button type="submit" class="btn-custom btn-primary">
+                        <i class="fas fa-save"></i> Réinscrire
+                    </button>
+                </div>
+            {{ form_end(form) }}
+        </div>
+    </div>
+</div>
+{% endblock %}

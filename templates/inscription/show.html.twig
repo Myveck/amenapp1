@@ -1,0 +1,38 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Inscription{% endblock %}
+
+{% block body %}
+    <h1>Inscription</h1>
+
+    <table class="table">
+        <tbody>
+            <tr>
+                <th>Id</th>
+                <td>{{ inscription.id }}</td>
+            </tr>
+            <tr>
+                <th>Redouble</th>
+                <td>{{ inscription.redouble ? 'Yes' : 'No' }}</td>
+            </tr>
+            <tr>
+                <th>Actif</th>
+                <td>{{ inscription.actif ? 'Yes' : 'No' }}</td>
+            </tr>
+            <tr>
+                <th>DateInscription</th>
+                <td>{{ inscription.dateInscription ? inscription.dateInscription|date('Y-m-d H:i:s') : '' }}</td>
+            </tr>
+            <tr>
+                <th>Moyenne_annuelle</th>
+                <td>{{ inscription.moyenneAnnuelle }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_inscription_index') }}">back to list</a>
+
+    <a href="{{ path('app_inscription_edit', {'id': inscription.id}) }}">edit</a>
+
+    {{ include('inscription/_delete_form.html.twig') }}
+{% endblock %}

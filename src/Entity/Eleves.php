@@ -37,6 +37,12 @@ class Eleves
     #[ORM\OneToMany(targetEntity: Paiements::class, mappedBy: 'eleve')]
     private Collection $paiements;
 
+    /**
+     * @var Collection<int, Notes>
+     */
+    #[ORM\OneToMany(targetEntity: Classes::class, mappedBy: 'eleve', orphanRemoval: true)]
+    private Collection $classe;
+
     #[ORM\Column]
     private ?\DateTimeImmutable $created_at = null;
 
@@ -48,19 +54,13 @@ class Eleves
     private ?string $lieu_de_naissance = null;
 
 
-    /**
-     * @var Collection<int, ParentsEleves>
-     */
-    #[ORM\OneToMany(targetEntity: ParentsEleves::class, mappedBy: 'eleve')]
-    private Collection $parentsEleves;
-
     #[ORM\ManyToOne(inversedBy: 'eleves')]
     private ?AnneeScolaire $annee_scolaire = null;
 
     /**
      * @var Collection<int, Inscription>
      */
-    #[ORM\OneToMany(targetEntity: Inscription::class, mappedBy: 'eleve')]
+    #[ORM\OneToMany(targetEntity: Inscription::class, mappedBy: 'eleve',  cascade: ['persist'])]
     private Collection $inscriptions;
 
     public function __construct()
@@ -68,7 +68,6 @@ class Eleves
         $this->notes = new ArrayCollection();
         $this->paiements = new ArrayCollection();
         $this->created_at = new \DateTimeImmutable("now");
-        $this->parentsEleves = new ArrayCollection();
         $this->inscriptions = new ArrayCollection();
     }
 
@@ -126,6 +125,25 @@ class Eleves
         if (!$this->notes->contains($note)) {
             $this->notes->add($note);
             $note->setEleveId($this);
+        }
+
+        return $this;
+    }
+
+    
+    /**
+     * @return Collection<int, Classes>
+     */
+    public function getClasse(): Collection
+    {
+        return $this->classe;
+    }
+
+    public function addClasse(Classes $classe): static
+    {
+        if (!$this->classe->contains($classe)) {
+            $this->classe->add($classe);
+            $classe->setEleve($this);
         }
 
         return $this;
@@ -209,36 +227,6 @@ class Eleves
         return $this;
     }
 
-    /**
-     * @return Collection<int, ParentsEleves>
-     */
-    public function getParentsEleves(): Collection
-    {
-        return $this->parentsEleves;
-    }
-
-    public function addParentsElefe(ParentsEleves $parentsElefe): static
-    {
-        if (!$this->parentsEleves->contains($parentsElefe)) {
-            $this->parentsEleves->add($parentsElefe);
-            $parentsElefe->setEleve($this);
-        }
-
-        return $this;
-    }
-
-    public function removeParentsElefe(ParentsEleves $parentsElefe): static
-    {
-        if ($this->parentsEleves->removeElement($parentsElefe)) {
-            // set the owning side to null (unless already changed)
-            if ($parentsElefe->getEleve() === $this) {
-                $parentsElefe->setEleve(null);
-            }
-        }
-
-        return $this;
-    }
-
     public function getAnneeScolaire(): ?AnneeScolaire
     {
         return $this->annee_scolaire;
@@ -264,18 +252,6 @@ class Eleves
         if (!$this->inscriptions->contains($inscription)) {
             $this->inscriptions->add($inscription);
             $inscription->setEleve($this);
-        }
-
-        return $this;
-    }
-
-    public function removeInscription(Inscription $inscription): static
-    {
-        if ($this->inscriptions->removeElement($inscription)) {
-            // set the owning side to null (unless already changed)
-            if ($inscription->getEleve() === $this) {
-                $inscription->setEleve(null);
-            }
         }
 
         return $this;

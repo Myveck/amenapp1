@@ -123,11 +123,13 @@ class ClassesMatieresRepository extends ServiceEntityRepository
     public function findMatieresByAnneeActuelle(): array
     {
         return $this->createQueryBuilder('cm')
+            ->from(Matieres::class, 'ma')
             ->join('cm.classe', 'c')
             ->join('c.annee_scolaire', 'a')
             ->join('cm.matiere', 'm')
             ->where('a.actif = true')
-            ->select('DISTINCT m') // pour ne pas avoir de doublons
+            ->andWhere('m = ma')
+            ->select('DISTINCT ma') // pour ne pas avoir de doublons
             ->orderBy('m.nom', 'ASC')
             ->getQuery()
             ->getResult();

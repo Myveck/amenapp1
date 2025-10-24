@@ -1,0 +1,44 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Prévisualisation du passage{% endblock %}
+
+{% block body %}
+<div class="container mt-4">
+    <h2 class="mb-4">Prévisualisation du passage à l'année suivante</h2>
+
+    {% for bloc in resultats %}
+        <div class="card mb-4 shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <strong>{{ bloc.classe.nom }}</strong> ({{ bloc.classe.niveau|capitalize }})
+            </div>
+            <div class="card-body p-0">
+                <table class="table table-striped mb-0">
+                    <thead>
+                        <tr>
+                            <th>Élève</th>
+                            <th>Moyenne annuelle</th>
+                            <th>Décision</th>
+                            <th>Classe suivante</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for e in bloc.eleves %}
+                            <tr class="{% if e.decision == 'redouble' %}table-danger{% elseif e.decision == 'passe' %}table-success{% else %}table-warning{% endif %}">
+                                <td>{{ e.eleve.nom }} {{ e.eleve.prenom }}</td>
+                                <td>{{ e.moyenne }}</td>
+                                <td>{{ e.decision|capitalize }}</td>
+                                <td>{{ e.classe_suivante }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    {% endfor %}
+
+    <form method="post" action="{{ path('app_annee_scolaire_confirmer') }}" onsubmit="return confirm('Confirmer le passage à la nouvelle année ?')">
+        <button class="btn btn-success">✅ Confirmer le passage</button>
+        <a href="{{ path('app_annee_scolaire_index') }}" class="btn btn-secondary">Annuler</a>
+    </form>
+</div>
+{% endblock %}

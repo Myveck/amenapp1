@@ -1,40 +1,690 @@
-{% extends 'base.html.twig' %} {% block title %}Réinscrire {{ elefe.nom }}
-{{ elefe.prenom }}{% endblock %} {% block body %}
-<div class="wrapper">
-  
-  <div class="sidebar">
-        <div class="top"><a href="{{ path("app_main") }}" data-section="section1">Acceuil</a></div>
-    <div class="sidebar-menu">
-      <a href="{{ path("app_eleves_new") }}" data-section="section2">Inscrire un élève</a>
-      <a href="{{ path("app_eleves_renew") }}" data-section="section2">Réinscrire un élève</a>
-    </div>
-  </div>
-  <div class="center">
-    <h1>Réinscription</h1>
-    <p><span>Nom : </span>{{ elefe.nom }}</p>
-    <p><span>Prénom : </span>{{ elefe.prenom }}</p>
-    <p><span>Classe : </span>{{ elefe.classe.nom }}</p>
-    <p>
-      <span>Date de naissance :</span>
-      {{elefe.dateNaissance ? elefe.dateNaissance|date('Y-m-d') : '' }}
-    </p>
+{% extends 'base.html.twig' %}
 
-    <p>
-      L'élève avec les informations ci-dessus sera réinscrit en quelle classe ?
-    </p>
+{% block title %}Nouvel Élève{% endblock %}
 
-    {{ form_start(form) }}
-    {{ form_row(form.classe) }}
-    <div class="hidden">
-      {{ form_row(form.nom) }}
-      {{ form_row(form.prenom) }}
-      {{ form_row(form.date_naissance) }}
-      {{ form_row(form.sexe) }}
+{% block body %}
+<div class="container-fluid px-4 py-4">
+    <!-- Page Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="page-header">
+                <div class="header-content">
+                    <div class="header-left">
+                        <h1 class="page-title">
+                            <i class="fas fa-user-plus"></i>
+                            Ajouter un Nouvel Élève
+                        </h1>
+                        <nav aria-label="breadcrumb">
+                            <ol class="breadcrumb">
+                                <li class="breadcrumb-item"><a href="{{ path('app_main') }}">Accueil</a></li>
+                                <li class="breadcrumb-item"><a href="{{ path('app_eleves_index') }}">Élèves</a></li>
+                                <li class="breadcrumb-item active">Nouveau</li>
+                            </ol>
+                        </nav>
+                    </div>
+                    <div class="header-right">
+                        <span class="year-badge">
+                            <i class="fas fa-calendar-alt"></i>
+                            {{ annee_actuelle }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-    <button class="btn btn-primaire my-4">
-      {{ button_label|default('Réinscrire') }}
-    </button>
-    {{ form_end(form) }}
-  </div>
+
+    <!-- Flash Messages -->
+    {% for label, messages in app.flashes %}
+        {% for message in messages %}
+            <div class="alert alert-{{ label }} alert-dismissible fade show" role="alert">
+                <i class="fas fa-{% if label == 'success' %}check-circle{% elseif label == 'danger' %}exclamation-circle{% else %}info-circle{% endif %}"></i>
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+    {% endfor %}
+
+    {{ form_start(formEleve, {'attr': {'novalidate': 'novalidate', 'id': 'eleveForm'}}) }}
+    
+    <div class="row justify-content-center">
+        <div class="col-xl-10">
+            <!-- Student Information Card -->
+            <div class="info-card">
+                <div class="card-header-custom">
+                    <div class="header-icon">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="header-text">
+                        <h5>Informations de l'Élève</h5>
+                        <p>Veuillez remplir tous les champs obligatoires <span class="text-danger">*</span></p>
+                    </div>
+                </div>
+                
+                <div class="card-body-custom">
+                    <div class="row g-4">
+                        <!-- Nom -->
+                        <div class="col-md-6">
+                            <div class="form-group-custom">
+                                <div class="label-with-required">
+                                    {{ form_label(formEleve.nom, null, {'label_attr': {'class': 'form-label-custom'}}) }}
+                                    <span class="required-mark">*</span>
+                                </div>
+                                {{ form_widget(formEleve.nom, {
+                                    'attr': {
+                                        'class': 'form-control-custom',
+                                        'placeholder': 'Entrez le nom de famille'
+                                    }
+                                }) }}
+                                {{ form_errors(formEleve.nom) }}
+                            </div>
+                        </div>
+
+                        <!-- Prénom -->
+                        <div class="col-md-6">
+                            <div class="form-group-custom">
+                                <div class="label-with-required">
+                                    {{ form_label(formEleve.prenom, null, {'label_attr': {'class': 'form-label-custom'}}) }}
+                                    <span class="required-mark">*</span>
+                                </div>
+                                {{ form_widget(formEleve.prenom, {
+                                    'attr': {
+                                        'class': 'form-control-custom',
+                                        'placeholder': 'Entrez le(s) prénom(s)'
+                                    }
+                                }) }}
+                                {{ form_errors(formEleve.prenom) }}
+                            </div>
+                        </div>
+
+                        <!-- Date de Naissance -->
+                        <div class="col-md-6">
+                            <div class="form-group-custom">
+                                <div class="label-with-required">
+                                    {{ form_label(formEleve.date_naissance, null, {'label_attr': {'class': 'form-label-custom'}}) }}
+                                    <span class="required-mark">*</span>
+                                </div>
+                                <div class="input-with-icon">
+                                    <i class="fas fa-calendar input-icon"></i>
+                                    {{ form_widget(formEleve.date_naissance, {
+                                        'attr': {
+                                            'class': 'form-control-custom',
+                                            'type': 'date'
+                                        }
+                                    }) }}
+                                </div>
+                                {{ form_errors(formEleve.date_naissance) }}
+                            </div>
+                        </div>
+                        
+                        <!-- Sexe -->
+                        <div class="col-md-6">
+                            <div class="form-group-custom">
+                                <div class="label-with-required">
+                                    {{ form_label(formEleve.sexe, null, {'label_attr': {'class': 'form-label-custom'}}) }}
+                                    <span class="required-mark">*</span>
+                                </div>
+                                <div class="input-with-icon">
+                                    <i class="fas fa-venus-mars input-icon"></i>
+                                    {{ form_widget(formEleve.sexe, {
+                                        'attr': {
+                                            'class': 'form-control-custom form-select-custom'
+                                        }
+                                    }) }}
+                                </div>
+                                {{ form_errors(formEleve.sexe) }}
+                            </div>
+                        </div>
+
+                      {% for inscriptionForm in formEleve.inscriptions %}
+                          <div class="row g-3 border rounded p-3 mb-3">
+                              <div class="col-md-6">
+                                  {{ form_row(inscriptionForm.classeAc) }}
+                              </div>
+                          </div>
+                      {% endfor %}
+
+                        <!-- Dynamic Fields -->
+                        {% for child in formEleve %}
+                            {% if child.vars.name not in ['nom', 'prenom', 'date_naissance', 'lieuNaissance', 'sexe', '_token', 'inscriptions'] %}
+                                <div class="col-md-6">
+                                    <div class="form-group-custom">
+                                        {{ form_label(child, null, {'label_attr': {'class': 'form-label-custom'}}) }}
+                                        {% if child.vars.required %}
+                                            <span class="required-mark">*</span>
+                                        {% endif %}
+                                        {{ form_widget(child, {'attr': {'class': 'form-control-custom'}}) }}
+                                        {{ form_errors(child) }}
+                                    </div>
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+
+                    <!-- Info Banner -->
+                    <div class="info-banner">
+                        <div class="info-banner-content">
+                            <i class="fas fa-info-circle"></i>
+                            <div>
+                                <strong>Note importante :</strong> Assurez-vous que toutes les informations sont correctes avant de soumettre le formulaire. 
+                                Les données saisies seront utilisées pour l'année scolaire <strong>{{ annee_actuelle }}</strong>.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="action-footer">
+                <a href="{{ path('app_eleves_index') }}" class="btn-custom btn-secondary">
+                    <i class="fas fa-times"></i>
+                    Annuler
+                </a>
+                <div class="btn-group-custom">
+                    <button type="reset" class="btn-custom btn-outline">
+                        <i class="fas fa-redo"></i>
+                        Réinitialiser
+                    </button>
+                    <button type="submit" class="btn-custom btn-primary">
+                        <i class="fas fa-save"></i>
+                        {{ button_label|default('Enregistrer') }}
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{ form_end(formEleve) }}
 </div>
+
+<style>
+    :root {
+        --primary-color: #4f46e5;
+        --primary-hover: #4338ca;
+        --secondary-color: #64748b;
+        --success-color: #10b981;
+        --danger-color: #ef4444;
+        --warning-color: #f59e0b;
+        --bg-light: #f8fafc;
+        --border-color: #e2e8f0;
+        --text-primary: #1e293b;
+        --text-secondary: #64748b;
+        --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+        --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        --radius-sm: 0.375rem;
+        --radius-md: 0.5rem;
+        --radius-lg: 0.75rem;
+    }
+
+    body {
+        background: linear-gradient(135deg, #f8fafc 0%, #e0e7ff 100%);
+        min-height: 100vh;
+    }
+
+    /* Page Header */
+    .page-header {
+        background: white;
+        border-radius: var(--radius-lg);
+        padding: 1.5rem 2rem;
+        box-shadow: var(--shadow-md);
+        margin-bottom: 2rem;
+    }
+
+    .header-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .page-title {
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin: 0 0 0.5rem 0;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .page-title i {
+        color: var(--primary-color);
+        font-size: 1.5rem;
+    }
+
+    .breadcrumb {
+        background: transparent;
+        padding: 0;
+        margin: 0;
+        font-size: 0.875rem;
+    }
+
+    .breadcrumb-item a {
+        color: var(--text-secondary);
+        text-decoration: none;
+        transition: color 0.2s;
+    }
+
+    .breadcrumb-item a:hover {
+        color: var(--primary-color);
+    }
+
+    .breadcrumb-item.active {
+        color: var(--primary-color);
+        font-weight: 500;
+    }
+
+    .breadcrumb-item + .breadcrumb-item::before {
+        content: "›";
+        font-size: 1.2rem;
+        color: var(--text-secondary);
+    }
+
+    .year-badge {
+        background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
+        color: white;
+        padding: 0.625rem 1.25rem;
+        border-radius: var(--radius-md);
+        font-weight: 600;
+        font-size: 0.95rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        box-shadow: var(--shadow-md);
+    }
+
+    /* Info Card */
+    .info-card {
+        background: white;
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow-md);
+        margin-bottom: 2rem;
+        overflow: hidden;
+        transition: box-shadow 0.3s ease;
+    }
+
+    .info-card:hover {
+        box-shadow: var(--shadow-lg);
+    }
+
+    .card-header-custom {
+        background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
+        padding: 1.75rem 2rem;
+        display: flex;
+        align-items: center;
+        gap: 1.25rem;
+    }
+
+    .header-icon {
+        width: 3.5rem;
+        height: 3.5rem;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: var(--radius-md);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        color: white;
+        flex-shrink: 0;
+    }
+
+    .header-text h5 {
+        margin: 0;
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: white;
+    }
+
+    .header-text p {
+        margin: 0.25rem 0 0 0;
+        font-size: 0.875rem;
+        color: rgba(255, 255, 255, 0.9);
+    }
+
+    .card-body-custom {
+        padding: 2.5rem 2rem;
+    }
+
+    /* Form Groups */
+    .form-group-custom {
+        position: relative;
+    }
+
+    .label-with-required {
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .form-label-custom {
+        display: block;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin: 0;
+        font-size: 0.925rem;
+    }
+
+    .required-mark {
+        color: var(--danger-color);
+        font-weight: 700;
+        font-size: 1rem;
+        line-height: 1;
+    }
+
+    .form-control-custom {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        border: 2px solid var(--border-color);
+        border-radius: var(--radius-md);
+        font-size: 0.95rem;
+        color: var(--text-primary);
+        background: white;
+        transition: all 0.2s ease;
+    }
+
+    .form-control-custom:focus {
+        outline: none;
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+    }
+
+    .form-control-custom::placeholder {
+        color: #94a3b8;
+    }
+
+    .form-select-custom {
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2364748b'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 0.75rem center;
+        background-size: 1.25rem;
+        padding-right: 2.75rem;
+    }
+
+    .input-with-icon {
+        position: relative;
+    }
+
+    .input-icon {
+        position: absolute;
+        right: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--text-secondary);
+        pointer-events: none;
+        z-index: 1;
+    }
+
+    .input-with-icon .form-control-custom {
+        padding-right: 2.75rem;
+    }
+
+    /* Info Banner */
+    .info-banner {
+        margin-top: 2rem;
+        background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+        border: 2px solid #bfdbfe;
+        border-radius: var(--radius-md);
+        padding: 1.25rem 1.5rem;
+    }
+
+    .info-banner-content {
+        display: flex;
+        gap: 1rem;
+        align-items: flex-start;
+        color: #1e40af;
+        font-size: 0.925rem;
+        line-height: 1.6;
+    }
+
+    .info-banner-content i {
+        font-size: 1.25rem;
+        flex-shrink: 0;
+        margin-top: 0.125rem;
+    }
+
+    /* Action Footer */
+    .action-footer {
+        background: white;
+        border-radius: var(--radius-lg);
+        padding: 1.75rem 2rem;
+        box-shadow: var(--shadow-md);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .btn-group-custom {
+        display: flex;
+        gap: 0.75rem;
+    }
+
+    .btn-custom {
+        padding: 0.75rem 1.75rem;
+        border-radius: var(--radius-md);
+        font-weight: 600;
+        font-size: 0.95rem;
+        border: none;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        text-decoration: none;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
+        color: white;
+        box-shadow: var(--shadow-md);
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-lg);
+    }
+
+    .btn-secondary {
+        background: var(--secondary-color);
+        color: white;
+    }
+
+    .btn-secondary:hover {
+        background: #475569;
+        transform: translateY(-2px);
+    }
+
+    .btn-outline {
+        background: white;
+        border: 2px solid var(--border-color);
+        color: var(--text-primary);
+    }
+
+    .btn-outline:hover {
+        border-color: var(--primary-color);
+        color: var(--primary-color);
+        background: rgba(79, 70, 229, 0.05);
+    }
+
+    /* Alerts */
+    .alert {
+        border-radius: var(--radius-md);
+        border: none;
+        padding: 1rem 1.25rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin-bottom: 1.5rem;
+        box-shadow: var(--shadow-sm);
+    }
+
+    .alert i {
+        font-size: 1.25rem;
+    }
+
+    /* Form Validation */
+    .is-invalid {
+        border-color: var(--danger-color) !important;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%23ef4444' viewBox='0 0 24 24'%3E%3Cpath d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 0.75rem center;
+        background-size: 1.25rem;
+        padding-right: 2.75rem;
+    }
+
+    .invalid-feedback {
+        color: var(--danger-color);
+        font-size: 0.875rem;
+        margin-top: 0.25rem;
+        display: block;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .page-header {
+            padding: 1.25rem 1.5rem;
+        }
+
+        .page-title {
+            font-size: 1.5rem;
+        }
+
+        .card-body-custom {
+            padding: 2rem 1.5rem;
+        }
+
+        .action-footer {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .btn-group-custom {
+            flex-direction: column;
+        }
+
+        .btn-custom {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .year-badge {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .header-content {
+            flex-direction: column;
+            align-items: stretch;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Auto-dismiss alerts
+            const alerts = document.querySelectorAll('.alert-dismissible');
+            alerts.forEach(alert => {
+                setTimeout(() => {
+                    const bsAlert = new bootstrap.Alert(alert);
+                    bsAlert.close();
+                }, 5000);
+            });
+
+            // Form validation
+            const form = document.getElementById('eleveForm');
+            if (form) {
+                form.addEventListener('submit', function(e) {
+                    const requiredFields = form.querySelectorAll('[required]');
+                    let isValid = true;
+
+                    requiredFields.forEach(field => {
+                        if (!field.value.trim()) {
+                            field.classList.add('is-invalid');
+                            isValid = false;
+                        } else {
+                            field.classList.remove('is-invalid');
+                        }
+                    });
+
+                    if (!isValid) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        
+                        const errorDiv = document.createElement('div');
+                        errorDiv.className = 'alert alert-danger alert-dismissible fade show';
+                        errorDiv.innerHTML = `
+                            <i class="fas fa-exclamation-circle"></i>
+                            <span>Veuillez remplir tous les champs obligatoires.</span>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        `;
+                        
+                        const container = document.querySelector('.container-fluid');
+                        container.insertBefore(errorDiv, container.children[1]);
+                        
+                        const firstError = form.querySelector('.is-invalid');
+                        if (firstError) {
+                            firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                            firstError.focus();
+                        }
+                    }
+                });
+
+                // Remove invalid class on input
+                form.querySelectorAll('input, select, textarea').forEach(field => {
+                    field.addEventListener('input', function() {
+                        this.classList.remove('is-invalid');
+                    });
+                });
+            }
+
+            // Confirmation on reset
+            const resetBtn = document.querySelector('button[type="reset"]');
+            if (resetBtn) {
+                resetBtn.addEventListener('click', function(e) {
+                    if (!confirm('Êtes-vous sûr de vouloir réinitialiser le formulaire ? Toutes les données seront perdues.')) {
+                        e.preventDefault();
+                    }
+                });
+            }
+
+            // Phone formatting (Benin)
+            const phoneInputs = document.querySelectorAll('input[type="tel"]');
+            phoneInputs.forEach(input => {
+                input.addEventListener('blur', function(e) {
+                    let value = e.target.value.replace(/\D/g, '');
+                    if (value.length > 0 && value.length <= 8 && !value.startsWith('229')) {
+                        e.target.value = '229' + value;
+                    }
+                });
+            });
+
+            // Smooth animations
+            const cards = document.querySelectorAll('.info-card, .action-footer');
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.opacity = '0';
+                        entry.target.style.transform = 'translateY(20px)';
+                        entry.target.style.transition = 'all 0.5s ease';
+                        setTimeout(() => {
+                            entry.target.style.opacity = '1';
+                            entry.target.style.transform = 'translateY(0)';
+                        }, 100);
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.1 });
+
+            cards.forEach(card => observer.observe(card));
+        });
+    </script>
 {% endblock %}

@@ -15,27 +15,11 @@ class ParentsEleves
 
     #[ORM\ManyToOne(inversedBy: 'parentsEleves')]
     #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
-    private ?Eleves $eleve = null;
-
-    #[ORM\ManyToOne(inversedBy: 'parentsEleves')]
-    #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     private ?Parents $parent = null;
 
     public function getId(): ?int
     {
         return $this->id;
-    }
-
-    public function getEleve(): ?Eleves
-    {
-        return $this->eleve;
-    }
-
-    public function setEleve(?Eleves $eleve): static
-    {
-        $this->eleve = $eleve;
-
-        return $this;
     }
 
     public function getParent(): ?Parents

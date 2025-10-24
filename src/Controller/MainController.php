@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Entity\Inscription;
 use App\Repository\AnneeScolaireRepository;
 use App\Repository\ClassesBackupRepository;
 use App\Repository\ClassesMatieresRepository;
@@ -10,7 +11,7 @@ use App\Repository\EcolesRepository;
 use App\Repository\ElevesBackupRepository;
 use App\Repository\ElevesRepository;
 use App\Repository\EnseignantsRepository;
-use App\Repository\MatieresRepository;
+use App\Repository\InscriptionRepository;
 use App\Repository\TarifRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -20,7 +21,7 @@ use Symfony\Component\Routing\Attribute\Route;
 class MainController extends AbstractController
 {
     #[Route('/', name: 'app_main')]
-    public function index(ClassesMatieresRepository $classeMR, AnneeScolaireRepository $anneeSR): Response
+    public function index(AnneeScolaireRepository $anneeSR): Response
     {
         $schoolYear = $anneeSR->findOneBy(['actif' => 1])->getAnnee();
 
@@ -36,7 +37,8 @@ class MainController extends AbstractController
         ClassesRepository $classesRepository,
         ClassesMatieresRepository $cmRepository,
         EnseignantsRepository $enseignantsRepository,
-        AnneeScolaireRepository $anneeSR
+        AnneeScolaireRepository $anneeSR,
+        InscriptionRepository $inscriptionRepo
     ): Response {
         $annee = $anneeSR->findOneBy(['actif' => 1]);
         $anneeScolaire = $anneeSR->findOneBy(['actif' => 1])->getAnnee();
@@ -50,7 +52,7 @@ class MainController extends AbstractController
 
         $nombre = [];
         foreach ($classes as $classe) {
-            $nombre[$classe->getNom()] = count($classe->getEleves());
+            $nombre[$classe->getNom()] = count($inscriptionRepo->findElevesActuelsByClasse($classe));
         }
         // dd($nombre);
 
