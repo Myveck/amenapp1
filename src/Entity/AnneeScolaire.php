@@ -72,6 +72,13 @@ class AnneeScolaire
     #[ORM\OneToMany(targetEntity: TarifBackup::class, mappedBy: 'AnneeScolaire')]
     private Collection $tarifBackups;
 
+    
+    /**
+     * @var Collection<int, Inscription>
+     */
+    #[ORM\OneToMany(targetEntity: Inscription::class, mappedBy: 'annee_scolaire')]
+    private Collection $inscriptions;
+
     public function __construct()
     {
         $this->classes = new ArrayCollection();
@@ -83,6 +90,7 @@ class AnneeScolaire
         $this->ecoles = new ArrayCollection();
         $this->classesBackups = new ArrayCollection();
         $this->tarifBackups = new ArrayCollection();
+        $this->inscriptions = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -374,5 +382,14 @@ class AnneeScolaire
         }
 
         return $this;
+    }
+
+    
+    /**
+     * @return Collection<int, Inscription>
+     */
+    public function getInscriptions(): Collection
+    {
+        return $this->inscriptions;
     }
 }

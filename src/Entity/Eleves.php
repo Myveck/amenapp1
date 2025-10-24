@@ -50,6 +50,12 @@ class Eleves
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $lieu_de_naissance = null;
 
+    /**
+     * @var Collection<int, Inscription>
+     */
+    #[ORM\OneToMany(mappedBy: 'eleve', targetEntity: Inscription::class)]
+    private Collection $inscriptions;
+
 
     /**
      * @var Collection<int, ParentsEleves>
@@ -63,6 +69,7 @@ class Eleves
         $this->paiements = new ArrayCollection();
         $this->created_at = new \DateTimeImmutable("now");
         $this->parentsEleves = new ArrayCollection();
+        $this->inscriptions = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -241,6 +248,33 @@ class Eleves
             }
         }
 
+        return $this;
+    }
+
+    /**
+     * @var Collection<int, Inscription>
+     */
+    public function getInscriptions(): Collection
+    {
+        return $this->inscriptions;
+    }
+
+    public function addInscription(Inscription $inscription): static
+    {
+        if (!$this->inscriptions->contains($inscription)) {
+            $this->inscriptions->add($inscription);
+            $inscription->setEleve($this);
+        }
+        return $this;
+    }
+
+    public function removeInscription(Inscription $inscription): static
+    {
+        if ($this->inscriptions->removeElement($inscription)) {
+            if ($inscription->getEleve() === $this) {
+                $inscription->setEleve(null);
+            }
+        }
         return $this;
     }
 }

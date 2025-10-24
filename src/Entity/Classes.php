@@ -48,12 +48,19 @@ class Classes
      */
     #[ORM\OneToMany(targetEntity: Examinations::class, mappedBy: 'classe', orphanRemoval: true)]
     private Collection $examinations;
+    
+    /**
+     * @var Collection<int, Inscription>
+     */
+    #[ORM\OneToMany(targetEntity: Inscription::class, mappedBy: 'eleve', orphanRemoval: true)]
+    private Collection $inscriptions;
 
     public function __construct()
     {
         $this->classesMatieres = new ArrayCollection();
         $this->eleves = new ArrayCollection();
         $this->examinations = new ArrayCollection();
+        $this->inscriptions = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -209,5 +216,13 @@ class Classes
         }
 
         return $this;
+    }
+
+    /**
+     * @var Collection<int, Inscription>
+     */
+    public function getInscriptions(): Collection
+    {
+        return $this->inscriptions;
     }
 }
