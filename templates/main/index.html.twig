@@ -31,6 +31,15 @@ endblock %} {% block body %}
               Inscription
             </li>
             <li>
+              <a href="{{ path('app_eleves_renew')}}" aria-label="Inscription">
+                <img
+                  src="{{ asset('assets/images/educational.png') }}"
+                  alt="Icone d'inscription"
+                />
+              </a>
+              Réinscripitionn
+            </li>
+            <li>
               <a href="{{ path('app_main_ecole') }}" aria-label="Ecole">
                 <img
                   src="{{ asset('assets/images/school1.png') }}"

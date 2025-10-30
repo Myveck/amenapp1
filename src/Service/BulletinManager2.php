@@ -32,6 +32,6 @@ class BulletinManager2
 
     public function calculateTrimestre($classeId, $trimestre)
     {
-        $classe = $classesRepository->find($classeId);
+        $classe = $this->classesRepository->find($classeId);
     }
   }
