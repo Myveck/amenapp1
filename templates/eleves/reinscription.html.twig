@@ -55,7 +55,7 @@
             <div class="row g-4">
                 <div class="col-md-6"><strong>Nom :</strong> {{ eleve.nom }}</div>
                 <div class="col-md-6"><strong>Prénom :</strong> {{ eleve.prenom }}</div>
-                <div class="col-md-6 hidden"><strong>Date de naissance :</strong> {{ eleve.dateNaissance|date('d/m/Y') }}</div>
+                <div class="col-md-6 d-none"><strong>Date de naissance :</strong> {{ eleve.dateNaissance|date('d/m/Y') }}</div>
                 <div class="col-md-6"><strong>Sexe :</strong> {{ eleve.sexe == 'm' ? 'Masculin' : 'Féminin' }}</div>
             </div>
         </div>
