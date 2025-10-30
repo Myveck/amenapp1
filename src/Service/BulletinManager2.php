@@ -33,5 +33,10 @@ class BulletinManager2
     public function calculateTrimestre($classeId, $trimestre)
     {
         $classe = $this->classesRepository->find($classeId);
+        $cMatieres = $this->classesMatieresRepository->findBy(['classe' => $classe,]);
+        $examination = $this->examinationsRepository->findBy([
+            'classe' => $classe,
+            'trimestre' => $trimestre,
+        ]);
     }
   }
