@@ -4,6 +4,7 @@ namespace App\Repository;
 
 use App\Entity\Classes;
 use App\Entity\Eleves;
+use App\Entity\Evaluations;
 use App\Entity\Matieres;
 use App\Entity\Notes;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
@@ -79,7 +80,7 @@ class NotesRepository extends ServiceEntityRepository
             ->getResult();
     }
 
-    public function findByEleveAnneActuel($eleve, $evaluation)
+    public function findByEleveAnneActuel(Eleves $eleve, Evaluations $evaluation)
     {
 
         return $this->createQueryBuilder('n')
@@ -93,4 +94,12 @@ class NotesRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
     }
+
+    // public function findByMatiereExamination()
+    // {
+    //     return $this->createQueryBuilder('n')
+    //         ->join('')
+    //         ->getQuery()
+    //         ->getResult();
+    // }
 }

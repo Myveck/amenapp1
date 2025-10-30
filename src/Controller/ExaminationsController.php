@@ -12,6 +12,7 @@ use App\Repository\EvaluationsRepository;
 use App\Repository\ExaminationsRepository;
 use App\Repository\InscriptionRepository;
 use App\Repository\MatieresRepository;
+use App\Repository\NotesRepository;
 use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -26,73 +27,58 @@ final class ExaminationsController extends AbstractController
     #[Route(name: 'app_examinations_index', methods: ['GET'])]
     public function index(Request $request, ExaminationsRepository $examinationsRepository, ClassesRepository $classesRepository, MatieresRepository $matieresRepository, EvaluationsRepository $evaluationsRepository, ClassesMatieresRepository $classesMatieresRepository, AnneeScolaireRepository $anneeSR, InscriptionRepository $inscriptionRepo): Response
     {
-        $maxLimit = null;
-        $matieres = "";
+        $maxLimit = 15;
+        $matieres = [];
         $trimestre = "";
-        $examinations = $examinationsRepository->findAll();
-        $anneScolaire =  $anneeSR->findOneBy(["actif" => true]);
+        $examinationsActuelle = $examinationsRepository->findByAnneActuelle();
+
+        $anneScolaire = $anneeSR->findOneBy(["actif" => true]);
         $classes = $classesRepository->findBy(["annee_scolaire" => $anneScolaire], ["classeOrder" => "ASC"]);
-        $allClasses = $classesRepository->findByAnneeActuelleOrdered();
         $evaluations = $evaluationsRepository->findAll();
 
-        $classeId =  $request->get('classe');
-        $matiereId =  $request->get('matiere');
-        $evaluationId =  $request->get('evaluation');
-        $trimestre = intval($request->get('trimestre'));
+        $classeId = $request->get('classe');
+        $matiereId = $request->get('matiere');
+        $evaluationId = $request->get('evaluation');
+        $trimestreParam = $request->get('trimestre');
 
-        // Initialisation des filtres de recherche
         $filtres = [];
-
-        // Si une classe est spécifiée (autre que "all")
-        if ($classeId != "all" and $classeId != null) {
-            $classe = $classesRepository->findOneBy(["id" => $classeId]);
+        if ($classeId && $classeId !== "all") {
+            $classe = $classesRepository->find($classeId);
             if (!$classe) {
-                // Gérer le cas où la classe n'existe pas
                 $this->addFlash('error', 'Classe introuvable.');
                 return $this->redirectToRoute('app_examinations_nouveau');
             }
             $filtres["classe"] = $classe;
-
-            // Récupérer les matières associées à la classe
-            $cMatieres = $classesMatieresRepository->findMatiereByClasse($classe);
-            $matieres = [];
-            foreach ($cMatieres as $cMatiere) {
-                $matieres[] = $cMatiere->getMatiere();
-            }
+            $matieres = $classesMatieresRepository->findMatiereByClasse($classe);
             $maxLimit = 30;
-        } else {
-            $maxLimit = 15;
         }
 
-        // Si une matière est spécifiée (autre que "all")
-        if ($matiereId != "all" and $matiereId != null) {
-            $matiere = $matieresRepository->findOneBy(["id" => $matiereId]);
+        if ($matiereId && $matiereId !== "all") {
+            $matiere = $matieresRepository->find($matiereId);
             if (!$matiere) {
-                // Gérer le cas où la matière n'existe pas
                 $this->addFlash('error', 'Matière introuvable.');
                 return $this->redirectToRoute('app_examinations_nouveau');
             }
             $filtres["matiere"] = $matiere;
         }
 
-        // Si une évaluation est spécifiée (autre que "all")
-        if ($evaluationId != "all" and $evaluationId != null) {
-            $evaluation = $evaluationsRepository->findOneBy(["id" => $evaluationId]);
+        if ($evaluationId && $evaluationId !== "all") {
+            $evaluation = $evaluationsRepository->find($evaluationId);
             if (!$evaluation) {
-                // Gérer le cas où l'évaluation n'existe pas
                 $this->addFlash('error', 'Évaluation introuvable.');
                 return $this->redirectToRoute('app_examinations_nouveau');
             }
             $filtres["evaluation"] = $evaluation;
         }
 
-        if ($trimestre != "all" and $trimestre != null) {
-            $filtres["trimestre"] = $trimestre;
+        if ($trimestreParam && $trimestreParam !== "all") {
+            $filtres["trimestre"] = intval($trimestreParam);
         }
 
-        // Récupération des examens en fonction des filtres
-        $examinations = $examinationsRepository->findBy($filtres, ['id' => 'desc'], $maxLimit);
+        $examinationsFiltre = $examinationsRepository->findBy($filtres, ['id' => 'desc'], $maxLimit);
 
+        $idsActuelles = array_map(fn($e) => $e->getId(), $examinationsActuelle);
+        $examinations = array_filter($examinationsFiltre, fn($e) => in_array($e->getId(), $idsActuelles));
 
         return $this->render('examinations/index.html.twig', [
             'examinations' => $examinations,
@@ -102,10 +88,11 @@ final class ExaminationsController extends AbstractController
             'classeActive' => $classeId,
             'evaluationActive' => $evaluationId,
             'matiereActive' => $matiereId,
-            'trimestreActive' => $trimestre,
-            'allClasses' => $allClasses,
+            'trimestreActive' => $trimestreParam,
+            'allClasses' => $classes,
         ]);
     }
+
 
     #[Route('/new', name: 'app_examinations_new', methods: ['GET', 'POST'])]
     public function new(Request $request, EntityManagerInterface $entityManager): Response
@@ -142,52 +129,79 @@ final class ExaminationsController extends AbstractController
     }
 
     #[Route('/create', name: 'app_examinations_create')]
-    public function create(Request $request, ExaminationsRepository $examinationsRepository, ClassesRepository $classesRepository, EvaluationsRepository $evaluationsRepository, MatieresRepository $matieresRepository, EntityManagerInterface $entityManager)
+    public function create(Request $request, ExaminationsRepository $examinationsRepository, ClassesRepository $classesRepository, EvaluationsRepository $evaluationsRepository, MatieresRepository $matieresRepository, EntityManagerInterface $entityManager, AnneeScolaireRepository $anneeScolaireRepo)
     {
-        $date_examen = new DateTime($request->get("date_examen"));
-        $classe = $classesRepository->findOneBy(["id" => $request->get('classe')]);
-        $evaluations = $evaluationsRepository->findAll();
-        $matieres = $request->get("matieres");
+        $dateExamen = new \DateTime($request->get("date_examen"));
+        $anneeScolaire = $anneeScolaireRepo->findOneBy(["actif" => true]);
+        $classe = $classesRepository->find($request->get('classe'));
+        $matiereId = $request->get("matieres");
+        $trimestre = intval($request->get('trimestre'));
 
-        foreach ($matieres as $oneMatiere) {
-            
-            foreach ($evaluations as $evaluation) {
-                $examination = new Examinations();
-                $one = $matieresRepository->findOneBy(['id' => $oneMatiere]);
-                $verif = $examinationsRepository->findOneBy([
-                    'classe' => $classe,
-                    'evaluation' => $evaluation,
-                    'matiere' => $one,
-                    'trimestre' => intval($request->get('trimestre')),
-                ]);
-                if (!$verif) {
-                    $examination->setClasse($classe);
-                    $examination->setMatiere($one);
-                    $examination->setEvaluation($evaluation);
-                    $examination->setDateExamination($date_examen);
-                    $examination->setTrimestre(intval($request->get('trimestre')));
-                } else {
-                    $this->addFlash('warning', 'Cette examin existe déjà');
-                    return $this->redirectToRoute('app_examinations_create_notes', [
-                        'examination' => $verif->getId(),
-                    ]);
-                }
-                $entityManager->persist($examination);
-            }
+        if (!$classe || !$anneeScolaire || empty($matiereId)) {
+            $this->addFlash('error', 'Informations manquantes ou invalides.');
+            return $this->redirectToRoute('app_examinations_nouveau');
         }
 
-        $entityManager->flush();
-        $exam = $examinationsRepository->findOneBy([
-            'matiere' => $matieres[0],
+        // Charger toutes les matières d'un coup
+        $matieres = $matieresRepository->findBy(['id' => $matiereId]);
+
+        // Vérifier les examens déjà existants pour cette classe / année / trimestre
+        $dejaExistants = $examinationsRepository->findBy([
             'classe' => $classe,
-            'trimestre' => intval($request->get('trimestre')),
+            'annee_scolaire' => $anneeScolaire,
+            'trimestre' => $trimestre,
         ]);
-        $this->addFlash('success', 'L\'examin a bien été créé');
+
+        // Créer un index local (matière_id => true)
+        $existantsIndex = [];
+        foreach ($dejaExistants as $exam) {
+            $existantsIndex[$exam->getMatiere()->getId()] = true;
+        }
+
+        $nouveauxExamens = [];
+        foreach ($matieres as $matiere) {
+            $matiereId = $matiere->getId();
+
+            // Si l'examen existe déjà pour cette matière, on ignore
+            if (isset($existantsIndex[$matiereId])) {
+                continue;
+            }
+
+            // Création du nouvel examen
+            $exam = (new Examinations())
+                ->setClasse($classe)
+                ->setMatiere($matiere)
+                ->setDateExamination($dateExamen)
+                ->setAnneeScolaire($anneeScolaire)
+                ->setTrimestre($trimestre);
+
+            $entityManager->persist($exam);
+            $nouveauxExamens[] = $exam;
+        }
+
+        // Enregistrement
+        if ($nouveauxExamens) {
+            $entityManager->flush();
+            $this->addFlash('success', sprintf('%d examen(s) créé(s) avec succès.', count($nouveauxExamens)));
+        } else {
+            $this->addFlash('warning', 'Tous les examens existent déjà.');
+        }
+
+        // Redirection vers le premier examen créé (ou existant)
+        $premiereMatiere = $matieres[0];
+        $exam = $examinationsRepository->findOneBy([
+            'matiere' => $premiereMatiere,
+            'classe' => $classe,
+            'trimestre' => $trimestre,
+        ]);
+
         return $this->redirectToRoute('app_examinations_create_notes', [
-            'examination' => $exam->getId(),
-            'matiere' => $matieres[0],
-            'trimestre' => intval($request->get('trimestre')),
+            'examinationId' => $exam ? $exam->getId() : null,
+            'matiereId' => $premiereMatiere->getId(),
+            'trimestre' => $trimestre,
+            'classeId' => $classe->getId(),
         ]);
+
     }
 
 
@@ -209,49 +223,59 @@ final class ExaminationsController extends AbstractController
         return new JsonResponse($matiereArray);
     }
 
-    #[Route('/{id}/create', name: 'app_examinations_create_notes', methods: ['POST', 'GET'])]
-    public function createNote(request $request, ExaminationsRepository $examinationsRepository, ElevesRepository $elevesRepository, InscriptionRepository $inscriptionRepo, ClassesRepository $classeRepo): Response
+    #[Route('/{examinationId}/{matiereId}/{trimestre}/{classeId}/create', name: 'app_examinations_create_notes', methods: ['POST', 'GET'])]
+    public function createNote(request $request, ExaminationsRepository $examinationsRepository, InscriptionRepository $inscriptionRepo, ClassesRepository $classeRepo, ClassesMatieresRepository $classeMatiereRepo, MatieresRepository $matiereRepo, NotesRepository $notesRepo): Response
     {
-        $classe = $classeRepo->findOneBy(["id" => intval($request->get("id"))]);
-        $examinations = $examinationsRepository->findBy(["classe" => $classe]);
+        $matiereId = intval($request->get('matiereId'));
+        $classeId = intval($request->get("classeId"));
+        $examinationId = intval($request->get("examinationId"));
+
+        $classe = $classeRepo->find($classeId);
+        $examination = $examinationsRepository->findOneBy(['id' => $examinationId]);
+        $classeMatiere = $classeMatiereRepo->findOneBy(['matiere'=> $matiereId]);
+
+        if (!$classeMatiere) {
+            $this->addFlash('error', 'Cette matière n\'est pas associée à cette classe.');
+            return $this->redirectToRoute('app_examinations_nouveau');
+        }
+        $matiere = $classeMatiere->getMatiere();
+
         $eleves = $inscriptionRepo->findElevesActuelsByClasse($classe);
 
-        $notesD1 = [];
-        $notesD2 = [];
-        $notesMi = [];
-        $notesDh = [];
-        foreach ($examinations as $examination ) {
-            switch ($examination->getEvaluation()->getId()) {
-                case 1:
-                    $notesD1 = $examination->getNote();
-                    $notes = $examination->getNote();
-                    break;
-                case 2:
-                    $notesD2 = $examination->getNote();
-                    break;
-                case 3:
-                    $notesMi = $examination->getNote();
-                    break;
-                case 4:
-                    $notesDh = $examination->getNote();
-                    break;
-                
-                default:
-                    # code...
-                    break;
-            }
-        }
+        $notesD1 = $notesRepo->findBy([
+            "examinations" => $examination,
+            "evaluation" => 1,
+        ]);
+        $notesD2 = $notesRepo->findBy([
+            "examinations" => $examination,
+            "evaluation" => 2,
+        ]);
+        $notesMi = $notesRepo->findBy([
+            "examinations" => $examination,
+            "evaluation" => 3,
+        ]);
+        $notesDh = $notesRepo->findBy([
+            "examinations" => $examination,
+            "evaluation" => 4,
+        ]);
 
+        $evaluations = [
+            'd1' => $notesD1,
+            'd2' => $notesD2,
+            'mi' => $notesMi,
+            'dh' => $notesDh,
+        ];
+
+        // dd($evaluations);
 
         return $this->render('examinations/notes.html.twig', [
             "eleves" => $eleves,
+            "classe" => $classe,
+            "matiere" => $matiere,
+            "evaluations" => $evaluations,
             "examination" => $examination,
-            "notes" => $notes,
-            "notesD1" => $notesD1,
-            "notesD2" => $notesD2,
-            "notesMi" => $notesMi,
-            "notesDh" => $notesDh,
         ]);
+
     }
 
     #[Route('/{id}', name: 'app_examinations_show', methods: ['GET'])]

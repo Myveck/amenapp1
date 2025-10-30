@@ -87,6 +87,12 @@ class AnneeScolaire
     #[ORM\Column(nullable: true)]
     private ?bool $actif = null;
 
+    /**
+     * @var Collection<int, Examinations>
+     */
+    #[ORM\OneToMany(targetEntity: Examinations::class, mappedBy: 'annee_scolaire')]
+    private Collection $examinations;
+
 
     public function __construct()
     {
@@ -101,6 +107,7 @@ class AnneeScolaire
         $this->tarifBackups = new ArrayCollection();
         $this->eleves = new ArrayCollection();
         $this->inscriptions = new ArrayCollection();
+        $this->examinations = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -462,6 +469,36 @@ class AnneeScolaire
     public function setActif(?bool $actif): static
     {
         $this->actif = $actif;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Examinations>
+     */
+    public function getExaminations(): Collection
+    {
+        return $this->examinations;
+    }
+
+    public function addExamination(Examinations $examination): static
+    {
+        if (!$this->examinations->contains($examination)) {
+            $this->examinations->add($examination);
+            $examination->setAnneeScolaire($this);
+        }
+
+        return $this;
+    }
+
+    public function removeExamination(Examinations $examination): static
+    {
+        if ($this->examinations->removeElement($examination)) {
+            // set the owning side to null (unless already changed)
+            if ($examination->getAnneeScolaire() === $this) {
+                $examination->setAnneeScolaire(null);
+            }
+        }
 
         return $this;
     }

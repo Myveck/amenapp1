@@ -103,6 +103,8 @@ class AnneeManager
 
         $this->em->flush();
 
+        // Ajouter les classes suivantes dans les classes
+
         // 4️⃣ Créer les nouvelles inscriptions selon les moyennes
         foreach ($classesActuelles as $classe) {
             $inscriptions = $this->inscriptionRepo->findBy([

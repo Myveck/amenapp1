@@ -21,9 +21,6 @@ class Examinations
     #[ORM\JoinColumn(nullable: false)]
     private ?Classes $classe = null;
 
-    #[ORM\ManyToOne(inversedBy: 'examinations')]
-    #[ORM\JoinColumn(nullable: false)]
-    private ?Evaluations $evaluation = null;
 
     /**
      * @var Collection<int, Notes>
@@ -41,10 +38,20 @@ class Examinations
     #[ORM\Column]
     private ?int $trimestre = null;
 
+    #[ORM\ManyToOne(inversedBy: 'examinations')]
+    private ?AnneeScolaire $annee_scolaire = null;
+
+    /**
+     * @var Collection<int, Evaluation>
+     */
+    #[ORM\OneToMany(targetEntity: Evaluation::class, mappedBy: 'examination')]
+    private Collection $evaluations;
+
     public function __construct()
     {
         $this->note = new ArrayCollection();
         $this->date_examination = new \DateTimeImmutable('now');
+        $this->evaluations = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -60,18 +67,6 @@ class Examinations
     public function setClasse(?Classes $classe): static
     {
         $this->classe = $classe;
-
-        return $this;
-    }
-
-    public function getEvaluation(): ?Evaluations
-    {
-        return $this->evaluation;
-    }
-
-    public function setEvaluation(?Evaluations $evaluation): static
-    {
-        $this->evaluation = $evaluation;
 
         return $this;
     }
@@ -138,6 +133,48 @@ class Examinations
     public function setTrimestre(int $trimestre): static
     {
         $this->trimestre = $trimestre;
+
+        return $this;
+    }
+
+    public function getAnneeScolaire(): ?AnneeScolaire
+    {
+        return $this->annee_scolaire;
+    }
+
+    public function setAnneeScolaire(?AnneeScolaire $annee_scolaire): static
+    {
+        $this->annee_scolaire = $annee_scolaire;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Evaluation>
+     */
+    public function getEvaluations(): Collection
+    {
+        return $this->evaluations;
+    }
+
+    public function addEvaluation(Evaluation $evaluation): static
+    {
+        if (!$this->evaluations->contains($evaluation)) {
+            $this->evaluations->add($evaluation);
+            $evaluation->setExamination($this);
+        }
+
+        return $this;
+    }
+
+    public function removeEvaluation(Evaluation $evaluation): static
+    {
+        if ($this->evaluations->removeElement($evaluation)) {
+            // set the owning side to null (unless already changed)
+            if ($evaluation->getExamination() === $this) {
+                $evaluation->setExamination(null);
+            }
+        }
 
         return $this;
     }

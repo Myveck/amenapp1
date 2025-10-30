@@ -31,7 +31,7 @@ final class AnneeScolaireController extends AbstractController
 
         $this->addFlash('success', 'Passage à la nouvelle année effectué avec succès.');
 
-        return $this->redirectToRoute('app_annee_scolaire_previsualiser');
+        return $this->redirectToRoute('app_main');
     }
 
     #[Route('/previsualisation', name: 'app_annee_scolaire_previsualiser', methods: ['GET'])]

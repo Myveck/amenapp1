@@ -2,23 +2,22 @@
 
 namespace App\Repository;
 
-use App\Entity\Classes;
-use App\Entity\Eleves;
+use App\Entity\Evaluation;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
- * @extends ServiceEntityRepository<Eleves>
+ * @extends ServiceEntityRepository<Evaluation>
  */
-class ElevesRepository extends ServiceEntityRepository
+class EvaluationRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
-        parent::__construct($registry, Eleves::class);
+        parent::__construct($registry, Evaluation::class);
     }
 
     //    /**
-    //     * @return Eleves[] Returns an array of Eleves objects
+    //     * @return Evaluation[] Returns an array of Evaluation objects
     //     */
     //    public function findByExampleField($value): array
     //    {
@@ -32,7 +31,7 @@ class ElevesRepository extends ServiceEntityRepository
     //        ;
     //    }
 
-    //    public function findOneBySomeField($value): ?Eleves
+    //    public function findOneBySomeField($value): ?Evaluation
     //    {
     //        return $this->createQueryBuilder('e')
     //            ->andWhere('e.exampleField = :val')
@@ -41,15 +40,4 @@ class ElevesRepository extends ServiceEntityRepository
     //            ->getOneOrNullResult()
     //        ;
     //    }
-
-    public function findByAnneeActuelleOrdered(): array
-    {
-        return $this->createQueryBuilder('e')
-            ->join('e.annee_scolaire', 'a')
-            ->where('a.actif = true')
-            ->orderBy('e.nom', 'ASC') // ou DESC selon ton besoin
-            ->getQuery()
-            ->getResult();
-    }
-
 }

@@ -21,18 +21,11 @@ class Notes
     #[ORM\JoinColumn(nullable: false)]
     private ?Eleves $eleve = null;
 
-    #[ORM\ManyToOne(inversedBy: 'notes')]
-    #[ORM\JoinColumn(nullable: false)]
-    private ?Matieres $matiere = null;
-
     #[ORM\Column(type: Types::DATE_MUTABLE)]
     private ?\DateTimeInterface $date_evaluation = null;
 
     #[ORM\Column(options: ['default' => 'CURRENT_TIMESTAMP'])]
     private ?\DateTimeImmutable $created_at = null;
-
-    #[ORM\Column]
-    private ?int $Trimestre = null;
 
     #[ORM\ManyToOne(inversedBy: 'notes')]
     #[ORM\JoinColumn(nullable: false)]
@@ -76,18 +69,6 @@ class Notes
         return $this;
     }
 
-    public function getMatiereId(): ?Matieres
-    {
-        return $this->matiere;
-    }
-
-    public function setMatiereId(?Matieres $matiere_id): static
-    {
-        $this->matiere = $matiere_id;
-
-        return $this;
-    }
-
     public function getDateEvaluation(): ?\DateTime
     {
         return $this->date_evaluation;
@@ -108,18 +89,6 @@ class Notes
     public function setCreatedAt(\DateTimeImmutable $created_at): static
     {
         $this->created_at = $created_at;
-
-        return $this;
-    }
-
-    public function getTrimestre(): ?int
-    {
-        return $this->Trimestre;
-    }
-
-    public function setTrimestre(int $Trimestre): static
-    {
-        $this->Trimestre = $Trimestre;
 
         return $this;
     }

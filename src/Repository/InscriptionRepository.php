@@ -67,9 +67,26 @@ class InscriptionRepository extends ServiceEntityRepository
             ->andWhere('i.actif = true')
             ->andWhere('ie = e')
             ->select('DISTINCT e')
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
+
+    public function findEleveActif(int $id): Eleves
+    {
+        return $this->createQueryBuilder('i')
+        
+            ->from(Eleves::class, 'e')
+            ->join('i.eleve', 'ie')
+            ->join('i.AnneeScolaire', 'a')
+            ->where('a.actif = true')
+            ->andWhere('i.actif = true')
+            ->andWhere('ie = e')
+            ->andWhere('ie.id = :id')
+            ->setParameter('id', $id)
+            ->select('DISTINCT e')
             ->orderBy('e.nom', 'ASC')
             ->getQuery()
-            ->getResult();
+            ->getOneOrNullResult();
     }
 
     public function findElevesActuelsByClasse(Classes $classe): array

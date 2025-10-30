@@ -151,4 +151,23 @@ class ClassesMatieresRepository extends ServiceEntityRepository
     //         ->getQuery()
     //         ->getResult();
     // }
+
+    public function findOneMatiereByClasse(Matieres $matiere, Classes $classe): Matieres
+    {
+        return $this->createQueryBuilder('cm')
+            ->from(Matieres::class, 'ma')
+            ->join('cm.classe', 'c')
+            ->join('c.annee_scolaire', 'a')
+            ->join('cm.matiere', 'm')
+            ->where('a.actif = true')
+            ->andWhere('m = ma')
+            ->andWhere('m = :matiere')
+            ->andWhere('c = :classe')
+            ->setParameter('classe', $classe)
+            ->setParameter('matiere', $matiere)
+            ->select('DISTINCT ma') // pour ne pas avoir de doublons
+            ->orderBy('m.nom', 'ASC')
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
 }

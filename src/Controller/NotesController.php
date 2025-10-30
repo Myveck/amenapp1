@@ -24,6 +24,8 @@ use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
+use function PHPUnit\Framework\isEmpty;
+
 #[Route('/notes')]
 final class NotesController extends AbstractController
 {
@@ -68,43 +70,65 @@ final class NotesController extends AbstractController
     }
 
     #[Route('/create/exam/{examination}', name: 'app_notes_create_exam', methods: ['GET'])]
-    public function createExam(Request $request, ElevesRepository $eleveRepository, ExaminationsRepository $examinationsRepository, EntityManagerInterface $entityManager, NotesRepository $notesRepository)
+    public function saveNotes(Request $request, EntityManagerInterface $entityManager, 
+    ExaminationsRepository $examinationsRepository,
+    EvaluationsRepository $evaluationsRepository,
+    NotesRepository $noteRepo,
+    InscriptionRepository $inscriptionRepo) 
     {
-        $notes = $request->get('notes');
-        $examination = $examinationsRepository->findOneBy(["id" => $request->get('examination')]);
-        foreach ($notes as $id => $noteEleve) {
-            $eleve = $eleveRepository->findOneBy(["id" => $id]);
+        $d1 = $request->get('d1');
+        $d2 = $request->get('d2');
+        $dh = $request->get('dh');
+        $mi = $request->get('mi');
 
-            // Je cherche une note corespondant à l'élève actuel
-            $note = $notesRepository->findByEleveAnneActuel(
-                $eleve,
-                $examination,
-            );
+        $allNotes = [$d1, $d2, $mi, $dh];
+        $examination = $examinationsRepository->find($request->get('examination'));
 
-            if ($note) {
-                // Si c'est le cas on update la note actuelle
-                $note->setNote($noteEleve);
-            } else {
+        $i = 1; // correspond à l'ID d'évaluation (1 => D1, 2 => D2, etc.)
 
-                // Sinon, on créé la note
-
-                $note = new Notes();
-                $elevenote = $noteEleve ?: 0.0;
-                $note->setNote($elevenote);
-                $note->setDateEvaluation($examination->getDateExamination());
-                $note->setEleveId($eleve);
-                $note->setMatiereId($examination->getMatiere());
-                $note->setTrimestre($examination->getTrimestre());
-                $note->setEvaluation($examination->getEvaluation());
-                $note->setExaminations($examination);
+        foreach ($allNotes as $notes) {
+            if (!$notes) {
+                $i++;
+                continue; // ignore si la série est vide
             }
-            $entityManager->persist($note);
 
-            $entityManager->flush();
+            foreach ($notes as $id => $noteEleve) {
+                $evaluation = $evaluationsRepository->find($i);
+                $eleve = $inscriptionRepo->findEleveActif($id);
+
+                if (!$eleve) {
+                    $this->addFlash('warning', "L'élève avec l'ID $id n'existe pas");
+                    continue; // on continue sans interrompre tout le traitement
+                }
+
+                $note = $noteRepo->findOneBy([
+                    'eleve' => $eleve,
+                    'examinations' => $examination,
+                    'evaluation' => $evaluation
+                ]);
+
+                if ($note) {
+                    $note->setNote($noteEleve);
+                } else {
+                    $note = new Notes();
+                    $note->setNote($noteEleve ?: 0.0);
+                    $note->setDateEvaluation($examination->getDateExamination());
+                    $note->setEleveId($eleve);
+                    $note->setEvaluation($evaluation);
+                    $note->setExaminations($examination);
+                    $entityManager->persist($note);
+                }
+            }
+
+            $i++;
         }
 
-        $this->addFlash("success", "Les notes ont bien été modifiée");
-        return $this->redirectToRoute("app_examinations_index", ['classe' => $examination->getClasse()->getId()]);
+        $entityManager->flush();
+
+        $this->addFlash("success", "Les notes ont bien été enregistrées.");
+        return $this->redirectToRoute("app_examinations_index", [
+            'classe' => $examination->getClasse()->getId()
+        ]);
     }
 
     #[Route('/moyennes', name: 'app_notes_moyennes', methods: ['GET'])]

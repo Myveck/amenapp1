@@ -73,7 +73,7 @@ final class InscriptionController extends AbstractController
             
             $inscriptionManager->reinscrire($eleve, $inscription, $em, $inscriptionRepository);
             $this->addFlash('success', 'Réinscription effectuée avec succès !');
-            return $this->redirectToRoute('app_eleves_index');
+            return $this->redirectToRoute('app_eleves_index', ['trie' => $inscription->getClasse()->getId()]);
         }
 
 

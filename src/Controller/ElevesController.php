@@ -27,7 +27,6 @@ final class ElevesController extends AbstractController
     {
         $trie = $request->get('trie');
         $annee_actuelle = $anneeSR->findOneBy(["actif" => 1]);
-        dd($annee_actuelle);
         if ($trie == "all" or !$trie) {
             $eleves = $inscriptionRepo->findElevesByAnneeActuelle();
             $trie = "all";
