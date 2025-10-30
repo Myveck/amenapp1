@@ -50,7 +50,11 @@ final class InscriptionController extends AbstractController
     public function reinscription(int $id, InscriptionRepository $inscriptionRepository, ElevesRepository $elevesRepo, AnneeScolaireRepository $anneeRepo, EntityManagerInterface $em, Request $request, InscriptionManager $inscriptionManager): Response
     {
         $eleve = $elevesRepo->find($id);
-        $oldClasse = $inscriptionRepository->findOneBy(["eleve" => $eleve])->getClase();
+        $oldClasse = $request->get('active');
+        if(!$oldClasse) {
+            $oldClasse = "all";
+        }
+        // dd($oldClasse);
         if (!$eleve) {
             throw $this->createNotFoundException("Élève non trouvé");
         }
@@ -74,7 +78,7 @@ final class InscriptionController extends AbstractController
             
             $inscriptionManager->reinscrire($eleve, $inscription, $em, $inscriptionRepository);
             $this->addFlash('success', 'Réinscription effectuée avec succès !');
-            return $this->redirectToRoute('app_eleves_index', ['trie' => $oldClasse->getId()]);
+            return $this->redirectToRoute('app_eleves_renew', ['trie' => $oldClasse->getId()]);
         }
 
 

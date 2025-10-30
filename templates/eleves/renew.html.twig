@@ -41,7 +41,7 @@
             <td>{{ elefe.prenom }}</td>
             <td>{{ elefe.classeActuelle.nom }}</td>
             <td>
-              <a href="{{ path('app_inscription_reinscription', { id: elefe.id }) }}"class="btn btn-primaire">réinscrire</a>
+              <a href="{{ path('app_inscription_reinscription', { id: elefe.id, classe: active}) }}"class="btn btn-primaire">réinscrire</a>
             </td>
           </tr>
           {% else %}
