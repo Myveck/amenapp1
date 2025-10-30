@@ -68,7 +68,7 @@ class InscriptionRepository extends ServiceEntityRepository
             ->andWhere('ie = e')
             ->select('DISTINCT e')
             ->getQuery()
-            ->getOneOrNullResult();
+            ->getResult();
     }
 
     public function findEleveActif(int $id): Eleves

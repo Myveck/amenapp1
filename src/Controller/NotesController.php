@@ -13,6 +13,7 @@ use App\Repository\EvaluationsRepository;
 use App\Repository\ExaminationsRepository;
 use App\Repository\InscriptionRepository;
 use App\Repository\NotesRepository;
+use App\Service\ExaminationManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -70,64 +71,19 @@ final class NotesController extends AbstractController
     }
 
     #[Route('/create/exam/{examination}', name: 'app_notes_create_exam', methods: ['GET'])]
-    public function saveNotes(Request $request, EntityManagerInterface $entityManager, 
-    ExaminationsRepository $examinationsRepository,
-    EvaluationsRepository $evaluationsRepository,
-    NotesRepository $noteRepo,
-    InscriptionRepository $inscriptionRepo) 
+    public function saveNotes(Request $request, ExaminationManager $examinationManager) 
     {
         $d1 = $request->get('d1');
         $d2 = $request->get('d2');
         $dh = $request->get('dh');
         $mi = $request->get('mi');
+        $examinationId = $request->get('examination');
 
-        $allNotes = [$d1, $d2, $mi, $dh];
-        $examination = $examinationsRepository->find($request->get('examination'));
-
-        $i = 1; // correspond à l'ID d'évaluation (1 => D1, 2 => D2, etc.)
-
-        foreach ($allNotes as $notes) {
-            if (!$notes) {
-                $i++;
-                continue; // ignore si la série est vide
-            }
-
-            foreach ($notes as $id => $noteEleve) {
-                $evaluation = $evaluationsRepository->find($i);
-                $eleve = $inscriptionRepo->findEleveActif($id);
-
-                if (!$eleve) {
-                    $this->addFlash('warning', "L'élève avec l'ID $id n'existe pas");
-                    continue; // on continue sans interrompre tout le traitement
-                }
-
-                $note = $noteRepo->findOneBy([
-                    'eleve' => $eleve,
-                    'examinations' => $examination,
-                    'evaluation' => $evaluation
-                ]);
-
-                if ($note) {
-                    $note->setNote($noteEleve);
-                } else {
-                    $note = new Notes();
-                    $note->setNote($noteEleve ?: 0.0);
-                    $note->setDateEvaluation($examination->getDateExamination());
-                    $note->setEleveId($eleve);
-                    $note->setEvaluation($evaluation);
-                    $note->setExaminations($examination);
-                    $entityManager->persist($note);
-                }
-            }
-
-            $i++;
-        }
-
-        $entityManager->flush();
+        $result = $examinationManager->createExamination($examinationId, $d1, $d2, $mi, $dh,);
 
         $this->addFlash("success", "Les notes ont bien été enregistrées.");
         return $this->redirectToRoute("app_examinations_index", [
-            'classe' => $examination->getClasse()->getId()
+            'classe' => $result['classe'],
         ]);
     }
 

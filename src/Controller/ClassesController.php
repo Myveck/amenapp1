@@ -15,6 +15,7 @@ use App\Repository\TarifBackupRepository;
 use App\Repository\TarifRepository;
 use App\Repository\AnneeScolaireRepository;
 use App\Repository\InscriptionRepository;
+use App\Service\ClasseManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -25,38 +26,16 @@ use Symfony\Component\Routing\Attribute\Route;
 final class ClassesController extends AbstractController
 {
     #[Route(name: 'app_classes_index', methods: ['GET'])]
-    public function index(Request $request, ClassesRepository $classesRepository, TarifRepository $tarifRepository, EcolesRepository $ecolesRepository, AnneeScolaireRepository $anneeSRepositroy): Response
+    public function index(Request $request, ClassesRepository $classesRepository, TarifRepository $tarifRepository, EcolesRepository $ecolesRepository, AnneeScolaireRepository $anneeSRepositroy, ClasseManager $classeManager): Response
     {
-        $anneeScolaire = $anneeSRepositroy->findOneBy(['actif' => 1]);
-
+        
         $trie = $request->get('trie');
-        if (!$trie or $trie == "all") {
-            $trie = "all";
-            $classes = $classesRepository->findBy(['annee_scolaire' => $anneeScolaire], ['classeOrder' => 'asc']);
-        } else {
-
-            $classes = $classesRepository->findBy(
-                [
-                    "niveau" => $trie,
-                    'annee_scolaire' => $anneeScolaire
-                ],
-                [
-                    'nom'  => 'asc'
-                ]
-            );
-        }
-
-        $classeTarif = [];
-
-        foreach ($classes as $classe) {
-            $classeTarif[$classe->getNom()] = $tarifRepository->findOneBy(["classe" => $classe]);
-        }
-
+        $result = $classeManager->getClassesAndTarifs($trie);
         return $this->render('classes/index.html.twig', [
-            'classes' => $classes,
+            'classes' => $result['classes'],
             'niveaux' => ['primaire', 'college', 'lycee'],
-            'active' => $trie,
-            'classeTarif' => $classeTarif,
+            'active' => $result['active'],
+            'classeTarif' => $result['classeTarif'],
         ]);
     }
 

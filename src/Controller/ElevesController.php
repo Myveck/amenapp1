@@ -13,6 +13,7 @@ use App\Repository\ClassesRepository;
 use App\Repository\ElevesBackupRepository;
 use App\Repository\ElevesRepository;
 use App\Repository\InscriptionRepository;
+use App\Service\EleveFilterManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -23,24 +24,12 @@ use Symfony\Component\Routing\Attribute\Route;
 final class ElevesController extends AbstractController
 {
     #[Route(name: 'app_eleves_index', methods: ['GET'])]
-    public function index(Request $request, ClassesRepository $classesRepository, AnneeScolaireRepository $anneeSR, InscriptionRepository $inscriptionRepo): Response
+    public function index(Request $request, EleveFilterManager $eleveFilterManager): Response
     {
-        $trie = $request->get('trie');
-        $annee_actuelle = $anneeSR->findOneBy(["actif" => 1]);
-        if ($trie == "all" or !$trie) {
-            $eleves = $inscriptionRepo->findElevesByAnneeActuelle();
-            $trie = "all";
-        } else {
-            $classe = $classesRepository->find($trie);
-            $eleves = $inscriptionRepo->findElevesActuelsByClasse($classe);
-        }
-        return $this->render('eleves/index.html.twig', [
-            'eleves' => $eleves,
-            'classes' => $classesRepository->findBy(["annee_scolaire" => $annee_actuelle], ['classeOrder' => 'asc']),
-            'active' => $trie,
-            'nombre' => count($eleves),
-            'annee_actuelle' => $annee_actuelle
-        ]);
+         $trie = $request->get('trie');
+        $data = $eleveFilterManager->filterEleves($trie);
+
+        return $this->render('eleves/index.html.twig', $data);
     }
 
     #[Route('/paiments', name: 'app_eleves_paiements', methods: ['GET'])]
