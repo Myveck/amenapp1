@@ -16,7 +16,7 @@ class EleveFilterManager
 
     public function filterEleves(?string $trie = null): array
     {
-        $annee_actuelle = $this->anneeScolaireRepository->findOneBy(["actif" => 1]);
+        $annee_actuelle = $this->anneeScolaireRepository->findOneBy(["actif" => true]);
         $classes = $this->classesRepository->findBy(
             ["annee_scolaire" => $annee_actuelle],
             ['classeOrder' => 'asc']
@@ -24,19 +24,26 @@ class EleveFilterManager
 
         $classe = null;
         if ($trie === "all" || !$trie) {
-            $eleves = $this->inscriptionRepository->findElevesByAnneeActuelle();
+            $inscriptions = $this->inscriptionRepository->findby([
+				'AnneeScolaire' => $annee_actuelle,
+                'actif' => true,
+			], ['eleve' => 'ASC']);
             $trie = "all";
         } else {
-            $classe = $this->classesRepository->find($trie);
-            $eleves = $this->inscriptionRepository->findElevesActuelsByClasse($classe);
+            $classe = $this->classesRepository->find(intval($trie));
+            $inscriptions = $this->inscriptionRepository->findby([
+				'AnneeScolaire' => $annee_actuelle,
+				'classe' => $classe,
+                'actif' => true,
+			], ['eleve' => 'ASC']);
         }
 
         return [
-            'eleves' => $eleves,
+            'eleves' => $inscriptions,
             'classes' => $classes,
             'classe' => $classe,
             'active' => $trie,
-            'nombre' => count($eleves),
+            'nombre' => count($inscriptions),
             'annee_actuelle' => $annee_actuelle,
         ];
     }

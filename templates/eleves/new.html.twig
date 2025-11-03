@@ -136,20 +136,16 @@
                         </div>
 
                         <!-- Dynamic Fields -->
-                        {% for child in formEleve %}
-                            {% if child.vars.name not in ['nom', 'prenom', 'date_naissance', 'lieuNaissance', 'sexe', '_token'] %}
-                                <div class="col-md-6">
-                                    <div class="form-group-custom">
-                                        {{ form_label(child, null, {'label_attr': {'class': 'form-label-custom'}}) }}
-                                        {% if child.vars.required %}
-                                            <span class="required-mark">*</span>
-                                        {% endif %}
-                                        {{ form_widget(child, {'attr': {'class': 'form-control-custom'}}) }}
-                                        {{ form_errors(child) }}
-                                    </div>
-                                </div>
-                            {% endif %}
-                        {% endfor %}
+                                <div class="form-group-custom">
+    <label for="classe" class="form-label-custom">Classe <span class="required-mark">*</span></label>
+    <select name="classe" id="classe" class="form-control-custom form-select-custom" required>
+        <option value="">-- Sélectionnez une classe --</option>
+        {% for classe in classes %}
+            <option value="{{ classe.id }}">{{ classe.nom }}</option>
+        {% endfor %}
+    </select>
+</div>
+
                     </div>
 
                     <!-- Info Banner -->

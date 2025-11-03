@@ -26,7 +26,7 @@ final class ElevesController extends AbstractController
     #[Route(name: 'app_eleves_index', methods: ['GET'])]
     public function index(Request $request, EleveFilterManager $eleveFilterManager): Response
     {
-         $trie = $request->get('trie');
+        $trie = $request->get('trie');
         $data = $eleveFilterManager->filterEleves($trie);
 
         return $this->render('eleves/index.html.twig', $data);
@@ -44,7 +44,7 @@ final class ElevesController extends AbstractController
             $eleves = $inscriptionRepo->findElevesActuelsByClasse($trie);
         }
         return $this->render('paiements/eleves.html.twig', [
-            'eleves' => $eleves,
+            'elefe' => $eleves,
             'classes' => $classesRepository->findBy([], ['classeOrder' => 'asc']),
             'active' => $trie,
             'nombre' => count($eleves),
@@ -97,18 +97,24 @@ final class ElevesController extends AbstractController
     }
 
     #[Route('/renew', name: 'app_eleves_renew', methods: ['GET', 'POST'])]
-    public function renew(Request $request, ElevesRepository $elevesRepository, ClassesRepository $classesRepository, AnneeScolaireRepository $anneeSR, InscriptionRepository $inscriptionRep): Response
+    public function renew(Request $request, ClassesRepository $classesRepository, AnneeScolaireRepository $anneeSR, InscriptionRepository $inscriptionRep): Response
     {
         $anneeScolaire = $anneeSR->findOneBy(["actif" => 1]);
         $trie = $request->get('trie');
         if (!$trie or $trie == "all") {
-            $eleves = $inscriptionRep->findElevesByAnneeActuelle();
+            $inscriptions = $inscriptionRep->findBy([
+                'AnneeScolaire' => $anneeScolaire,
+                'actif' => true,
+            ]);
         } else {
             $classe = $classesRepository->findOneBy(["id" => $trie]);
-            $eleves = $inscriptionRep->findElevesActuelsByClasse($classe);
+            $inscriptions = $inscriptionRep->findBy([
+                'classe' => $classe,
+                'actif' => true,
+            ]);
         }
         return $this->render('eleves/renew.html.twig', [
-            'eleves' => $eleves,
+            'inscriptions' => $inscriptions,
             'classes' => $classesRepository->findByAnneeActuelleOrdered(),
             'active' => $trie,
             'annee_actuelle' => $anneeScolaire,
@@ -116,10 +122,10 @@ final class ElevesController extends AbstractController
     }
 
     #[Route('/new', name: 'app_eleves_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, EntityManagerInterface $entityManager, AnneeScolaireRepository $anneeSR): Response
+    public function new(Request $request, EntityManagerInterface $entityManager, AnneeScolaireRepository $anneeSR, ClassesRepository $classesRepository): Response
     {
         $anneeScolaire = $anneeSR->findOneBy(["actif" => true]);
-
+        $classes = $classesRepository->findBy(['annee_scolaire' => $anneeScolaire], ['classeOrder' => 'ASC']);
         $eleve = new Eleves();
         $eleve->setAnneeScolaire($anneeScolaire);
 
@@ -129,18 +135,21 @@ final class ElevesController extends AbstractController
         $inscription->setRedouble(false);
         $inscription->setActif(true);
         
-        // Add inscription to the collection
-        $eleve->addInscription($inscription);
 
         $form = $this->createForm(Eleves1Type::class, $eleve);
         $form->handleRequest($request);
 
-        $formInscription = $this->createForm(InscriptionType::class, $inscription);
-        $formInscription->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            $classe =$classesRepository->find($request->get('classe'));
             // Thanks to cascade: ['persist'], only persist $eleve
             $entityManager->persist($eleve);
+            $entityManager->flush();
+
+            $inscription->setEleve($eleve);
+            $inscription->setClasse($classe);
+
+            $entityManager->persist($inscription);
             $entityManager->flush();
 
             $this->addFlash("success", "Nouvel élève ajouté avec succès");
@@ -150,8 +159,8 @@ final class ElevesController extends AbstractController
         return $this->render('eleves/new.html.twig', [
             'eleve' => $eleve,
             'formEleve' => $form,
-            'formInscription' => $formInscription,
             'annee_actuelle' => $anneeScolaire->getAnnee(),
+            'classes' => $classes
         ]);
     }
 

@@ -233,6 +233,18 @@ class Eleves
         return $this;
     }
 
+    public function removeInscription(Inscription $inscription)
+    {
+         if (!$this->inscriptions->removeElement($inscription)) {
+            // set the owning side to null (unless already changed)
+            if ($inscription->getClasse() === $this) {
+                $inscription->setClasse(null);
+            }
+        }
+
+        return $this;
+    }
+
     public function getClasseActuelle(): ?Classes
     {
         foreach ($this->inscriptions as $inscription) {

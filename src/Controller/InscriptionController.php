@@ -6,6 +6,7 @@ use App\Entity\Inscription;
 use App\Form\Inscription1Type;
 use App\Form\InscriptionType;
 use App\Repository\AnneeScolaireRepository;
+use App\Repository\ClassesRepository;
 use App\Repository\ElevesRepository;
 use App\Repository\InscriptionRepository;
 use App\Service\InscriptionManager;
@@ -46,7 +47,7 @@ final class InscriptionController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}/reinscription', name: 'app_inscription_reinscription', methods: ['GET', 'POST'])]
+    #[Route('/reinscription/{id}', name: 'app_inscription_reinscription', methods: ['GET', 'POST'])]
     public function reinscription(int $id, InscriptionRepository $inscriptionRepository, ElevesRepository $elevesRepo, AnneeScolaireRepository $anneeRepo, EntityManagerInterface $em, Request $request, InscriptionManager $inscriptionManager): Response
     {
         $eleve = $elevesRepo->find($id);
@@ -89,6 +90,24 @@ final class InscriptionController extends AbstractController
         ]);
     }
 
+    #[Route('/freeze/{id}', name: 'app_inscription_freeze', methods: ['GET'])]
+    public function freeze(Request $request, InscriptionRepository $inscriptionRepo, EntityManagerInterface $em): Response
+    {
+        $eleveId = intval($request->get('id'));
+        $eleveI = $inscriptionRepo->findOneBy([
+            'eleve' => $eleveId,
+            'actif' => true
+        ]);
+
+        $eleveI->setActif(false);
+        $em->persist($eleveI);
+        $em->flush();
+
+
+        $this->addFlash('success', 'L\'élève '.$eleveI->getEleve()->getNom().' '.$eleveI->getEleve()->getPrenom().' n\'est plus inscrit(e) en classe de '.$eleveI->getClasse()->getNom());
+        return $this->redirectToRoute('app_eleves_renew', ['trie' => $eleveI->getClasse()->getId()]);
+    }
+
     #[Route('/{id}', name: 'app_inscription_show', methods: ['GET'])]
     public function show(Inscription $inscription): Response
     {
@@ -114,6 +133,8 @@ final class InscriptionController extends AbstractController
             'form' => $form,
         ]);
     }
+
+   
 
     #[Route('/{id}', name: 'app_inscription_delete', methods: ['POST'])]
     public function delete(Request $request, Inscription $inscription, EntityManagerInterface $entityManager): Response

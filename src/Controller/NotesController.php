@@ -13,6 +13,7 @@ use App\Repository\EvaluationsRepository;
 use App\Repository\ExaminationsRepository;
 use App\Repository\InscriptionRepository;
 use App\Repository\NotesRepository;
+use App\Service\BulletinManager2;
 use App\Service\ExaminationManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -55,20 +56,6 @@ final class NotesController extends AbstractController
         ]);
     }
 
-    #[Route('/choice', name: 'app_notes_choice', methods: ['GET'])]
-    public function showChoice(Request $request, NotesRepository $note, ClassesRepository $classesRepository): Response
-    {
-        if ($request->get("trie")) {
-            $trie = $request->get("trie");
-        } else {
-            $trie = "all";
-        }
-        return $this->render('notes/choice.html.twig', [
-            'notes' => $note->findByAnneeActuel(),
-            'classes' => $classesRepository->findByAnneeActuelleOrdered(),
-            'trie' => $trie,
-        ]);
-    }
 
     #[Route('/create/exam/{examination}', name: 'app_notes_create_exam', methods: ['GET'])]
     public function saveNotes(Request $request, ExaminationManager $examinationManager) 
@@ -87,12 +74,6 @@ final class NotesController extends AbstractController
         ]);
     }
 
-    #[Route('/moyennes', name: 'app_notes_moyennes', methods: ['GET'])]
-    public function showMoyenne(): Response
-    {
-
-        return $this->render('notes/choice_moyenne_trimestre.html.twig');
-    }
 
     #[Route('/bulletin', name: 'app_notes_bulletins', methods: ['GET'])]
     public function choiceTrimestre(): Response
@@ -793,6 +774,19 @@ final class NotesController extends AbstractController
             'results1' => $results1,
             'results2' => $results2,
             // 't3' => $moyenneTrimestre3,
+        ]);
+    }
+
+    #[Route('/bulletins/trimestre/{classeId}{trimestre}', name: 'app_notes_bulletins_trimestre')]
+    public function showBulletin(
+        int $classeId,
+        int $trimestre,
+        BulletinManager2 $bulletinManager
+    ): Response {
+        $resultats = $bulletinManager->calculateTrimestre($classeId, $trimestre);
+
+        return $this->render('bulletin/trimestre.html.twig', [
+            'resultats' => $resultats,
         ]);
     }
 }
