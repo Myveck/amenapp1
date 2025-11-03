@@ -90,7 +90,7 @@ final class InscriptionController extends AbstractController
         ]);
     }
 
-    #[Route('/freeze/{id}', name: 'app_inscription_freeze', methods: ['GET'])]
+    #[Route('/freeze/{id}', name: 'app_inscription_freeze', methods: ['GET', 'POST'])]
     public function freeze(Request $request, InscriptionRepository $inscriptionRepo, EntityManagerInterface $em): Response
     {
         $eleveId = intval($request->get('id'));

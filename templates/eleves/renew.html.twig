@@ -41,8 +41,10 @@
             <td>{{ inscription.eleve.prenom }}</td>
             <td>{{ inscription.classe.nom }}</td>
             <td>
+            <div class="d-flex flex-row justify-content-around">
               <a href="{{ path('app_inscription_reinscription', { id: inscription.eleve.id, classe: active}) }}"class="btn btn-primaire">réinscrire</a>
-              <a href="{{ path('app_inscription_freeze', { id: inscription.eleve.id}) }}"class="btn btn-danger">Enlever</a>
+              <form action="{{ path('app_inscription_freeze', { id: inscription.eleve.id}) }}" method="post" onsubmit="return confirm('Confirmer la désinscription de cet élève ?')"><button type="submit" class="btn btn-danger ml-2x">Désinscrire</button></form>
+            </div>
             </td>
           </tr>
           {% else %}
