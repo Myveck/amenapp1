@@ -810,10 +810,10 @@ final class NotesController extends AbstractController
             'moyenneClasse' => 11.71,
         ];
 
-        return $this->render('/notes/classe.html.twig', [
+        return $this->render('/notes/classe_bulettins.html.twig', [
             'resultats' => $resultats[0],
             'classe' => $resultats[1],
-            'etablissement' => $etablissement,
+            'ecole' => $etablissement,
             'bilanClasse' => $bilanClasse,
             'trimestre' => $trimestre,
         ]);
