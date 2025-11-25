@@ -60,10 +60,10 @@ final class NotesController extends AbstractController
     #[Route('/create/exam/{examination}', name: 'app_notes_create_exam', methods: ['GET'])]
     public function saveNotes(Request $request, ExaminationManager $examinationManager) 
     {
-        $d1 = $request->get('d1');
-        $d2 = $request->get('d2');
-        $dh = $request->get('dh');
-        $mi = $request->get('mi');
+        $d1 = $request->get('D1');
+        $d2 = $request->get('D2');
+        $dh = $request->get('DH');
+        $mi = $request->get('MI');
         $examinationId = $request->get('examination');
 
         $result = $examinationManager->createExamination($examinationId, $d1, $d2, $mi, $dh,);

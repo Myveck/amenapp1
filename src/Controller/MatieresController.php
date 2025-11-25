@@ -22,12 +22,13 @@ use Symfony\Component\Routing\Attribute\Route;
 final class MatieresController extends AbstractController
 {
     #[Route(name: 'app_matieres_index', methods: ['GET'])]
-    public function index(Request $request, ClassesMatieresRepository $classeMatiere, ClassesRepository $classesRepository): Response
+    public function index(Request $request, ClassesMatieresRepository $classeMatiere, ClassesRepository $classesRepository, AnneeScolaireRepository $anneeSR): Response
     {
+        $anneeScolaire = $anneeSR->findOneBy(['actif' => 1]);
         $trie = $request->get("trie");
         if (!$trie or $trie == "all") {
             $trie = "all";
-            $cmatieres = $classeMatiere->findBy([], ['classe' => 'asc']);
+            $cmatieres = $classeMatiere->findByAnneeActuelle();
         } else {
             $classe = $classesRepository->findOneBy(["id" => $trie]);
             $cmatieres = $classeMatiere->findMatiereByClasse($classe);
@@ -38,7 +39,7 @@ final class MatieresController extends AbstractController
             'classeMatieres' => $classeMatiere->findAll(),
             'niveaux' => ['primaire', 'college', 'lycee'],
             'active' => $trie,
-            'classes' => $classesRepository->findBy([], ["classeOrder" => "asc"])
+            'classes' => $classesRepository->findBy(["annee_scolaire" => $anneeScolaire], ["classeOrder" => "asc"])
         ]);
     }
 
