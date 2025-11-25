@@ -170,4 +170,14 @@ class ClassesMatieresRepository extends ServiceEntityRepository
             ->getQuery()
             ->getOneOrNullResult();
     }
+
+    public function findByAnneeActuelle()
+    {
+        return $this->createQueryBuilder('cm')
+            ->join('cm.annee_scolaire', 'a')
+            ->where('a.actif = true')
+            ->select('DISTINCT cm') 
+            ->getQuery()
+            ->getResult();
+    }
 }

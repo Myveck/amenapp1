@@ -44,7 +44,12 @@ class MainController extends AbstractController
         $anneeScolaire = $anneeSR->findOneBy(['actif' => 1])->getAnnee();
         $eleves = $annee->getEleves();
         $classes = $classesRepository->findByAnneeActuelleOrdered();
-        $matieres = $cmRepository->findMatieresByAnneeActuelle();
+        $cmatieres = $cmRepository->findByAnneeActuelle();
+        $matieres = [];
+        foreach ($cmatieres as $key => $value) {
+            $matieres[] = $value->getMatiere();
+        }
+        
         $ensignants = $enseignantsRepository->findAll();
 
         $m = count($elevesRepository->findBy(["sexe" => "m"]));
