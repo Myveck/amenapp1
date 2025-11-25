@@ -26,12 +26,36 @@ use Symfony\Component\Routing\Attribute\Route;
 final class ExaminationsController extends AbstractController
 {
     #[Route(name: 'app_examinations_index', methods: ['GET'])]
-    public function index(Request $request, ExaminationsRepository $examinationsRepository, ClassesRepository $classesRepository, MatieresRepository $matieresRepository, EvaluationsRepository $evaluationsRepository, ClassesMatieresRepository $classesMatieresRepository, AnneeScolaireRepository $anneeSR, InscriptionRepository $inscriptionRepo, ExaminationManager $examManager): Response
+    public function index(Request $request, ExaminationsRepository $examinationsRepository, ClassesRepository $classesRepository, MatieresRepository $matieresRepository, EvaluationsRepository $evaluationsRepository, ClassesMatieresRepository $classesMatieresRepository, AnneeScolaireRepository $anneeSR, InscriptionRepository $inscriptionRepo, ExaminationManager $examManager, EntityManagerInterface $em): Response
     {
         $classeId = $request->get('classe');
         $matiereId = $request->get('matiere');
         $evaluationId = $request->get('evaluation');
         $trimestreParam = $request->get('trimestre');
+
+        $classes = $classesRepository->findAll();
+
+        // foreach ($classes as $classe) {
+        //     switch ($classe->getNom()) {
+        //         case '6ème':
+        //             $classe->setNextClasse($classesRepository->findOneBy(["nom" => "5ème"]));
+        //             $em->persist($classe);
+        //             break;
+        //         case '5ème':
+        //             $classe->setNextClasse($classesRepository->findOneBy(["nom" => "4ème"]));
+        //             $em->persist($classe);
+        //             break;
+        //         case '4ème':
+        //             $classe->setNextClasse($classesRepository->findOneBy(["nom" => "3ème"]));
+        //             $em->persist($classe);
+        //             break;
+                
+        //         default:
+        //             # code...
+        //             break;
+        //     }
+        // }
+        // $em->flush();
 
         $data = $examManager->filter($classeId, $matiereId, $evaluationId, $trimestreParam);
 
@@ -180,6 +204,7 @@ final class ExaminationsController extends AbstractController
         $matiereId = intval($request->get('matiereId'));
         $classeId = intval($request->get("classeId"));
         $examinationId = intval($request->get("examinationId"));
+        $trimestre = intval($request->get("trimestre"));
 
         $data = $examinationManager->findByTrimestre($matiereId, $classeId, $examinationId);
 

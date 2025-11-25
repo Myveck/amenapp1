@@ -1,0 +1,252 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Bulletin Trimestriel{% endblock %}
+
+{% block body %}
+<style>
+    @page {
+        size: A4;
+        margin: 1.5cm;
+    }
+
+    body {
+        font-family: 'DejaVu Sans', sans-serif;
+        background: #fff;
+        color: #000;
+    }
+
+    .bulletin {
+        width: 100%;
+        margin: auto;
+        padding: 10px;
+    }
+
+    .header {
+        text-align: center;
+        margin-bottom: 15px;
+        border-bottom: 2px solid #000;
+        padding-bottom: 8px;
+    }
+
+    .header img {
+        width: 70px;
+        height: auto;
+        float: left;
+        margin-top: -10px;
+    }
+
+    .header h3 {
+        margin: 0;
+        text-transform: uppercase;
+        font-size: 16px;
+    }
+
+    .header p {
+        margin: 2px 0;
+        font-size: 13px;
+    }
+
+    .header .devise {
+        font-style: italic;
+        margin-top: 5px;
+        font-size: 12px;
+    }
+
+    h2.title {
+        text-align: center;
+        margin-top: 15px;
+        font-size: 18px;
+        text-transform: uppercase;
+        text-decoration: underline;
+    }
+
+    .info-eleve {
+        font-size: 13px;
+        margin-top: 10px;
+        border: 1px solid #000;
+        padding: 8px;
+    }
+
+    .info-eleve span {
+        display: inline-block;
+        width: 33%;
+        margin-bottom: 4px;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 15px;
+        font-size: 12px;
+    }
+
+    table, th, td {
+        border: 1px solid #000;
+    }
+
+    th {
+        text-align: center;
+        background: #f1f1f1;
+        font-size: 12px;
+        padding: 4px;
+    }
+
+    td {
+        text-align: center;
+        padding: 3px;
+    }
+
+    td:first-child {
+        text-align: left;
+        padding-left: 6px;
+    }
+
+    .bilan {
+        margin-top: 15px;
+        font-size: 13px;
+        border: 1px solid #000;
+        padding: 10px;
+    }
+
+    .bilan h4 {
+        margin-bottom: 6px;
+        text-decoration: underline;
+    }
+
+    .mentions {
+        margin-top: 15px;
+        font-size: 13px;
+    }
+
+    .mentions .box {
+        display: inline-block;
+        width: 48%;
+        vertical-align: top;
+    }
+
+    .mentions input {
+        margin-right: 6px;
+    }
+
+    .signature {
+        margin-top: 25px;
+        font-size: 13px;
+        text-align: right;
+    }
+
+    .footer-note {
+        margin-top: 25px;
+        font-size: 11px;
+        text-align: center;
+        border-top: 1px solid #000;
+        padding-top: 5px;
+        font-style: italic;
+    }
+</style>
+
+<div class="bulletin">
+
+    <!-- HEADER -->
+    <div class="header">
+        {% if etablissement.logo is defined %}
+            <img src="{{ asset(etablissement.logo) }}" alt="Logo">
+        {% endif %}
+        <h3>RÉPUBLIQUE DU BÉNIN</h3>
+        <p><strong>{{ etablissement.nom }}</strong></p>
+        <p>{{ etablissement.adresse }} - Tel : {{ etablissement.telephone }}</p>
+        <p class="devise">{{ etablissement.devise }}</p>
+    </div>
+
+    <h2 class="title">BULLETIN DE NOTES DU {{ trimestre }}<sup>e</sup> TRIMESTRE</h2>
+
+    <!-- INFORMATIONS ÉLÈVE -->
+    <div class="info-eleve">
+        <span><strong>Nom :</strong> {{ eleve.nom }}</span>
+        <span><strong>Prénom :</strong> {{ eleve.prenom }}</span>
+        <span><strong>Sexe :</strong> {{ eleve.sexe }}</span><br>
+        <span><strong>Classe :</strong> {{ eleve.classe }}</span>
+        <span><strong>Effectif :</strong> {{ eleve.effectif }}</span>
+        <span><strong>Année scolaire :</strong> {{ eleve.annee }}</span>
+    </div>
+
+    <!-- TABLE DES NOTES -->
+    <table>
+        <thead>
+            <tr>
+                <th>Matière</th>
+                <th>Coef</th>
+                <th>Devoir 1</th>
+                <th>Devoir 2</th>
+                <th>DH</th>
+                <th>MI</th>
+                <th>Moy/20</th>
+                <th>Moy×Coef</th>
+                <th>Rang</th>
+                <th>Moy. forte</th>
+                <th>Moy. faible</th>
+                <th>Appréciation</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for ligne in notes %}
+                <tr>
+                    <td>{{ ligne.matiere }}</td>
+                    <td>{{ ligne.coef }}</td>
+                    <td>{{ ligne.D1 ?? '-' }}</td>
+                    <td>{{ ligne.D2 ?? '-' }}</td>
+                    <td>{{ ligne.DH ?? '-' }}</td>
+                    <td>{{ ligne.MI ?? '-' }}</td>
+                    <td>{{ ligne.moyenne ?? '-' }}</td>
+                    <td>{{ ligne.totalCoef ?? '-' }}</td>
+                    <td>{{ ligne.rang ?? '-' }}</td>
+                    <td>{{ ligne.moyFort ?? '-' }}</td>
+                    <td>{{ ligne.moyFaible ?? '-' }}</td>
+                    <td>{{ ligne.appreciation ?? '' }}</td>
+                </tr>
+            {% else %}
+                <tr><td colspan="12">Aucune note enregistrée pour ce trimestre.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- BILAN -->
+    <div class="bilan">
+        <h4>Bilan de l’élève</h4>
+        <div>Moyenne : <strong>{{ bilan.moyenneGenerale }}</strong></div>
+        <div>Rang : <strong>{{ bilan.rang }}</strong></div>
+
+        <h4 style="margin-top: 10px;">Bilan de la classe</h4>
+        <div>Moyenne forte : {{ bilan.moyenneForte }}</div>
+        <div>Moyenne faible : {{ bilan.moyenneFaible }}</div>
+        <div>Moyenne de la classe : {{ bilan.moyenneClasse }}</div>
+    </div>
+
+    <!-- DISTINCTIONS -->
+    <div class="mentions">
+        <div class="box">
+            <strong>Distinctions et Sanctions</strong><br>
+            <label><input type="checkbox" {% if mentions.felicitations %}checked{% endif %}> Félicitations</label><br>
+            <label><input type="checkbox" {% if mentions.encouragement %}checked{% endif %}> Encouragement</label><br>
+            <label><input type="checkbox" {% if mentions.passable %}checked{% endif %}> Passable</label><br>
+            <label><input type="checkbox" {% if mentions.tableauHonneur %}checked{% endif %}> Tableau d'honneur</label><br>
+            <label><input type="checkbox" {% if mentions.avertissement %}checked{% endif %}> Avertissement</label><br>
+            <label><input type="checkbox" {% if mentions.blame %}checked{% endif %}> Blâme</label>
+        </div>
+        <div class="box">
+            <strong>Appréciation du Conseil des Professeurs :</strong><br>
+            <p style="margin-top: 5px;">...............................................................</p>
+        </div>
+    </div>
+
+    <!-- SIGNATURE -->
+    <div class="signature">
+        <p><strong>Signature du Directeur des Études</strong></p>
+        <p>{{ "now"|date("d/m/Y") }}</p>
+    </div>
+
+    <div class="footer-note">
+        MI : Moyenne Interrogation — DH : Devoir Hebdomadaire
+    </div>
+
+</div>
+{% endblock %}

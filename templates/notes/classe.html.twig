@@ -1,0 +1,84 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Bulletins de la Classe{% endblock %}
+
+{% block body %}
+<style>
+    @page { size: A4; margin: 1.5cm; }
+    body { font-family: 'DejaVu Sans', sans-serif; background: #fff; color: #000; }
+
+    .page {
+        width: 100%;
+        margin: auto;
+        page-break-after: always;
+    }
+
+    .last-page {
+        page-break-after: auto;
+    }
+</style>
+
+
+{% for eleveId, eleveData in resultats %}
+    {% set eleve = eleveData.eleve %}
+
+    {# Construire le tableau notes directement ici #}
+    {% set notes = [] %}
+    {% for matiereData in eleveData.matieres %}
+    
+        {% set notes = notes|merge([{
+            'matiere': matiereData.matiere.nom,
+            'coef': matiereData.coefficient,
+            'D1': matiereData.notes.D1 is defined ? matiereData.notes.D1 : '-',
+            'D2': matiereData.notes.D2 is defined ? matiereData.notes.D2 : '-',
+            'DH': matiereData.notes.DH is defined ? matiereData.notes.DH : '-',
+            'MI': matiereData.notes.MI is defined ? matiereData.notes.MI : '-',
+            'moyenne': matiereData.moyenne,
+            'totalCoef': matiereData.moyenne is defined and matiereData.moyenne is not same as(null) ? (matiereData.moyenne * matiereData.coefficient) : '-',
+            'rang': '-',
+            'moyFort': '-',
+            'moyFaible': '-',
+            'appreciation': matiereData.moyenne is defined and matiereData.moyenne is not same as(null) ? (
+                matiereData.moyenne >= 16 ? 'Très bien' :
+                (matiereData.moyenne >= 14 ? 'Bien' :
+                (matiereData.moyenne >= 12 ? 'Assez-bien' :
+                (matiereData.moyenne >= 10 ? 'Passable' : 'Insuffisant')))
+            ) : ''
+        }]) %}
+    {% endfor %}
+
+    {% set bilan = {
+        'moyenneGenerale': eleveData.moyenneGenerale,
+        'rang': eleveData.rang ?? loop.index,
+        'moyenneForte': bilanClasse.moyenneForte,
+        'moyenneFaible': bilanClasse.moyenneFaible,
+        'moyenneClasse': bilanClasse.moyenneClasse
+    } %}
+
+    <div class="page {% if loop.last %}last-page{% endif %}">
+        {% include 'notes/trimestre.html.twig' with {
+            etablissement: etablissement,
+            eleve: {
+                nom: eleve.nom,
+                prenom: eleve.prenom,
+                sexe: eleve.sexe,
+                classe: classe.nom,
+                effectif: resultats|length,
+                annee: '2024-2025',
+                rang: bilan.rang
+            },
+            trimestre: trimestre,
+            notes: notes,
+            bilan: bilan,
+            mentions: {
+                felicitations: false,
+                encouragement: true,
+                passable: false,
+                tableauHonneur: false,
+                avertissement: false,
+                blame: false
+            }
+        } only %}
+    </div>
+{% endfor %}
+{% endblock %}

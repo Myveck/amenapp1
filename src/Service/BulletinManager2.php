@@ -3,7 +3,6 @@
 namespace App\Service;
 
 use App\Entity\Classes;
-use App\Entity\Eleves;
 use App\Entity\Examinations;
 use App\Entity\Inscription;
 use App\Repository\ClassesMatieresRepository;
@@ -61,7 +60,7 @@ class BulletinManager2
 
         $inscriptions = $this->inscriptionRepository->findBy([
             'classe' => $classe,
-            'active' => true,
+            'actif' => true,
         ]);
 
         $examinations = $this->examinationsRepository->findBy([
@@ -107,7 +106,7 @@ class BulletinManager2
                 foreach ($evaluationMap as $evalId => $evalCode) {
                     $noteEntity = $this->notesRepository->findOneBy([
                         'evaluation' => $evalId,
-                        'examination' => $exam,
+                        'examinations' => $exam,
                         'eleve' => $eleve,
                     ]);
 
@@ -141,6 +140,100 @@ class BulletinManager2
                 : null;
         }
 
+        $results = $this->orderByRank($results);
+
+        return [$results, $classe];
+    }
+
+    public function orderByRank(array $results)
+    {
+        $ranks = [];
+        foreach ($results as $value) {
+            $ranks[$value['eleve']->getId()] = $value['moyenneGenerale'];
+        }
+
+        arsort($ranks);
+        $i = 1;
+        foreach ($ranks as $key => $rank) {
+            $results[$key]['rang'] = $i;
+            $i++;
+        }
+
         return $results;
     }
+
+    public function calculateAnnuelle(int $classeId): array
+    {
+        $classe = $this->classesRepository->find($classeId);
+        $inscriptions = $this->inscriptionRepository->findBy([
+            'classe' => $classe,
+            'actif' => true,
+        ]);
+
+        // Récupération des moyennes trimestrielles
+        $t1 = $this->calculateTrimestre($classeId, 1);
+        $t2 = $this->calculateTrimestre($classeId, 2);
+        $t3 = $this->calculateTrimestre($classeId, 3);
+
+        $moyennesAnnuelles = [];
+
+        foreach ($inscriptions as $inscription) {
+            $eleve = $inscription->getEleve();
+            $eleveId = $eleve->getId();
+
+            $moy1 = $t1[$eleveId]['moyenneGenerale'] ?? null;
+            $moy2 = $t2[$eleveId]['moyenneGenerale'] ?? null;
+            $moy3 = $t3[$eleveId]['moyenneGenerale'] ?? null;
+
+            // On garde uniquement les moyennes existantes
+            $moyennesExistantes = array_filter([$moy1, $moy2, $moy3], fn($v) => $v !== null);
+
+            // Moyenne annuelle = somme / nombre de trimestres valides
+            $moyenneAnnuelle = !empty($moyennesExistantes)
+                ? array_sum($moyennesExistantes) / count($moyennesExistantes)
+                : null;
+
+            // 🎓 Détermination du passage
+            if ($moyenneAnnuelle === null) {
+                $decision = 'Non évalué';
+            } elseif ($moyenneAnnuelle >= 10) {
+                $decision = 'Admis(e)';
+            } else {
+                $decision = 'Redouble';
+            }
+
+            $moyennesAnnuelles[$eleveId] = [
+                'eleve' => $eleve,
+                'moyennes' => [
+                    'T1' => $moy1,
+                    'T2' => $moy2,
+                    'T3' => $moy3,
+                ],
+                'moyenneAnnuelle' => $moyenneAnnuelle,
+                'decision' => $decision,
+            ];
+        }
+
+        return $moyennesAnnuelles;
+    }
+
+    public function getDecisionPassage(?float $moyenne, float $seuil = 9.50): string
+    {
+        if ($moyenne === null) {
+            return 'Non évalué';
+        }
+
+        if ($moyenne >= $seuil) {
+            return 'Admis(e)';
+        }
+
+        // Tu peux affiner selon les politiques de l’école
+        if ($moyenne >= ($seuil - 0.5)) {
+            return 'Ajourné(e)';
+        }
+
+        return 'Redouble';
+    }
+
+
 }

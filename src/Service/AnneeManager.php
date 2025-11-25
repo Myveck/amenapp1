@@ -19,7 +19,7 @@ class AnneeManager
     private AnneeScolaireRepository $anneeRepo;
     private ClassesRepository $classeRepo;
     private InscriptionRepository $inscriptionRepo;
-    private BulletinManager $bulletinManager;
+    private BulletinManager2 $bulletinManager;
     private TarifRepository $tarifRepo;
 
     public function __construct(
@@ -27,7 +27,7 @@ class AnneeManager
         AnneeScolaireRepository $anneeRepo,
         ClassesRepository $classeRepo,
         InscriptionRepository $inscriptionRepo,
-        BulletinManager $bulletinManager,
+        BulletinManager2 $bulletinManager,
         TarifRepository $tarifRepo
     ) {
         $this->em = $em;
@@ -59,17 +59,16 @@ class AnneeManager
         $nouvelleAnnee->setActif(true);
         $this->em->persist($nouvelleAnnee);
 
-
-        // Désactiver l’ancienne année
+        // Désactiver l’année actuelle
         $anneeActuelle->setActif(false);
 
-        // 3️⃣ Dupliquer les classes
+        // 3️⃣ Dupliquer les classes existantes
         $classesActuelles = $this->classeRepo->findBy(['annee_scolaire' => $anneeActuelle]);
+        $mapClasses = []; // Pour retrouver la correspondance ancienne/nouvelle
 
         foreach ($classesActuelles as $classe) {
             $nouvelleClasse = new Classes();
-            $nouveauTarif = new Tarif($nouvelleAnnee);
-            $tarifActuel = $this->tarifRepo->findOneBy(['classe'  => $classe]);
+            $tarifActuel = $this->tarifRepo->findOneBy(['classe' => $classe]);
 
             $nouvelleClasse
                 ->setNom($classe->getNom())
@@ -79,16 +78,20 @@ class AnneeManager
 
             $this->em->persist($nouvelleClasse);
 
-            // Dupliquer les tarifs
-            $nouveauTarif
-                ->setClasse($nouvelleClasse)
-                ->setPrixInscription($tarifActuel->getPrixInscription())
-                ->setPrixReinscription($tarifActuel->getPrixReinscription())
-                ->setPrixAnnuel($tarifActuel->getPrixAnnuel())
-                ->setClasse($nouvelleClasse);
-            $this->em->persist($nouveauTarif);
+            $mapClasses[$classe->getId()] = $nouvelleClasse;
 
-            // Dupliquer les matières liées à cette classe
+            // ✅ Dupliquer le tarif
+            if ($tarifActuel) {
+                $nouveauTarif = new Tarif($nouvelleAnnee);
+                $nouveauTarif
+                    ->setClasse($nouvelleClasse)
+                    ->setPrixInscription($tarifActuel->getPrixInscription())
+                    ->setPrixReinscription($tarifActuel->getPrixReinscription())
+                    ->setPrixAnnuel($tarifActuel->getPrixAnnuel());
+                $this->em->persist($nouveauTarif);
+            }
+
+            // ✅ Dupliquer les matières liées
             foreach ($classe->getClassesMatieres() as $cm) {
                 $newCM = new ClassesMatieres();
                 $newCM
@@ -97,76 +100,58 @@ class AnneeManager
                     ->setAnneeScolaire($nouvelleAnnee)
                     ->setCoefficient($cm->getCoefficient());
                 $this->em->persist($newCM);
-
             }
         }
 
         $this->em->flush();
 
-        // Ajouter les classes suivantes dans les classes
-
-        // 4️⃣ Créer les nouvelles inscriptions selon les moyennes
+        // 4️⃣ Traitement des élèves : passage ou redoublement
         foreach ($classesActuelles as $classe) {
-            $inscriptions = $this->inscriptionRepo->findBy([
-                'classe' => $classe,
-                'AnneeScolaire' => $anneeActuelle,
-                'actif' => true,
-            ]);
+            $resultats = $this->bulletinManager->calculateAnnuelle($classe->getId());
 
-            if (empty($inscriptions)) continue;
+            foreach ($resultats as $eleveId => $data) {
+                $eleve = $data['eleve'];
+                $moyenne = $data['moyenneAnnuelle'];
 
-            $eleves = array_map(fn($i) => $i->getEleve(), $inscriptions);
-            $moyennes = $this->bulletinManager->calculateAnnuelle($classe, $eleves);
+                // ⚖️ Décision de passage
+                $decision = ($moyenne !== null && $moyenne >= $seuil) ? 'admis' : 'redouble';
 
-            foreach ($inscriptions as $inscription) {
-                $eleve = $inscription->getEleve();
-                $moyenne = $moyennes[$eleve->getId()] ?? 0;
-                $decision = $this->bulletinManager->getDecisionPassage($moyenne, $seuil);
+                if ($decision === 'admis') {
+                    // Chercher la classe suivante (ex: "6e" → "5e")
+                    $classeSuivante = $classe->getNextClasse();
 
-                $ancienneClasse = $inscription->getClasse();
-                $nouvelleClasse = null;
+                    // Prendre la nouvelle classe
+                    $trueNewClasse = $mapClasses[$classeSuivante];
 
-                // 🔹 Trouver la classe suivante à partir du champ nextClasse
-                if ($ancienneClasse->getNextClasse()) {
-                    // On récupère la copie de cette classe dans la nouvelle année
-                    $next = $ancienneClasse->getNextClasse();
-                    $nouvelleClasse = $this->classeRepo->findOneBy([
-                        'nom' => $next->getNom(),
-                        'annee_scolaire' => $nouvelleAnnee
-                    ]); 
+                    // Créer une nouvelle inscription dans la classe suivante
+                    if ($trueNewClasse) {
+                        $nouvelleInscription = new Inscription();
+                        $nouvelleInscription
+                            ->setEleve($eleve)
+                            ->setClasse($trueNewClasse)
+                            ->setAnneeScolaire($nouvelleAnnee)
+                            ->setActif(true);
+                        $this->em->persist($nouvelleInscription);
+                    }
+                } else {
+                    // Redouble dans la même classe
+                    $classeRepetee = $mapClasses[$classe->getId()] ?? null;
+                    if ($classeRepetee) {
+                        $inscriptionRedoublant = new Inscription();
+                        $inscriptionRedoublant
+                            ->setEleve($eleve)
+                            ->setClasse($classeRepetee)
+                            ->setAnneeScolaire($nouvelleAnnee)
+                            ->setActif(true);
+                        $this->em->persist($inscriptionRedoublant);
+                    }
                 }
-
-                // 🔹 Si pas de classe suivante (ex : terminale), ou redoublement
-                if (!$nouvelleClasse || $decision === 'redouble') {
-                    $nouvelleClasse = $this->classeRepo->findOneBy([
-                        'nom' => $ancienneClasse->getNom(),
-                        'annee_scolaire' => $nouvelleAnnee
-                    ]);
-                }
-
-                if (!$nouvelleClasse) continue;
-
-                // 🔹 Créer la nouvelle inscription
-                $nouvelleInscription = new Inscription();
-                $nouvelleInscription
-                    ->setEleve($eleve)
-                    ->setClasse($nouvelleClasse)
-                    ->setAnneeScolaire($nouvelleAnnee)
-                    ->setMoyenneAnnuelle($moyenne)
-                    ->setRedouble($decision === 'redouble')
-                    ->setActif(true)
-                    ->setDateInscription(new \DateTime());
-
-                $this->em->persist($nouvelleInscription);
-
-                // Désactiver l’ancienne inscription
-                $inscription->setActif(false);
             }
         }
 
-        // 5️⃣ Sauvegarde finale
         $this->em->flush();
     }
+
 
 
     /**
@@ -195,7 +180,7 @@ class AnneeManager
             if (empty($inscriptions)) continue;
 
             $eleves = array_map(fn($i) => $i->getEleve(), $inscriptions);
-            $moyennes = $this->bulletinManager->calculateAnnuelle($classe, $eleves);
+            $moyennes = $this->bulletinManager->calculateAnnuelle($classe->getId());
 
             $elevesData = [];
 

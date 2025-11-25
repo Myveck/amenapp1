@@ -35,7 +35,7 @@ class ExaminationManager
         $allNotes = [$d1, $d2, $mi, $dh];
         $examination = $this->examinationsRepository->find($examination);
 
-        $i = 1; // correspond à l'ID d'évaluation (1 => D1, 2 => D2, etc.)
+        $i = 33; // correspond à l'ID d'évaluation (1 => D1, 2 => D2, etc.)
 
         foreach ($allNotes as $notes) {
             if (!$notes) {
@@ -95,28 +95,39 @@ class ExaminationManager
 
         $eleves = $this->inscriptionRepo->findElevesActuelsByClasse($classe);
 
-        $notesD1 = $this->notesRepo->findBy([
-            "examinations" => $examination,
-            "evaluation" => 1,
-        ]);
-        $notesD2 = $this->notesRepo->findBy([
-            "examinations" => $examination,
-            "evaluation" => 2,
-        ]);
-        $notesMi = $this->notesRepo->findBy([
-            "examinations" => $examination,
-            "evaluation" => 3,
-        ]);
-        $notesDh = $this->notesRepo->findBy([
-            "examinations" => $examination,
-            "evaluation" => 4,
-        ]);
+        $evaluations = $this->evaluationRepository->findAll();
+
+        $notes = [];
+
+        foreach ($evaluations as $evaluation) {
+            $nom = $evaluation->getNom();
+
+            if (in_array($nom, ['D1', 'D2', 'MI', 'DH'])) {
+                $notes[$nom] = $this->notesRepo->findBy([
+                    "examinations" => $examination,
+                    "evaluation" => $evaluation,
+                ]);
+            }
+        }
+
+        // $notesD2 = $this->notesRepo->findBy([
+        //     "examinations" => $examination,
+        //     "evaluation" => 'D2',
+        // ]);
+        // $notesMi = $this->notesRepo->findBy([
+        //     "examinations" => $examination,
+        //     "evaluation" => 'MI',
+        // ]);
+        // $notesDh = $this->notesRepo->findBy([
+        //     "examinations" => $examination,
+        //     "evaluation" => 'DH',
+        // ]);
 
         $evaluations = [
-            'd1' => $notesD1,
-            'd2' => $notesD2,
-            'mi' => $notesMi,
-            'dh' => $notesDh,
+            'd1' => $notes['D1'],
+            'd2' => $notes['D2'],
+            'mi' => $notes['MI'],
+            'dh' => $notes['DH'],
         ];
 
         return [
