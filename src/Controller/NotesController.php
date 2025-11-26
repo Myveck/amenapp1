@@ -786,14 +786,6 @@ final class NotesController extends AbstractController
         $trimestre = $request->get('trimestre');
         $resultats = $bulletinManager->calculateTrimestre($classeId, $trimestre);
 
-        $resultats = $bulletinManager->calculateTrimestre($classeId, $trimestre);
-
-        $rangEleves = $bulletinManager->orderByRank($resultats[0]);
-
-    //   arsort($rangEleves);
-
-    //   dd($rangEleves);
-
         // Informations globales de l’établissement
         $etablissement = [
             'nom' => 'CPEG AMEN',
@@ -810,10 +802,10 @@ final class NotesController extends AbstractController
             'moyenneClasse' => 11.71,
         ];
 
-        return $this->render('/notes/classe_bulettins.html.twig', [
+        return $this->render('/notes/classe.html.twig', [
             'resultats' => $resultats[0],
             'classe' => $resultats[1],
-            'ecole' => $etablissement,
+            'etablissement' => $etablissement,
             'bilanClasse' => $bilanClasse,
             'trimestre' => $trimestre,
         ]);

@@ -3,20 +3,6 @@
 {% block title %}Bulletins de la Classe{% endblock %}
 
 {% block body %}
-<style>
-    @page { size: A4; margin: 1.5cm; }
-    body { font-family: 'DejaVu Sans', sans-serif; background: #fff; color: #000; }
-
-    .page {
-        width: 100%;
-        margin: auto;
-        page-break-after: always;
-    }
-
-    .last-page {
-        page-break-after: auto;
-    }
-</style>
 
 
 {% for eleveId, eleveData in resultats %}
@@ -56,7 +42,7 @@
     } %}
 
     <div class="page {% if loop.last %}last-page{% endif %}">
-        {% include 'notes/trimestre.html.twig' with {
+        {% include 'notes/bulletins2.html.twig' with {
             etablissement: etablissement,
             eleve: {
                 nom: eleve.nom,
