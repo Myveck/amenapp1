@@ -57,15 +57,21 @@ final class MatieresController extends AbstractController
 
         $form = $this->createForm(MatieresType::class, $matiere);
         $form->handleRequest($request);
+        
+        // Get manual fields
+        $classeId = $request->get('selectedClasse');
+        $coef = $request->get('coefficient');
 
         if ($form->isSubmitted() && $form->isValid()) {
             $entityManager->persist($matiere);
 
 
+            // Fetch class (because selectedClasse returns an ID)
+            $classe = $classesRepository->find($classeId);
             // Working on classeMatiere
             $classeMatiere->setMatiere($matiere);
-            $classeMatiere->setClasse($classesRepository->findOneBy(['id' => $request->get("classe")]));
-            $classeMatiere->setCoefficient($request->get("coefficient"));
+            $classeMatiere->setClasse($classe);
+            $classeMatiere->setCoefficient($coef);
             $classeMatiere->setAnneeScolaire($anneeScolaire);
 
             $entityManager->persist($classeMatiere);

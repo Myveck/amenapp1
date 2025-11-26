@@ -3,21 +3,22 @@
 
 <div class="form-group my-4">
   <label for="classe">Classe</label>
-  <select class="form-control" id="classe" name="classe">
+  <select class="form-control" id="classe" name="selectedClasse">
     {% for classe in classes %}
-    <option value="{{ classe.id }}" {% if selectedClasse == classe.id %}selected{% endif %}>
-      {{ classe.nom }}
-    </option>
+      <option value="{{ classe.id }}" {% if selectedClasse == classe.id %}selected{% endif %}>
+        {{ classe.nom }}
+      </option>
     {% endfor %}
   </select>
 </div>
 
 <div class="form-group">
-  <label for="matiere">Coeficient</label>
+  <label for="coefficient">Coefficient</label>
   <select class="form-control" id="coefficient" name="coefficient">
     {% for i in 1..5 %}
-      <option value="{{i}}" {% if i == selectedCoef %}selected{% endif %}
-      >{{i}}</option>
+      <option value="{{ i }}" {% if selectedCoef == i %}selected{% endif %}>
+        {{ i }}
+      </option>
     {% endfor %}
   </select>
 </div>
@@ -25,4 +26,5 @@
 <button class="btn btn-primaire my-4">
   {{ button_label|default('Enregistrer') }}
 </button>
+
 {{ form_end(form) }}
