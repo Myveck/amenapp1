@@ -31,12 +31,12 @@ final class MatieresController extends AbstractController
             $cmatieres = $classeMatiere->findByAnneeActuelle();
         } else {
             $classe = $classesRepository->findOneBy(["id" => $trie]);
-            $cmatieres = $classeMatiere->findMatiereByClasse($classe);
+            $cmatieres = $classeMatiere->findByClasse($classe);
         }
 
         return $this->render('matieres/index.html.twig', [
             'matieres' => $cmatieres,
-            'classeMatieres' => $classeMatiere->findAll(),
+            'classeMatieres' => $classeMatiere->findByAnneeActuelle(),
             'niveaux' => ['primaire', 'college', 'lycee'],
             'active' => $trie,
             'classes' => $classesRepository->findBy(["annee_scolaire" => $anneeScolaire], ["classeOrder" => "asc"])
