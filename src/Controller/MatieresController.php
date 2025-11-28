@@ -83,7 +83,7 @@ final class MatieresController extends AbstractController
 
         return $this->render('matieres/new.html.twig', [
             'matiere' => $matiere,
-            'classes' => $classesRepository->findBy([], ['classeOrder' => 'asc']),
+            'classes' => $classesRepository->findBy(['annee_scolaire' => $anneeScolaire], ['classeOrder' => 'asc']),
             'form' => $form,
             'selectedClasse' => 1,
             'selectedCoef' => 1,
