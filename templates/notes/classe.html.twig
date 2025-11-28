@@ -11,7 +11,6 @@
     {# Construire le tableau notes directement ici #}
     {% set notes = [] %}
     {% for matiereData in eleveData.matieres %}
-        {{dump(eleveData)}}
         {% set notes = notes|merge([{
             'matiere': matiereData.matiere.nom,
             'coef': matiereData.coefficient,
