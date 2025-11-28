@@ -11,19 +11,19 @@
     {# Construire le tableau notes directement ici #}
     {% set notes = [] %}
     {% for matiereData in eleveData.matieres %}
-    
+        {{dump(eleveData)}}
         {% set notes = notes|merge([{
             'matiere': matiereData.matiere.nom,
             'coef': matiereData.coefficient,
-            'D1': matiereData.notes.D1 is defined ? matiereData.notes.D1 : '-',
-            'D2': matiereData.notes.D2 is defined ? matiereData.notes.D2 : '-',
-            'DH': matiereData.notes.DH is defined ? matiereData.notes.DH : '-',
-            'MI': matiereData.notes.MI is defined ? matiereData.notes.MI : '-',
+            'D1': matiereData.notes.D1 is defined ? matiereData.notes.D1 : '',
+            'D2': matiereData.notes.D2 is defined ? matiereData.notes.D2 : '',
+            'DH': matiereData.notes.DH is defined ? matiereData.notes.DH : '',
+            'MI': matiereData.notes.MI is defined ? matiereData.notes.MI : '',
             'moyenne': matiereData.moyenne,
             'totalCoef': matiereData.moyenne is defined and matiereData.moyenne is not same as(null) ? (matiereData.moyenne * matiereData.coefficient) : '-',
-            'rang': '-',
-            'moyFort': '-',
-            'moyFaible': '-',
+            'rang': '',
+            'moyFort': '',
+            'moyFaible': '',
             'appreciation': matiereData.moyenne is defined and matiereData.moyenne is not same as(null) ? (
                 matiereData.moyenne >= 16 ? 'Très bien' :
                 (matiereData.moyenne >= 14 ? 'Bien' :
