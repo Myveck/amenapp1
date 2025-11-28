@@ -356,27 +356,11 @@ small {
 }
 
 /** ******************************************************Ici je met le design des bulletins******************** ************************************************************************************************************ **/
-#table-link:hover {
-    color: #DE7573;
-}
-
-.a5 {
-    width: 148mm;
-    height: 210mm;
-    margin: 0 auto;
-    padding: 10mm;
-    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
-    background: white;
-}
-
-// @page {
-//     size: A4;
-// }
 
 /* Dimensions d'une feuille A4 avec marges réduites */
 .a4 {
     width: 210mm;
-    height: 297mm;
+    height: auto;
     margin: 0 auto;
     padding: 10mm;
     /* Réduction du padding pour maximiser l'espace */
@@ -384,6 +368,7 @@ small {
     font-family: "Arial", sans-serif;
     border: 1px solid #ccc;
     box-shadow: 0 0 5mm rgba(0, 0, 0, 0.1);
+    page-break-after: always;
 }
 
 /* Réduction de la taille des titres */
@@ -396,7 +381,7 @@ small {
 
 .a4 h2 {
     font-size: 20px;
-    margin-bottom: 8px;
+    margin-bottom: 5px;
 }
 
 .top h1 {
@@ -422,7 +407,7 @@ small {
 
 .top {
     text-align: center;
-    margin-top: -10px;
+    margin-bottom: 15px;
 }
 
 /* Styles pour les tableaux avec ajustement d'espacement */
@@ -436,7 +421,7 @@ small {
 
 .a4 th,
 .a4 td {
-    border: 1px solid #ccc;
+    border: 1px solid #000;
     padding: 6px;
     /* Réduction du padding pour compacter le tableau */
 }
@@ -477,9 +462,9 @@ small {
 .student {
     display: grid;
     grid-template-columns: repeat(6, 1fr);
-    gap: 8px;
+    gap: 4px;
     /* Espacement réduit entre les éléments */
-    grid-auto-rows: minmax(40px, auto);
+    grid-auto-rows: minmax(10px, auto);
 }
 
 .oneitem1 {
@@ -514,7 +499,7 @@ small {
 /* Ligne de séparation plus fine */
 hr.solid {
     border-top: 1px solid #000;
-    margin-top: 15px;
+    margin-top: 10px;
 }
 
 /* Section de présentation */
@@ -524,7 +509,7 @@ hr.solid {
     padding-top: 2px;
     padding-bottom: 2px;
     margin-bottom: 8px;
-    margin-top: 2px;
+    margin-top: 5px;
 }
 
 /* Section du bilan général avec réduction de l'espacement */
@@ -532,12 +517,17 @@ hr.solid {
     border: 1px solid #ddd;
     display: flex;
     justify-content: space-between;
-    margin-top: 8px;
     align-items: center;
+    margin-top: 4px;
+    margin-bottom: 4px;
+}
+
+.a4 .general div:not(:last-child) {
+    width: 100%;
+    margin-right: 10px;
 }
 
 /* Tableaux ajustés pour compacter la présentation des données générales */
-.a4 .bilanGeneral,
 .a4 .trimestre,
 .a4 .bilanClasse {
     width: 100%;
@@ -552,19 +542,41 @@ hr.solid {
     padding-right: 3px;
 }
 
+.petit {
+    margin-top: 10px;
+}
+
 /* Impression */
 @media print {
     .a4 {
-        border: none;
-        box-shadow: none;
-        padding: 0;
-        margin: 0;
+    border: none;
+    box-shadow: none;
+    padding: 0;
+    margin: 0;
+    width: 210mm; /* Ensure proper size for A4 */
+    height: auto; /* Let the content determine the height */
+    page-break-after: always;
+    }
+    .a4:last-child {
+    page-break-after: auto; /* Pas de saut de page après le dernier bulletin */
     }
 
     .no-print {
-        display: none;
+    display: none;
     }
 }
+.schoolTop{
+    display: flex;
+}
+
+.schoolTop .top{
+    margin-left: 20px;
+}
+
+.schoolTop .topImg{
+    margin-top: -20px;
+}
+
 
 /** ******************************************************Ici s'arrête le design des bulletins****************** ************************************************************************************************************ **/
 
