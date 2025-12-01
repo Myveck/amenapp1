@@ -54,6 +54,13 @@ class BulletinManager2
     public function calculateTrimestre(int $classeId, int $trimestre): array
     {
         $classe = $this->classesRepository->find($classeId);
+        $cMatieres = $this->classesMatieresRepository->findBy(['classe' => $classe]);
+        $allMatieres = [];
+        
+        foreach ($cMatieres as $key => $value) {
+            $allMatieres[] = $value->getMatiere();
+        }
+
         if (!$classe instanceof Classes) {
             throw new \InvalidArgumentException("Classe introuvable.");
         }
@@ -145,7 +152,7 @@ class BulletinManager2
         // J'ajoute les rangs des élèves dans le tableau des résultats
         $results = $this->orderByRank($results);
 
-        return [$results, $classe, $eleves, $totalCoef];
+        return [$results, $classe, $eleves, $totalCoef, $allMatieres];
     }
 
     public function orderByRank(array $results): array
@@ -169,14 +176,25 @@ class BulletinManager2
     {
         $bilanClasse = [];
         $moyGenClasse = [];
+        $succes = 0;
+        $fail = 0;
 
         foreach ($results as $result) {
             $moyGenClasse[] = $result['moyenneGenerale'];
+
+            if ($result['moyenneGenerale'] < 10) {
+                $fail +=1;
+            } else {
+                $succes +=1;
+            }
         }
 
         $bilanClasse['moyenneClasse'] = round(array_sum($moyGenClasse) / count($moyGenClasse), 2);
         $bilanClasse['moyenneForte'] = max($moyGenClasse);
         $bilanClasse['moyenneFaible'] = min($moyGenClasse);
+        $bilanClasse['admis'] = $succes;
+        $bilanClasse['echoues'] = $fail;
+        $bilanClasse['tauxAdmis'] = round(($succes * 100) / count($moyGenClasse));
 
         return $bilanClasse;
     }

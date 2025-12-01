@@ -37,7 +37,7 @@ block body %}
               <td class="value">
                     <form action="
                             {% if eleves | length > 0 %} 
-                              {{path('app_notes_fiche-retrait_trimestre', {'classeId' : eleves[0], 'requete' : 'retrait'})}} 
+                              {{path('app_notes_fiche-retrait_trimestre', {'classeId' : eleves[0]})}} 
                             {% endif %}" method="get">
                         <select name="trimestre" id="" class="form-control" onchange="this.form.submit()">
                             <option value="">Fiche de retrait</option>
@@ -50,7 +50,7 @@ block body %}
               <td class="value">
                     <form action="
                             {% if eleves | length > 0 %} 
-                              {{path('app_notes_bulletins_trimestre', {'classeId' : eleves[0], 'requete' : 'verif'})}}  
+                              {{path('app_notes_fiche-verification_trimestre', {'classeId' : eleves[0]})}}  
                             {% endif %}" method="get">
                         <select name="trimestre" id="" class="form-control" onchange="this.form.submit()">
                             <option value="">Fiche de vérification</option>

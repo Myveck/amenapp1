@@ -825,4 +825,30 @@ final class NotesController extends AbstractController
 
         ]);
     }
+
+    #[Route('/fiche-verification/trimestre/{classeId}', name: 'app_notes_fiche-verification_trimestre')]
+    public function showFicheVerification(int $classeId, Request $request, BulletinManager2 $bulletinManager, EcolesRepository $ecolesRepository): Response {
+        $ecole = $ecolesRepository->find(1);
+        $trimestre = $request->get('trimestre');
+        $resultats = $bulletinManager->calculateTrimestre($classeId, $trimestre);
+        $bilanClasse = $bulletinManager->calculateBilan($resultats[0]);
+
+        dd($resultats[0]);
+
+        return $this->render('notes/verif_bulletins.html.twig', [
+            'classe' => $resultats[1],
+            'effectif' => $resultats[3],
+            'matieres' => $resultats[4],
+            'eleves' => $resultats[3],
+            'moyenneGForte' => $bilanClasse['moyenneForte'],
+            'moyenneGFaible' => $bilanClasse['moyenneFaible'],
+            'moyenneGClasse' => $bilanClasse['moyenneClasse'],
+            'trimestre' => $trimestre,
+            'ecole' => $ecole,
+            'success' => $bilanClasse['admis'],
+            'fail' => $bilanClasse['echoues'],
+            'tauxReussite' => $bilanClasse['tauxAdmis'],
+            'results' => $resultats[0],
+        ]);
+    }
 }

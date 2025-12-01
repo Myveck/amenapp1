@@ -43,7 +43,7 @@
       </div>
     <div class="fiche">
         <table>
-          {% if not rangGeneral %}
+          {% if not moyenneGClasse %}
             <p>Aucune moyenne disponible</p>
           {% else %}
         
@@ -51,13 +51,13 @@
                 <tr>
                     <th class="nom">Nom et Prénom</th>
                     {% for matiere in matieres %}
-                      {% if matiere.nom | lower == 'mathématiques'%}
-                      <th class="mat">Maths</th>
-                      {% elseif matiere.nom | lower == 'allemand/espagnol'%}
-                      <th class="mat">All. / Esp.</th>
-                      {% else %}
-                      <th class="mat">{{ matiere.nom | slice(0,3)}}</th>
-                      {% endif %}
+                        {% if matiere.nom | lower == 'mathématiques'%}
+                        <th class="mat">Maths</th>
+                        {% elseif matiere.nom | lower == 'allemand/espagnol'%}
+                        <th class="mat">All. / Esp.</th>
+                        {% else %}
+                        <th class="mat">{{ matiere.nom | slice(0,3)}}</th>
+                        {% endif %}
                     {% endfor %}
                     <th>Total</th>
                     <th>Moy. Gen</th>
@@ -69,12 +69,12 @@
 
                 {% set i = 0 %}
                     <tr>
-                        <td class="nom">{{eleves[key].nom }} {{eleves[key].prenom }} </td>
-
-                        {% for cle, matiere in matieres %}
-                          {% if result['moyenneParMatiere'][cle] is defined %}
-                            <td class="mat"> {{result['moyenneParMatiere'][cle] in [null, 0] ? '' : result['moyenneParMatiere'][cle]}} </td>
-                            {% set i = i + result['moyenneParMatiere'][cle] %}
+                        <td class="nom">{{result['eleve'].nom }} {{result['eleve'].prenom }} </td>
+                        {% for matiere in matieres %}
+                        {{dump(result['matieres'][matiere.id]['notes'])}}
+                          {% if result['matieres'][matiere.id]['matiere'] is defined %}
+                            <td class="mat"> {{result['matieres'][matiere.id]['notes']['DE'] in [null, 0] ? '' : result['matieres'][matiere.id]['notes']['DE']}} </td>
+                            {# {% set i = i + result['matieres'][matiere.id] %} #}
                           {% else %}
                           <td></td>
                           {% endif %}
@@ -82,11 +82,11 @@
                         <td>{{ i }}</td>
                         <td> {{ result['moyenneGenerale']}} </td>
                         <td class="rang">
-                            {{ rangGeneral[key]}} 
-                            {% if rangGeneral[key] == 1 and eleves[key].sexe|lower
-                            == "f" %}ère {% endif %} {% if rangGeneral[key] ==
-                            1 and eleves[key].sexe|lower == "m" %}er {% endif %} {% if
-                            rangGeneral[key] != 1 %}ème{% endif %}
+                            {{ result['rang']}} 
+                            {% if result['rang'] == 1 and result['eleve'].sexe|lower
+                            == "f" %}ère {% endif %} {% if result['rang'] ==
+                            1 and result['eleve'].sexe|lower == "m" %}er {% endif %} {% if
+                            result['rang'] != 1 %}ème{% endif %}
                         </td>
                     </tr>
                 {% endfor %}
@@ -140,9 +140,9 @@
     </div>
   </div>
   
-    <script>
+    {# <script>
       window.onload = function () {
         window.print();
       };
-    </script>
+    </script> #}
 {% endblock %}
