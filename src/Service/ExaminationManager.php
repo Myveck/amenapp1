@@ -102,7 +102,7 @@ class ExaminationManager
         foreach ($evaluations as $evaluation) {
             $nom = $evaluation->getNom();
 
-            if (in_array($nom, ['D1', 'D2', 'MI', 'DH'])) {
+            if (in_array($nom, ['Devoir 1', 'Devoir 2', 'MI', 'DH'])) {
                 $notes[$nom] = $this->notesRepo->findBy([
                     "examinations" => $examination,
                     "evaluation" => $evaluation,
@@ -124,8 +124,8 @@ class ExaminationManager
         // ]);
 
         $evaluations = [
-            'd1' => $notes['D1'],
-            'd2' => $notes['D2'],
+            'd1' => $notes['Devoir 1'],
+            'd2' => $notes['Devoir 2'],
             'mi' => $notes['MI'],
             'dh' => $notes['DH'],
         ];

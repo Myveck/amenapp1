@@ -79,8 +79,12 @@ class BulletinManager2
         $evaluations = $this->evaluationsRepository->findAll();
         $evaluationMap = [];
         foreach ($evaluations as $evaluation) {
-            $evaluationMap[$evaluation->getId()] = strtoupper(substr($evaluation->getNom(), 0, 2)); // Exemple : "Devoir 1" → "D1"
+            $evaluationMap[$evaluation->getId()] = strtoupper($evaluation->getNom());
         }
+        
+
+        unset($evaluationMap[5]);
+        unset($evaluationMap[6]);
 
         $results = [];
         $eleves = [];
