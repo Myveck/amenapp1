@@ -796,12 +796,7 @@ final class NotesController extends AbstractController
         ];
 
         // Statistiques de classe (tu peux les calculer plus tard dynamiquement)
-        $bilanClasse = [
-            'moyenneForte' => 13.52,
-            'moyenneFaible' => 9.33,
-            'moyenneClasse' => 11.71,
-        ];
-
+        $bilanClasse = $bulletinManager->calculateBilan($resultats[0]);
 
         return $this->render('/notes/classe.html.twig', [
             'resultats' => $resultats[0],

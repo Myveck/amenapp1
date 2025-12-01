@@ -145,7 +145,7 @@ class BulletinManager2
         return [$results, $classe];
     }
 
-    public function orderByRank(array $results)
+    public function orderByRank(array $results): array
     {
         $ranks = [];
         foreach ($results as $value) {
@@ -160,6 +160,22 @@ class BulletinManager2
         }
 
         return $results;
+    }
+
+    public function calculateBilan(array $results): array
+    {
+        $bilanClasse = [];
+        $moyGenClasse = [];
+
+        foreach ($results as $result) {
+            $moyGenClasse[] = $result['moyenneGenerale'];
+        }
+
+        $bilanClasse['moyenneClasse'] = array_sum($moyGenClasse) / count($moyGenClasse);
+        $bilanClasse['moyenneForte'] = max($moyGenClasse);
+        $bilanClasse['moyenneFaible'] = min($moyGenClasse);
+
+        return $bilanClasse;
     }
 
     public function calculateAnnuelle(int $classeId): array
