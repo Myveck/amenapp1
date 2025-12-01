@@ -43,7 +43,6 @@
           {% if not rangGeneral %}
             <p>Aucune moyenne disponible</p>
           {% else %}
-        
             <thead>
                 <tr>
                     <th class="nom">Nom et Prénom</th>
@@ -56,16 +55,16 @@
                 </tr>
             </thead>
             <tbody>
-                {% for key, one in rangGeneral %}
+                {% for eleve in eleves %}
                     <tr>
-                        <td class="nom">{{eleves[key].nom }} {{eleves[key].prenom }} </td>
-                        <td>{{results[key]["moyenneGenerale"] * sommeCoefficients}}</td>
+                        <td class="nom">{{eleve.nom }} {{eleve.prenom }} </td>
+                        <td>{{results[eleve.id]["moyenneGenerale"] * sommeCoefficients}}</td>
                         <td>{{sommeCoefficients}}</td>
-                        <td class="rang">{{results[key]["moyenneGenerale"]}}</td>
+                        <td class="rang">{{results[eleve.id]["moyenneGenerale"]}}</td>
                         <td>
-                            {{one}}
-                            {% if one == 1 %}
-                              {% if eleves[key].sexe == 'm' %}
+                        {{ results[eleve.id]["rang"] }}
+                            {% if results[eleve.id]["rang"] == 1 %}
+                              {% if eleve.sexe == 'm' %}
                                 er
                               {% else %}
                                 ère
@@ -75,7 +74,7 @@
                             {% endif %}
                             
                         </td>
-                        <td class="date"></td>
+                        <td class="date">{{ "now"|date("d M Y") }}</td>
                         <td></td>
                     </tr>
                 {% endfor %}

@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Entity\Ecoles;
 use App\Entity\Eleves;
 use App\Entity\Notes;
 use App\Form\NotesType;
@@ -802,6 +803,26 @@ final class NotesController extends AbstractController
             'etablissement' => $etablissement,
             'bilanClasse' => $bilanClasse,
             'trimestre' => $trimestre,
+        ]);
+    }
+
+    #[Route('/fiche-retrait/trimestre/{classeId}', name: 'app_notes_fiche-retrait_trimestre')]
+    public function showFicheRetrait(int $classeId, Request $request, BulletinManager2 $bulletinManager, EcolesRepository $ecolesRepository): Response {
+        $ecole = $ecolesRepository->find(1);
+        $trimestre = $request->get('trimestre');
+        $resultats = $bulletinManager->calculateTrimestre($classeId, $trimestre);
+        $bilanClasse = $bulletinManager->calculateBilan($resultats[0]);
+
+        return $this->render('/notes/retrait_bulletins.html.twig', [
+            'classe' => $resultats[1],
+            'rangGeneral' => $bilanClasse['moyenneClasse'],
+            'trimestre' => $trimestre,
+            'ecole' => $ecole,
+            'eleves' => $resultats[2],
+            'sommeCoefficients' => $resultats[3],
+            'matiereCoef' => 1,
+            'results' => $resultats[0],
+
         ]);
     }
 }

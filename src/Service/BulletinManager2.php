@@ -76,10 +76,12 @@ class BulletinManager2
         }
 
         $results = [];
+        $eleves = [];
 
         /** @var Inscription $inscription */
         foreach ($inscriptions as $inscription) {
             $eleve = $inscription->getEleve();
+            $eleves[] = $eleve;
             $eleveId = $eleve->getId();
             $results[$eleveId] = [
                 'eleve' => $eleve,
@@ -140,9 +142,10 @@ class BulletinManager2
                 : null;
         }
 
+        // J'ajoute les rangs des élèves dans le tableau des résultats
         $results = $this->orderByRank($results);
 
-        return [$results, $classe];
+        return [$results, $classe, $eleves, $totalCoef];
     }
 
     public function orderByRank(array $results): array
