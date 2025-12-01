@@ -785,6 +785,7 @@ final class NotesController extends AbstractController
     ): Response {
         $trimestre = $request->get('trimestre');
         $resultats = $bulletinManager->calculateTrimestre($classeId, $trimestre);
+        $bilanClasse = $bulletinManager->calculateBilan($resultats[0]);
 
         // Informations globales de l’établissement
         $etablissement = [
@@ -794,9 +795,6 @@ final class NotesController extends AbstractController
             'devise' => 'Discipline - Travail - Succès',
             'logo' => 'images/logo-amen.png', // optionnel
         ];
-
-        // Statistiques de classe (tu peux les calculer plus tard dynamiquement)
-        $bilanClasse = $bulletinManager->calculateBilan($resultats[0]);
 
         return $this->render('/notes/classe.html.twig', [
             'resultats' => $resultats[0],

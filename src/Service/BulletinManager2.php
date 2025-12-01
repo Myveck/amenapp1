@@ -171,7 +171,7 @@ class BulletinManager2
             $moyGenClasse[] = $result['moyenneGenerale'];
         }
 
-        $bilanClasse['moyenneClasse'] = array_sum($moyGenClasse) / count($moyGenClasse);
+        $bilanClasse['moyenneClasse'] = round(array_sum($moyGenClasse) / count($moyGenClasse), 2);
         $bilanClasse['moyenneForte'] = max($moyGenClasse);
         $bilanClasse['moyenneFaible'] = min($moyGenClasse);
 
