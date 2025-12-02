@@ -789,6 +789,15 @@ final class NotesController extends AbstractController
         $resultats = $bulletinManager->calculateTrimestre($classeId, $trimestre);
         $bilanClasse = $bulletinManager->calculateBilan($resultats[0]);
 
+        $firstTrimestre = '';
+        $secondTrimestre = '';
+        if($trimestre == 3) {
+            $firstTrimestre = $bulletinManager->calculateTrimestre($classeId, 1)[0];
+            $secondTrimestre = $bulletinManager->calculateTrimestre($classeId, 2)[0];
+        }
+
+        // dd($firstTrimestre);
+
         // Informations globales de l’établissement
         $etablissement = [
             'nom' => 'CPEG AMEN',
@@ -804,6 +813,8 @@ final class NotesController extends AbstractController
             'etablissement' => $etablissement,
             'bilanClasse' => $bilanClasse,
             'trimestre' => $trimestre,
+            'firstTrimestre' => $firstTrimestre,
+            'secondTrimestre' => $secondTrimestre,
         ]);
     }
 
@@ -857,7 +868,7 @@ final class NotesController extends AbstractController
         $results = $bulletinManager->calculateTrimestre($classeId, $trimestre);
        
         $response = $ficheExcelManager->exportExcel($results, $trimestre);
-        
+
         return $response;
             
     }

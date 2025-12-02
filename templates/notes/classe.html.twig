@@ -39,7 +39,6 @@
         'moyenneFaible': bilanClasse.moyenneFaible,
         'moyenneClasse': bilanClasse.moyenneClasse
     } %}
-
     <div class="page {% if loop.last %}last-page{% endif %}">
         {% include 'notes/bulletins2.html.twig' with {
             etablissement: etablissement,
@@ -62,7 +61,9 @@
                 tableauHonneur: false,
                 avertissement: false,
                 blame: false
-            }
+            },
+            firstTrimestre: firstTrimestre[eleve.id],
+            secondTrimestre: secondTrimestre[eleve.id],
         } only %}
     </div>
 {% endfor %}

@@ -85,6 +85,7 @@
       </thead>
 
       <tbody>
+      {% set moy = 0%}
         {% for ligne in notes %}
         <tr>
           <td class="matiere">{{ ligne.matiere }}</td>
@@ -101,6 +102,7 @@
             <td class="appreciation">
                 {{ ligne.appreciation ?? '' }}
             </td>
+            {% set moy = moy + ligne.moyenne %}
           {% else %}
             <td>-</td>
             <td>-</td>
@@ -154,16 +156,16 @@
         <tbody>
           <tr>
             <td>1er Trimestre</td>
-            <td>{{ results1[key]["moyenneGenerale"] }}</td>
+            <td>{{ firstTrimestre["moyenneGenerale"] }}</td>
           </tr>
           <tr>
             <td>2e Trimestre</td>
-            <td>{{ results2[key]["moyenneGenerale"] }}</td>
+            <td>{{ secondTrimestre["moyenneGenerale"] }}</td>
           </tr>
           <tr>
             <td>Général</td>
             <td>
-              {{ ((results1[key]["moyenneGenerale"] + results2[key]["moyenneGenerale"] + result["moyenneGenerale"]) / 3) | round(2, 'floor') }}
+              {{ ((firstTrimestre["moyenneGenerale"] + secondTrimestre["moyenneGenerale"] + moy) / 3) | round(2, 'floor') }}
             </td>
           </tr>
         </tbody>
