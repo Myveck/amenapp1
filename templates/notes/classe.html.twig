@@ -19,7 +19,7 @@
             'DH': matiereData.notes.DH is defined ? matiereData.notes.DH : '',
             'MI': matiereData.notes.MI is defined ? matiereData.notes.MI : '',
             'moyenne': matiereData.moyenne,
-            'totalCoef': matiereData.moyenne is defined and matiereData.moyenne is not same as(null) ? (matiereData.moyenne * matiereData.coefficient) : '-',
+            'totalCoef': matiereData.moyenne is defined and matiereData.moyenne is not same as(null) ? (matiereData.moyenne * matiereData.coefficient) : '',
             'rang': '',
             'moyFort': '',
             'moyFaible': '',
@@ -40,7 +40,7 @@
         'moyenneClasse': bilanClasse.moyenneClasse
     } %}
     <div class="page {% if loop.last %}last-page{% endif %}">
-        {% include 'notes/bulletins2.html.twig' with {
+        {% include 'notes/bulletins.html.twig' with {
             etablissement: etablissement,
             eleve: {
                 nom: eleve.nom,
@@ -62,8 +62,8 @@
                 avertissement: false,
                 blame: false
             },
-            firstTrimestre: firstTrimestre[eleve.id],
-            secondTrimestre: secondTrimestre[eleve.id],
+            firstTrimestre: firstTrimestre,
+            secondTrimestre: secondTrimestre,
         } only %}
     </div>
 {% endfor %}
