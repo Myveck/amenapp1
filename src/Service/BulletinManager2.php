@@ -69,11 +69,19 @@ class BulletinManager2
             'classe' => $classe,
             'actif' => true,
         ]);
+        
+        if (!$inscriptions) {
+            throw new \InvalidArgumentException("Cette classe ne contient pas d'élève");
+        }
 
         $examinations = $this->examinationsRepository->findBy([
             'classe' => $classe,
             'trimestre' => $trimestre,
         ]);
+
+        if (!$examinations) {
+            throw new \InvalidArgumentException("Il n'existe pas d'examen pour ce trimestre");
+        }
 
         // Récupère les types d'évaluations (D1, D2, MI, DH)
         $evaluations = $this->evaluationsRepository->findAll();
@@ -82,9 +90,10 @@ class BulletinManager2
             $evaluationMap[$evaluation->getId()] = strtoupper($evaluation->getNom());
         }
         
-
-        unset($evaluationMap[5]);
-        unset($evaluationMap[6]);
+        if(count($evaluationMap) > 4){
+            unset($evaluationMap[5]);
+            unset($evaluationMap[6]);
+        }
 
         $results = [];
         $eleves = [];
