@@ -123,7 +123,7 @@ class BulletinManager2
                         'eleve' => $eleve,
                     ]);
 
-                    if ($noteEntity) {
+                    if ($noteEntity and $noteEntity->getNote() > 0) {
                         $valeur = $noteEntity->getNote();
                         $notesParEval[$evalCode] = $valeur;
                         $sum += $valeur;
@@ -138,6 +138,7 @@ class BulletinManager2
                 $results[$eleveId]['matieres'][$matiereId] = [
                     'matiere' => $matiere,
                     'notes' => $notesParEval,
+                    'somme' => $sum,
                     'moyenne' => $moyenne,
                     'coefficient' => $coef,
                 ];

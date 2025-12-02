@@ -833,8 +833,6 @@ final class NotesController extends AbstractController
         $resultats = $bulletinManager->calculateTrimestre($classeId, $trimestre);
         $bilanClasse = $bulletinManager->calculateBilan($resultats[0]);
 
-        dd($resultats[0]);
-
         return $this->render('notes/verif_bulletins.html.twig', [
             'classe' => $resultats[1],
             'effectif' => $resultats[3],

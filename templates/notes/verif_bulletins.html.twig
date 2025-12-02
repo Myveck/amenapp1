@@ -68,13 +68,13 @@
                 {% for key, result in results %}
 
                 {% set i = 0 %}
+                
                     <tr>
                         <td class="nom">{{result['eleve'].nom }} {{result['eleve'].prenom }} </td>
                         {% for matiere in matieres %}
-                        {{dump(result['matieres'][matiere.id]['notes'])}}
                           {% if result['matieres'][matiere.id]['matiere'] is defined %}
-                            <td class="mat"> {{result['matieres'][matiere.id]['notes']['DE'] in [null, 0] ? '' : result['matieres'][matiere.id]['notes']['DE']}} </td>
-                            {# {% set i = i + result['matieres'][matiere.id] %} #}
+                            <td class="mat"> {{result['matieres'][matiere.id]['moyenne'] in [null, 0] ? '' : result['matieres'][matiere.id]['moyenne']}} </td>
+                            {% set i = i + result['matieres'][matiere.id]['somme'] %}
                           {% else %}
                           <td></td>
                           {% endif %}
@@ -140,9 +140,9 @@
     </div>
   </div>
   
-    {# <script>
+    <script>
       window.onload = function () {
         window.print();
       };
-    </script> #}
+    </script>
 {% endblock %}
