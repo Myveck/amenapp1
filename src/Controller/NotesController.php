@@ -16,6 +16,7 @@ use App\Repository\InscriptionRepository;
 use App\Repository\NotesRepository;
 use App\Service\BulletinManager2;
 use App\Service\ExaminationManager;
+use App\Service\FicheExcelManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -848,5 +849,16 @@ final class NotesController extends AbstractController
             'tauxReussite' => $bilanClasse['tauxAdmis'],
             'results' => $resultats[0],
         ]);
+    }
+
+    #[Route('/fiche-excel/trimestre/{classeId}', name: 'app_notes_fiche-excel_trimestre')]
+    public function showFicheExcel(int $classeId, Request $request, BulletinManager2 $bulletinManager, FicheExcelManager $ficheExcelManager): Response {
+        $trimestre = $request->get('trimestre');
+        $results = $bulletinManager->calculateTrimestre($classeId, $trimestre);
+       
+        $response = $ficheExcelManager->exportExcel($results, $trimestre);
+        
+        return $response;
+            
     }
 }
