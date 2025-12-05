@@ -48,9 +48,9 @@ final class NotesController extends AbstractController
 
     #[Route('/create/exam/{examination}', name: 'app_notes_create_exam', methods: ['GET', 'POST'])]
     public function createExam(
-    Request $request,
-    ExaminationManager $examManager,
-    int $examination
+        Request $request,
+        ExaminationManager $examManager,
+        int $examination
     ) {
         $submitted = $request->get('notes', []);
 
@@ -67,7 +67,6 @@ final class NotesController extends AbstractController
         return $this->redirectToRoute("app_examinations_index");
     }
 
-
     #[Route('/{id}', name: 'app_notes_delete', methods: ['POST'])]
     public function delete(Request $request, Notes $note, EntityManagerInterface $entityManager): Response
     {
@@ -79,42 +78,84 @@ final class NotesController extends AbstractController
         return $this->redirectToRoute('app_notes_index', [], Response::HTTP_SEE_OTHER);
     }
 
-    #[Route('/bulletins/trimestre/{classeId}', name: 'app_notes_bulletins_trimestre')]
-    public function showBulletin(
+     private function buildBulletinData(
         int $classeId,
-        BulletinManager2 $bulletinManager,
-        Request $request
-    ): Response {
-        $trimestre = $request->get('trimestre');
+        int $trimestre,
+        BulletinManager2 $bulletinManager
+    ) {
         $resultats = $bulletinManager->calculateTrimestre($classeId, $trimestre);
         $bilanClasse = $bulletinManager->calculateBilan($resultats[0]);
 
         $firstTrimestre = '';
         $secondTrimestre = '';
-        if($trimestre == 3) {
+        if ($trimestre == 3) {
             $firstTrimestre = $bulletinManager->calculateTrimestre($classeId, 1)[0];
             $secondTrimestre = $bulletinManager->calculateTrimestre($classeId, 2)[0];
         }
 
-        // dd($firstTrimestre);
-
-        // Informations globales de l’établissement
         $etablissement = [
             'nom' => 'CPEG AMEN',
             'adresse' => '07 BP 155 Cotonou',
             'telephone' => '21 35 08 90 / 66 43 14 14',
             'devise' => 'Discipline - Travail - Succès',
-            'logo' => 'images/logo-amen.png', // optionnel
+            'logo' => 'images/logo-amen.png',
         ];
 
-        return $this->render('/notes/classe.html.twig', [
-            'resultats' => $resultats[0],
-            'classe' => $resultats[1],
-            'etablissement' => $etablissement,
+        return [
+            'resultats' => $resultats,
             'bilanClasse' => $bilanClasse,
-            'trimestre' => $trimestre,
             'firstTrimestre' => $firstTrimestre,
             'secondTrimestre' => $secondTrimestre,
+            'etablissement' => $etablissement,
+        ];
+    }
+
+    #[Route('/bulletins/trimestre/{classeId}', name: 'app_notes_bulletins_trimestre')]
+    public function showBulletinClasse(
+        int $classeId,
+        BulletinManager2 $bulletinManager,
+        Request $request
+    ): Response {
+        $trimestre = $request->get('trimestre');
+        $data = $this->buildBulletinData($classeId, $trimestre, $bulletinManager);
+
+       return $this->render('/notes/classe.html.twig', [
+            'resultats'      => $data['resultats'][0],
+            'effectif'       => count($data['resultats'][0]),
+            'classe'         => $data['resultats'][1],
+            'bilanClasse'    => $data['bilanClasse'],
+            'etablissement'  => $data['etablissement'],
+            'firstTrimestre' => $data['firstTrimestre'],
+            'secondTrimestre'=> $data['secondTrimestre'],
+            'trimestre'      => $trimestre,
+        ]);
+    }
+
+    #[Route('/bulletins/trimestre/{classeId}/{eleveId}', name: 'app_notes_bulletin_eleve_trimestre')]
+    public function showBulletinEleve(
+        int $classeId,
+        int $eleveId,
+        BulletinManager2 $bulletinManager,
+        Request $request
+    ): Response {
+        $trimestre = $request->get('trimestre');
+        $data = $this->buildBulletinData($classeId, $trimestre, $bulletinManager);
+
+        $eleveRes = array_filter(
+            $data['resultats'][0],
+            fn($k) => $k == $eleveId,
+            ARRAY_FILTER_USE_KEY
+        );
+
+        return $this->render('/notes/classe.html.twig', [
+            'resultats'      => $eleveRes,
+            'effectif'       => count($data['resultats'][0]),
+            'classe'         => $data['resultats'][1],
+            'bilanClasse'    => $data['bilanClasse'],
+            'etablissement'  => $data['etablissement'],
+            'firstTrimestre' => $data['firstTrimestre'],
+            'secondTrimestre'=> $data['secondTrimestre'],
+            'trimestre'      => $trimestre,
         ]);
     }
 

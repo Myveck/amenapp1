@@ -32,6 +32,27 @@ final class ElevesController extends AbstractController
         return $this->render('eleves/index.html.twig', $data);
     }
 
+    #[Route('/show-bulletin', name: 'app_eleves_show_bulletin', methods: ['GET'])]
+    public function showBulletin(Request $request, EleveFilterManager $eleveFilterManager, AnneeScolaireRepository $anneeSR, ClassesRepository $classesRepo): Response
+    {
+        $classeNom =  $request->get('classe');
+        $trie = "";
+
+        if($classeNom){
+            $anneeScolaire = $anneeSR->findOneBy(['actif' => 1]);
+            $trie = $classesRepo->findOneBy([
+                "nom" => $classeNom,
+                "annee_scolaire" => $anneeScolaire,
+            ])->getId();
+        } else {
+            $trie = $request->get('trie');
+        }
+        
+        $data = $eleveFilterManager->filterEleves($trie);
+
+        return $this->render('eleves/bulletins_show_eleves.html.twig', $data);
+    }
+
     #[Route('/paiments', name: 'app_eleves_paiements', methods: ['GET'])]
     public function paiement(Request $request, ElevesRepository $elevesRepository, ClassesRepository $classesRepository, InscriptionRepository $inscriptionRepo): Response
     {

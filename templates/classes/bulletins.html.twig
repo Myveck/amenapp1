@@ -16,11 +16,7 @@ block body %}
         {% for classe, eleves in classeEleves %}
           <table>
             <tr>
-              <td class="label"><a href="#" data-classe="
-                {% if eleves | length > 0 %} 
-                    {{ classe }} 
-                {% endif %}
-                ">{{ classe }}</a></td>
+              <td class="label"><a href=" {{path('app_eleves_show_bulletin', {'classe' : classe})}}">{{ classe }}</a></td>
               <td class="value">
                     <form action="
                             {% if eleves | length > 0 %} 
@@ -77,55 +73,8 @@ block body %}
           </table>
         {% endfor %}
     </div>
-    
-    <div class="after">
-      <nav>
-        <ul>
-          <li id="listeEleves">
-          </li>
-        </ul>
-      </nav>
-    </div>
 
 </div>
-
-<script>
-const links = document.querySelectorAll('a[data-classe]');
-
-links.forEach(link => {
-    link.addEventListener('click', function(e) {
-        e.preventDefault();
-        
-        const classeId = this.getAttribute('data-classe');
-        const classe = classeId.replaceAll(" ", "");
-        const url = `/notes/eleves/${classe}`;
-
-        fetch(url)
-            .then(response => response.json())
-            .then(data => {
-                const listeEleves = document.getElementById('listeEleves');
-
-                listeEleves.innerHTML = data.eleves
-                    .map(eleve => `
-                        <div class="eleve-item">
-                            <strong>${eleve.nom}</strong>
-                            <form action="${eleve.formAction}" method="get">
-                                <select name="trimestre" class="form-control" onchange="this.form.submit()">
-                                    <option value="">Imprimer</option>
-                                    <option value="1">1er trimestre</option>
-                                    <option value="2">2e trimestre</option>
-                                    <option value="3">3e trimestre</option>
-                                </select>
-                            </form>
-                        </div>
-                    `)
-                    .join('');
-            })
-            .catch(error => console.error('Erreur:', error));
-    });
-});
-
-</script>
 
 
 {% endblock %}

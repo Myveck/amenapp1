@@ -1,0 +1,86 @@
+{% extends 'base.html.twig' %} {% block title %}Liste des élèves{% endblock %}
+{% block body %}
+
+<div class="wrapper">
+  
+  <div class="sidebar">
+        <div class="top"><a href="{{ path("app_main") }}" data-section="section1">Acceuil</a></div>
+        <div class="sidebar-menu">
+            <a href="{{ path("app_examinations_index") }}" data-section="section1"  >Examinations</a>
+            <a href="{{ path("app_evaluations_index") }}" data-section="section1">Type Examinations</a>
+            <a href="{{ path("app_classes_bulletins") }}" data-section="section2" class="active">bulletins</a>
+        </div>
+  </div>
+  <div class="center">
+    <section id="section1" class="active">
+      <h1>Choisir l'élève pour imprimer le bulletin</h1>
+      <p>
+        Choir différente classe
+      </p>
+      
+      <form  method="get" action="{{ path("app_eleves_index") }}">
+          <div class="mb-4 row">
+          <div class="col-3">
+            <select name="trie" id="trie" onchange="this.form.submit()" class="form-control">
+              <option value="all">Tout</option>
+              {% for classe in classes %}
+              <option value="{{ classe.id }}"{% if active == classe.id %}selected{% endif %}>{{ classe.nom }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="col-2 mt-2"><small class="mx-2">{{nombre}} élèves</small></div>
+        </form>
+      </div>
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Nom</th>
+            <th>Prenom</th>
+            <th>Classe</th>
+            <th>actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for elefe in eleves %}
+          <tr>
+            <td>{{ elefe.eleve.nom }}</td>
+            <td>{{ elefe.eleve.prenom }}</td>
+            <td>
+              {% if elefe.classe is not null%}
+                {{ elefe.classe.nom }}
+              {% endif %}
+            </td>
+            <td>
+                      <div class="del row">
+            <div class="col-6">
+              <form
+                method="post"
+                action="{{ path('app_notes_bulletin_eleve_trimestre', {classeId: active, eleveId: elefe.eleve.id }) }}"
+              >
+                <input
+                  type="hidden"
+                  name="_token"
+                  value="{{ csrf_token('delete' ~ elefe.eleve.id) }}"
+                />
+                  <select name="trimestre" id="" class="form-control btn-primary" onchange="this.form.submit()">
+                      <option value="">Bulletins</option>
+                      <option value="1">1er trimestre</option>
+                      <option value="2">2e trimestre</option>
+                      <option value="3">3e trimestre</option>
+                  </select>
+              </form>
+            </div>
+          </div>
+            </td>
+          </tr>
+          {% else %}
+          <tr>
+            <td colspan="6">Aucun élève présent</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </section>
+  </div>
+</div>
+{% endblock %}
