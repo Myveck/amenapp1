@@ -90,26 +90,25 @@ block body %}
 </div>
 
 <script>
-    const links = document.querySelectorAll('a[data-classe]');
-    
-    links.forEach(link => {
-        link.addEventListener('click', function(e) {
-            e.preventDefault();
-            const classeId = this.getAttribute('data-classe');
-            const url = 'eleves/' + classeId;
+const links = document.querySelectorAll('a[data-classe]');
 
-            fetch(url)
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Erreur réseau: ' + response.statusText);
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    const listeEleves = document.getElementById('listeEleves');
-                    listeEleves.innerHTML = data.eleves.map(eleve => `
-                        <div>
-                            <span>${eleve.nom}</span>
+links.forEach(link => {
+    link.addEventListener('click', function(e) {
+        e.preventDefault();
+        
+        const classeId = this.getAttribute('data-classe');
+        const classe = classeId.replaceAll(" ", "");
+        const url = `/notes/eleves/${classe}`;
+
+        fetch(url)
+            .then(response => response.json())
+            .then(data => {
+                const listeEleves = document.getElementById('listeEleves');
+
+                listeEleves.innerHTML = data.eleves
+                    .map(eleve => `
+                        <div class="eleve-item">
+                            <strong>${eleve.nom}</strong>
                             <form action="${eleve.formAction}" method="get">
                                 <select name="trimestre" class="form-control" onchange="this.form.submit()">
                                     <option value="">Imprimer</option>
@@ -119,13 +118,13 @@ block body %}
                                 </select>
                             </form>
                         </div>
-                    `).join('');
-                })
-                .catch(error => {
-                    console.error('Erreur lors de la récupération des élèves:', error);
-                });
-        });
+                    `)
+                    .join('');
+            })
+            .catch(error => console.error('Erreur:', error));
     });
+});
+
 </script>
 
 

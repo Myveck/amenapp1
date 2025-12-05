@@ -5,12 +5,14 @@ namespace App\Controller;
 use App\Entity\Notes;
 use App\Repository\ClassesRepository;
 use App\Repository\EcolesRepository;
+use App\Repository\InscriptionRepository;
 use App\Repository\NotesRepository;
 use App\Service\BulletinManager2;
 use App\Service\ExaminationManager;
 use App\Service\FicheExcelManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -165,4 +167,31 @@ final class NotesController extends AbstractController
         return $response;
             
     }
+
+    #[Route('/eleves/{classeId}', name: 'app_notes_eleves_classe')]
+    public function elevesParClasse(int $classeId, InscriptionRepository $inscriptionRepo): JsonResponse
+    {
+        $inscriptions = $inscriptionRepo->findBy(['classe' => $classeId]);
+
+        $eleves = [];
+
+        foreach($inscriptions as $inscription) {
+            $eleve[] = $inscription->getEleve();
+        }
+
+        $data = [];
+
+        foreach ($eleves as $eleve) {
+            $data[] = [
+                'id' => $eleve->getId(),
+                'nom' => $eleve->getNom().' '.$eleve->getPrenom(),
+                'formAction' => $this->generateUrl('app_notes_bulletins_trimestre', [
+                    'eleveId' => $eleve->getId()
+                ])
+            ];
+        }
+
+        return new JsonResponse(['eleves' => $data]);
+    }
+
 }

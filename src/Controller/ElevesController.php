@@ -246,4 +246,40 @@ final class ElevesController extends AbstractController
         $this->addFlash("success", "L'élève a été supprimé avec succès");
         return $this->redirectToRoute('app_eleves_index', ["trie" => $elefe->getClasseActuelle()->getId()], Response::HTTP_SEE_OTHER);
     }
+
+    #[Route('/api/classes/{id}/eleves', name: 'api_classe_eleves')]
+public function getElevesByClasse(
+    int $id,
+    ClassesRepository $classeRepo,
+    InscriptionRepository $inscriptionRepo
+): Response {
+    $classe = $classeRepo->find($id);
+
+    if (!$classe) {
+        return $this->json(['error' => 'Classe introuvable'], 404);
+    }
+
+    $inscriptions = $inscriptionRepo->findBy(['classe' => $classe]);
+    $eleves = [];
+
+    foreach ($inscriptions as $inscription) {
+        $eleves[] = $inscription->getEleve();
+    }
+
+    // Construction d'un JSON propre
+    $data = [];
+    foreach ($eleves as $eleve) {
+        $data[] = [
+            'id' => $eleve->getId(),
+            'nom' => $eleve->getNom(),
+            'formAction' => '/notes/bulletins/trimestre/' . $eleve->getId(), // adapte si nécessaire
+        ];
+    }
+
+    return $this->json([
+        'classe' => $classe->getNom(),
+        'eleves' => $data
+    ]);
+}
+
 }
