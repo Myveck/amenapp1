@@ -29,13 +29,43 @@ class ExaminationManager
         private MatieresRepository $matieresRepository,
     ){}
 
+    public function saveNote($examinationId, $evaluation, $eleveId, $noteValue)
+    {
+        $ev = strtoupper($evaluation);
+        $evaluation = $this->evaluationRepository->findOneBy(["nom" => $ev]);
+        $examination = $this->examinationsRepository->find($examinationId);
+
+        $existing = $this->notesRepository->findOneBy([
+            'examinations' => $examinationId,
+            'evaluation' => $evaluation,
+            'eleve' => $eleveId,
+        ]);
+
+        if ($existing) {
+            $existing->setNote($noteValue);
+            $this->entityManager->flush();
+            return;
+        }
+
+        $note = new Notes();
+        $note->setExaminations($examination);
+        $note->setEvaluation($evaluation);
+        $note->setEleveId($this->inscriptionRepo->findEleveActif($eleveId));
+        $note->setNote($noteValue);
+        $note->setDateEvaluation($examination->getDateExamination());
+
+        $this->entityManager->persist($note);
+        $this->entityManager->flush();
+    }
+
+
     public function createExamination($examination, $d1, $d2, $mi, $dh)
     {
         $erreur = [];
         $allNotes = [$d1, $d2, $mi, $dh];
         $examination = $this->examinationsRepository->find($examination);
 
-        $i = 33; // correspond à l'ID d'évaluation (1 => D1, 2 => D2, etc.)
+        $i = 1; // correspond à l'ID d'évaluation (1 => D1, 2 => D2, etc.)
 
         foreach ($allNotes as $notes) {
             if (!$notes) {

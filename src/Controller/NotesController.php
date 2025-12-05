@@ -46,22 +46,27 @@ final class NotesController extends AbstractController
     }
 
 
-    #[Route('/create/exam/{examination}', name: 'app_notes_create_exam', methods: ['GET'])]
-    public function saveNotes(Request $request, ExaminationManager $examinationManager) 
-    {
-        $d1 = $request->get('D1');
-        $d2 = $request->get('D2');
-        $dh = $request->get('DH');
-        $mi = $request->get('MI');
-        $examinationId = $request->get('examination');
+    #[Route('/create/exam/{examination}', name: 'app_notes_create_exam', methods: ['GET', 'POST'])]
+    public function createExam(
+    Request $request,
+    ExaminationManager $examManager,
+    int $examination
+    ) {
+        $submitted = $request->get('notes', []);
 
-        $result = $examinationManager->createExamination($examinationId, $d1, $d2, $mi, $dh,);
+        foreach ($submitted as $evaluation => $eleves) {
+            foreach ($eleves as $eleveId => $noteValue) {
+                if ($noteValue !== null && $noteValue !== "") {
+                    $examManager->saveNote($examination, $evaluation, $eleveId, $noteValue);
+                }
+            }
+        }
 
         $this->addFlash("success", "Les notes ont bien été enregistrées.");
-        return $this->redirectToRoute("app_examinations_index", [
-            'classe' => $result['classe'],
-        ]);
+
+        return $this->redirectToRoute("app_examinations_index");
     }
+
 
     #[Route('/{id}', name: 'app_notes_delete', methods: ['POST'])]
     public function delete(Request $request, Notes $note, EntityManagerInterface $entityManager): Response
