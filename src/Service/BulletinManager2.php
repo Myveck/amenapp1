@@ -165,6 +165,9 @@ class BulletinManager2
                 : null;
         }
 
+            // // J'ajoute les moyennes fortes et faibles des matières
+            // $resultsParMatiere = $this->getMatierResults($results);
+
         // J'ajoute les rangs des élèves dans le tableau des résultats
         $results = $this->orderByRank($results);
 
@@ -184,6 +187,32 @@ class BulletinManager2
             $results[$key]['rang'] = $i;
             $i++;
         }
+
+        return $results;
+    }
+
+    public function getMatierResults(array $results)
+    {
+        $moyForte = [];
+        $moyFaible = [];
+        $resultsParMatiere = [];
+
+        foreach ($results as $result) {
+            foreach ($result['matieres'] as $matiereId => $matiereRes) {
+                $resultsParMatiere[$matiereId][] = $matiereRes['moyenne'];
+            }
+        }
+
+        foreach ($resultsParMatiere as $key => $resultParMatiere) {
+            arsort($resultParMatiere);
+            $moyForte[$key] = $resultParMatiere[0];
+            $moyFaible[$key] = end($resultParMatiere);
+        }
+
+        $results = [
+            'moyFaible' => $moyFaible,
+            'moyForte' => $moyForte,
+        ];
 
         return $results;
     }

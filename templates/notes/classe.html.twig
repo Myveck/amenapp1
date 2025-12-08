@@ -11,6 +11,7 @@
     {# Construire le tableau notes directement ici #}
     {% set notes = [] %}
     {% for matiereData in eleveData.matieres %}
+        {% set matiereId = matiereData.matiere.id %}
         {% set notes = notes|merge([{
             'matiere': matiereData.matiere.nom,
             'coef': matiereData.coefficient,
@@ -21,8 +22,8 @@
             'moyenne': matiereData.moyenne,
             'totalCoef': matiereData.moyenne is defined and matiereData.moyenne is not same as(null) ? (matiereData.moyenne * matiereData.coefficient) : '',
             'rang': '',
-            'moyFort': '',
-            'moyFaible': '',
+            'moyFort': resultatsMatieres.moyForte[matiereId] ? resultatsMatieres.moyForte[matiereId] : '',
+            'moyFaible': resultatsMatieres.moyFaible[matiereId] ? resultatsMatieres.moyFaible[matiereId] : '',
             'appreciation': matiereData.moyenne is defined and matiereData.moyenne is not same as(null) ? (
                 matiereData.moyenne >= 16 ? 'Très bien' :
                 (matiereData.moyenne >= 14 ? 'Bien' :

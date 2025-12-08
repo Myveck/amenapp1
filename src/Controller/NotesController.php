@@ -93,6 +93,10 @@ final class NotesController extends AbstractController
             $secondTrimestre = $bulletinManager->calculateTrimestre($classeId, 2)[0];
         }
 
+        $resultatsMatieres = $bulletinManager->getMatierResults($resultats[0]);
+
+        // dd($resultatsMatieres);
+
         $etablissement = [
             'nom' => 'CPEG AMEN',
             'adresse' => '07 BP 155 Cotonou',
@@ -107,6 +111,7 @@ final class NotesController extends AbstractController
             'firstTrimestre' => $firstTrimestre,
             'secondTrimestre' => $secondTrimestre,
             'etablissement' => $etablissement,
+            'resultatsMatieres' => $resultatsMatieres,
         ];
     }
 
@@ -128,6 +133,7 @@ final class NotesController extends AbstractController
             'firstTrimestre' => $data['firstTrimestre'],
             'secondTrimestre'=> $data['secondTrimestre'],
             'trimestre'      => $trimestre,
+            'resultatsMatieres' => $data['resultatsMatieres'],
         ]);
     }
 
@@ -155,6 +161,7 @@ final class NotesController extends AbstractController
             'etablissement'  => $data['etablissement'],
             'firstTrimestre' => $data['firstTrimestre'],
             'secondTrimestre'=> $data['secondTrimestre'],
+            'resultatsMatieres' => $data['resultatsMatieres'],
             'trimestre'      => $trimestre,
         ]);
     }
