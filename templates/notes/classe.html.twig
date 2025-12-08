@@ -21,7 +21,7 @@
             'MI': matiereData.notes.MI is defined ? matiereData.notes.MI : '',
             'moyenne': matiereData.moyenne,
             'totalCoef': matiereData.moyenne is defined and matiereData.moyenne is not same as(null) ? (matiereData.moyenne * matiereData.coefficient) : '',
-            'rang': '',
+            'rang': matieresRanking[matiereId][eleve.id].rang ? matieresRanking[matiereId][eleve.id].rang : '',
             'moyFort': resultatsMatieres.moyForte[matiereId] ? resultatsMatieres.moyForte[matiereId] : '',
             'moyFaible': resultatsMatieres.moyFaible[matiereId] ? resultatsMatieres.moyFaible[matiereId] : '',
             'appreciation': matiereData.moyenne is defined and matiereData.moyenne is not same as(null) ? (

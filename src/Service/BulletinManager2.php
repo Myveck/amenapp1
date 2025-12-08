@@ -165,9 +165,6 @@ class BulletinManager2
                 : null;
         }
 
-            // // J'ajoute les moyennes fortes et faibles des matières
-            // $resultsParMatiere = $this->getMatierResults($results);
-
         // J'ajoute les rangs des élèves dans le tableau des résultats
         $results = $this->orderByRank($results);
 
@@ -205,7 +202,7 @@ class BulletinManager2
 
         foreach ($resultsParMatiere as $key => $resultParMatiere) {
             arsort($resultParMatiere);
-            $moyForte[$key] = $resultParMatiere[0];
+            $moyForte[$key] = $resultParMatiere[array_key_first($resultParMatiere)];
             $moyFaible[$key] = end($resultParMatiere);
         }
 
@@ -216,6 +213,51 @@ class BulletinManager2
 
         return $results;
     }
+
+    public function getMatierRankings(array $results)
+    {
+        $classementParMatiere = [];
+
+        // 1. Regrouper les moyennes par matière et par élève
+        foreach ($results as $eleveId => $result) {
+            foreach ($result['matieres'] as $matiereId => $matiereRes) {
+                $classementParMatiere[$matiereId][$eleveId] = $matiereRes['moyenne'];
+            }
+        }
+
+        // 2. Classer les élèves par matière
+        $rangsFinal = [];
+
+        foreach ($classementParMatiere as $matiereId => $notes) {
+            // Trier par ordre décroissant (meilleure moyenne en premier)
+            arsort($notes);
+            
+            // dd($notes);
+
+            $rangs = [];
+            $rang = 1;
+            $lastMoyenne = null;
+            $offset = 0;
+
+            foreach ($notes as $eleveId => $moyenne) {
+
+                // Vérifier ex æquo
+                if ($moyenne !== $lastMoyenne) {
+                    $rang += $offset;
+                    $offset = 1;
+                }
+
+                $rangsFinal[$matiereId][$eleveId] = [
+                    'rang' => $rang,
+                ];
+
+                $lastMoyenne = $moyenne;
+            }
+        }
+
+        return $rangsFinal;
+    }
+
 
     public function calculateBilan(array $results): array
     {

@@ -94,6 +94,9 @@ final class NotesController extends AbstractController
         }
 
         $resultatsMatieres = $bulletinManager->getMatierResults($resultats[0]);
+        $matieresRanking = $bulletinManager->getMatierRankings($resultats[0]);
+
+        // dd($matieresRanking);
 
         // dd($resultatsMatieres);
 
@@ -112,6 +115,7 @@ final class NotesController extends AbstractController
             'secondTrimestre' => $secondTrimestre,
             'etablissement' => $etablissement,
             'resultatsMatieres' => $resultatsMatieres,
+            'matieresRanking' => $matieresRanking,
         ];
     }
 
@@ -134,6 +138,7 @@ final class NotesController extends AbstractController
             'secondTrimestre'=> $data['secondTrimestre'],
             'trimestre'      => $trimestre,
             'resultatsMatieres' => $data['resultatsMatieres'],
+            'matieresRanking' => $data['matieresRanking'],
         ]);
     }
 
@@ -162,6 +167,7 @@ final class NotesController extends AbstractController
             'firstTrimestre' => $data['firstTrimestre'],
             'secondTrimestre'=> $data['secondTrimestre'],
             'resultatsMatieres' => $data['resultatsMatieres'],
+            'matieresRanking' => $data['matieresRanking'],
             'trimestre'      => $trimestre,
         ]);
     }
