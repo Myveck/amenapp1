@@ -11,6 +11,7 @@ use App\Repository\EvaluationsRepository;
 use App\Repository\ExaminationsRepository;
 use App\Repository\InscriptionRepository;
 use App\Repository\NotesRepository;
+use Doctrine\ORM\EntityManagerInterface;
 
 class BulletinManager2
 {
@@ -21,6 +22,7 @@ class BulletinManager2
         private EvaluationsRepository $evaluationsRepository,
         private ClassesRepository $classesRepository,
         private InscriptionRepository $inscriptionRepository,
+        private EntityManagerInterface $em,
     ) {}
 
     /**
@@ -47,7 +49,7 @@ class BulletinManager2
      *              'coefficient' => 2
      *          ],
      *      ],
-     *      'moyenneGenerale' => 14.1
+     *      'moyenneGenerale' => 14.1,
      *   ],
      * ]
      */
@@ -284,6 +286,40 @@ class BulletinManager2
         }
 
         return 'Redouble';
+    }
+
+    public function setAnnualAvg(array $results, int $classeId)
+    {
+        $classe = $this->classesRepository->find($classeId); 
+        $inscriptions = $this->inscriptionRepository->findBy([
+            'classe' => $classe,
+            'actif' => true,
+        ]);
+
+        $annualSum = [];
+        $trimestreCount = count($results);
+
+        // Sum trimestrial averages per student
+        foreach ($results as $trimestreData) {
+            foreach ($trimestreData as $eleveId => $eleveData) {
+                $annualSum[$eleveId] = ($annualSum[$eleveId] ?? 0) + $eleveData['moyenneGenerale'];
+            }
+        }
+
+        // Compute annual averages
+        $annualAvg = [];
+        foreach ($annualSum as $eleveId => $total) {
+            $annualAvg[$eleveId] = round($total / $trimestreCount, 3);
+        }
+
+        // Update inscriptions
+        foreach ($inscriptions as $inscription) {
+            $eleveId = $inscription->getEleve()->getId();
+            $inscription->setMoyenneAnnuelle($annualAvg[$eleveId] ?? null);
+            $this->em->persist($inscription);
+        }
+
+        $this->em->flush();
     }
 
 

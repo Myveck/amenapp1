@@ -61,6 +61,9 @@ class AnneeManager
 
         // Désactiver l’année actuelle
         $anneeActuelle->setActif(false);
+        $this->em->persist($anneeActuelle);
+
+        $this->em->flush();
 
         // 3️⃣ Dupliquer les classes existantes
         $classesActuelles = $this->classeRepo->findBy(['annee_scolaire' => $anneeActuelle]);
