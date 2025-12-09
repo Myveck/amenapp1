@@ -15,7 +15,7 @@
 <div class="form-group">
   <label for="coefficient">Coefficient</label>
   <select class="form-control" id="coefficient" name="coefficient">
-    {% for i in 1..5 %}
+    {% for i in 1..10 %}
       <option value="{{ i }}" {% if selectedCoef == i %}selected{% endif %}>
         {{ i }}
       </option>
