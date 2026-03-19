@@ -99,10 +99,11 @@ final class MatieresController extends AbstractController
     }
 
     #[Route('/{id}/edit', name: 'app_matieres_edit', methods: ['GET', 'POST'])]
-    public function edit(Request $request, Matieres $matiere, EntityManagerInterface $entityManager, ClassesRepository $classesRepository, ClassesMatieresRepository $classesMatieresRepository): Response
+    public function edit(Request $request, Matieres $matiere, EntityManagerInterface $entityManager, ClassesRepository $classesRepository, ClassesMatieresRepository $classesMatieresRepository, AnneeScolaireRepository $anneeSR): Response
     {
+        $anneeScolaire = $anneeSR->findOneBy(['actif' => 1]);
 
-        $classeMatiere = $classesMatieresRepository->findOneBy(['matiere' => $matiere]);
+        $classeMatiere = $classesMatieresRepository->findOneBy(['matiere' => $matiere, 'annee_scolaire' => $anneeScolaire]);
 
         $form = $this->createForm(MatieresType::class, $matiere);
         $form->handleRequest($request);
@@ -110,8 +111,8 @@ final class MatieresController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
 
             // Working on classeMatiere
-            $classeMatiere->setClasse($classesRepository->findOneBy(['id' => $request->get("classe")]));
-            $classeMatiere->setCoefficient($request->get("coefficient"));
+            // $classeMatiere->setClasse($classesRepository->findOneBy(['id' => $request->get("classe")]));
+            $classeMatiere->setCoefficient((int)$request->get("coefficient"));
             $classeMatiere->setMatiere($matiere);
 
             $entityManager->persist($classeMatiere);
