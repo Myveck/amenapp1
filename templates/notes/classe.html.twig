@@ -63,8 +63,9 @@
                 avertissement: false,
                 blame: false
             },
-            firstTrimestre: firstTrimestre,
-            secondTrimestre: secondTrimestre,
+            firstTrimestre: firstTrimestre[eleveId],
+            secondTrimestre: secondTrimestre[eleveId],
+            moyenneAnnuelle: ((firstTrimestre[eleveId]["moyenneGenerale"] + secondTrimestre[eleveId]["moyenneGenerale"] + bilan.moyenneGenerale) / 3) | round(2, 'floor'),
         } only %}
     </div>
 {% endfor %}
